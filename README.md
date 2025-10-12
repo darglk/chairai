@@ -1,94 +1,86 @@
-# 10x Astro Starter
+# ChairAI
 
-A modern, opinionated starter template for building fast, accessible, and AI-friendly web applications.
+## Project Description
+
+ChairAI is an innovative web platform that connects creative furniture ideas with artisanal craftsmanship. It addresses the difficulty of visualizing unique furniture concepts and the challenge of finding a qualified artisan to bring them to life.
+
+Using an AI image generator (text-to-image), users can create visualizations of their dream furniture. Based on the generated image, they can then create a listing on a marketplace where verified artisans can submit their bids. ChairAI aims to simplify and structure the process from idea to finalization, building trust and transparency between clients and artisans.
 
 ## Tech Stack
 
-- [Astro](https://astro.build/) v5.5.5 - Modern web framework for building fast, content-focused websites
-- [React](https://react.dev/) v19.0.0 - UI library for building interactive components
-- [TypeScript](https://www.typescriptlang.org/) v5 - Type-safe JavaScript
-- [Tailwind CSS](https://tailwindcss.com/) v4.0.17 - Utility-first CSS framework
+- **Framework:** [Astro 5](https://astro.build/)
+- **UI Library:** [React 19](https://react.dev/)
+- **Language:** [TypeScript 5](https://www.typescriptlang.org/)
+- **Styling:** [Tailwind CSS 4](https://tailwindcss.com/)
+- **UI Components:** [Shadcn/ui](https://ui.shadcn.com/)
+- **Backend & DB:** [Supabase](https://supabase.com/)
+- **Node.js Version:** 22.14.0
 
-## Prerequisites
+## Getting Started Locally
 
-- Node.js v22.14.0 (as specified in `.nvmrc`)
-- npm (comes with Node.js)
+### Prerequisites
 
-## Getting Started
+- Node.js version `22.14.0`. We recommend using a version manager like `nvm`.
 
-1. Clone the repository:
+### Installation
 
-```bash
-git clone https://github.com/przeprogramowani/10x-astro-starter.git
-cd 10x-astro-starter
-```
+1.  Clone the repository:
+    ```sh
+    git clone https://github.com/your-username/chairai.git
+    ```
+2.  Navigate to the project directory:
+    ```sh
+    cd chairai
+    ```
+3.  Install the dependencies:
+    ```sh
+    npm install
+    ```
 
-2. Install dependencies:
+### Running the Development Server
 
-```bash
-npm install
-```
+To start the local development server, run the following command:
 
-3. Run the development server:
-
-```bash
+```sh
 npm run dev
 ```
 
-4. Build for production:
-
-```bash
-npm run build
-```
+Open your browser and navigate to `http://localhost:4321` to see the application.
 
 ## Available Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues
+- `npm run dev`: Starts the development server.
+- `npm run build`: Builds the application for production.
+- `npm run preview`: Serves the production build locally for preview.
+- `npm run lint`: Lints the codebase for errors.
+- `npm run lint:fix`: Automatically fixes linting errors.
+- `npm run format`: Formats the code using Prettier.
 
-## Project Structure
+## Project Scope (MVP)
 
-```md
-.
-├── src/
-│   ├── layouts/    # Astro layouts
-│   ├── pages/      # Astro pages
-│   │   └── api/    # API endpoints
-│   ├── components/ # UI components (Astro & React)
-│   └── assets/     # Static assets
-├── public/         # Public assets
-```
+### Included Features:
 
-## AI Development Support
+-   **Full User Flow:** From AI image generation to accepting an artisan's offer.
+-   **User Authentication:** Separate registration and profiles for "Client" and "Artisan" roles.
+-   **AI Image Generation:** A limit of 10 free generations per client account.
+-   **Marketplace:** Artisans can browse and bid on open projects.
+-   **Communication:** An external chat API is used for communication after an offer is accepted.
+-   **Rating System:** A two-way rating and review system is activated upon project completion.
+-   **Project History:** Users can track their prompt history, generated images, and accepted quotes.
 
-This project is configured with AI development tools to enhance the development experience, providing guidelines for:
+### Excluded Features:
 
-- Project structure
-- Coding practices
-- Frontend development
-- Styling with Tailwind
-- Accessibility best practices
-- Astro and React guidelines
+-   Integrated payment processing.
+-   Monetization features (e.g., commissions, paid plans).
+-   Advanced image editing tools.
+-   A native, built-in chat system.
+-   Advanced verification for artisan portfolios.
+-   Native mobile applications.
 
-### Cursor IDE
+## Project Status
 
-The project includes AI rules in `.cursor/rules/` directory that help Cursor IDE understand the project structure and provide better code suggestions.
-
-### GitHub Copilot
-
-AI instructions for GitHub Copilot are available in `.github/copilot-instructions.md`
-
-### Windsurf
-
-The `.windsurfrules` file contains AI configuration for Windsurf.
-
-## Contributing
-
-Please follow the AI guidelines and coding practices defined in the AI configuration files when contributing to this project.
+This project is currently in the **MVP development phase**.
 
 ## License
 
-MIT
+This project is licensed under the MIT License. See the `LICENSE` file for more details.
