@@ -90,6 +90,24 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
   - Po pomyślnej rejestracji jestem zalogowany i przekierowany na stronę główną.
 
 - ID: US-002
+- Tytuł: Logowanie użytkownika
+- Opis: Jako zarejestrowany użytkownik (Klient lub Rzemieślnik), chcę móc zalogować się na swoje konto, używając adresu e-mail i hasła, aby uzyskać dostęp do spersonalizowanych funkcji platformy.
+- Kryteria akceptacji:
+  - Strona logowania zawiera pola "E-mail" i "Hasło" oraz przycisk "Zaloguj".
+  - Po wprowadzeniu poprawnych danych uwierzytelniających, użytkownik zostaje zalogowany i przekierowany do swojego panelu.
+  - W przypadku wprowadzenia nieprawidłowych danych, pod formularzem wyświetlany jest komunikat o błędzie "Nieprawidłowy e-mail lub hasło".
+  - Sesja użytkownika jest utrzymywana po zamknięciu i ponownym otwarciu przeglądarki.
+
+- ID: US-003
+- Tytuł: Wylogowywanie użytkownika
+- Opis: Jako zalogowany użytkownik, chcę mieć możliwość bezpiecznego wylogowania się z mojego konta, aby chronić swoją prywatność.
+- Kryteria akceptacji:
+  - W interfejsie użytkownika (np. w menu profilowym) znajduje się przycisk "Wyloguj".
+  - Po kliknięciu przycisku "Wyloguj", sesja użytkownika zostaje zakończona.
+  - Użytkownik zostaje przekierowany na stronę główną lub stronę logowania.
+  - Po wylogowaniu, dostęp do chronionych stron (np. panelu użytkownika) jest niemożliwy bez ponownego zalogowania.
+
+- ID: US-004
 - Tytuł: Generowanie obrazu mebla
 - Opis: Jako klient, chcę móc wpisać tekstowy opis mebla i wygenerować obraz AI, aby zwizualizować mój pomysł.
 - Kryteria akceptacji:
@@ -98,7 +116,7 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
   - System śledzi liczbę dokonanych generacji i nie pozwala przekroczyć 10.
   - Mogę zapisać wygenerowany obraz w mojej prywatnej galerii.
 
-- ID: US-003
+- ID: US-005
 - Tytuł: Tworzenie projektu na podstawie obrazu
 - Opis: Jako klient, chcę móc wybrać obraz z mojej galerii i na jego podstawie stworzyć nowy projekt (ogłoszenie), wypełniając proste pola, aby rzemieślnicy mogli złożyć oferty.
 - Kryteria akceptacji:
@@ -106,7 +124,7 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
   - Formularz tworzenia projektu zawiera obowiązkowe pola wyboru: Materiał, Rozmiar, Budżet.
   - Po opublikowaniu, projekt staje się widoczny dla rzemieślników na marketplace.
 
-- ID: US-004
+- ID: US-006
 - Tytuł: Przeglądanie i akceptacja propozycji
 - Opis: Jako klient, chcę móc przeglądać propozycje złożone przez rzemieślników do mojego projektu, porównać je i zaakceptować najlepszą.
 - Kryteria akceptacji:
@@ -115,7 +133,7 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
   - Mogę kliknąć na profil rzemieślnika, aby zobaczyć jego portfolio i oceny.
   - Po kliknięciu "Akceptuj Propozycję", inne propozycje stają się nieaktywne, a status projektu zmienia się na "W realizacji".
 
-- ID: US-005
+- ID: US-007
 - Tytuł: Komunikacja z rzemieślnikiem
 - Opis: Jako klient, po zaakceptowaniu propozycji, chcę mieć możliwość komunikacji z rzemieślnikiem poprzez czat, aby omówić szczegóły.
 - Kryteria akceptacji:
@@ -123,7 +141,7 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
   - Mogę wysyłać i odbierać wiadomości tekstowe od rzemieślnika.
   - Czat jest dostępny tylko dla zaakceptowanej pary klient-rzemieślnik.
 
-- ID: US-006
+- ID: US-008
 - Tytuł: Zakończenie i ocena projektu
 - Opis: Jako klient, po zakończeniu realizacji mebla, chcę móc oznaczyć projekt jako zakończony i wystawić ocenę rzemieślnikowi.
 - Kryteria akceptacji:
@@ -133,7 +151,7 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
 
 ### Rzemieślnik
 
-- ID: US-007
+- ID: US-009
 - Tytuł: Rejestracja i uzupełnienie profilu rzemieślnika
 - Opis: Jako rzemieślnik, chcę móc zarejestrować konto i uzupełnić swój profil o dane firmy, specjalizacje i portfolio, aby zbudować zaufanie klientów.
 - Kryteria akceptacji:
@@ -142,7 +160,7 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
   - Mogę wgrać minimum 5 zdjęć moich poprzednich prac do portfolio.
   - Profil nie będzie publiczny, dopóki nie uzupełnię wszystkich wymaganych pól.
 
-- ID: US-008
+- ID: US-010
 - Tytuł: Przeglądanie rynku projektów
 - Opis: Jako rzemieślnik, chcę móc przeglądać listę dostępnych projektów, aby znaleźć zlecenia pasujące do moich umiejętności.
 - Kryteria akceptacji:
@@ -150,7 +168,7 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
   - Widzę kluczowe informacje o projekcie: obraz, materiał, rozmiar, budżet.
   - Mogę filtrować projekty po kategorii lub materiale.
 
-- ID: US-009
+- ID: US-011
 - Tytuł: Składanie propozycji do projektu
 - Opis: Jako rzemieślnik, chcę móc złożyć szczegółową propozycję do wybranego projektu, zawierającą wycenę i wstępną specyfikację.
 - Kryteria akceptacji:
@@ -159,7 +177,7 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
   - Formularz wymaga załączenia pliku (np. PDF, JPG) ze szkicem lub specyfikacją.
   - Po wysłaniu propozycji, klient otrzymuje powiadomienie.
 
-- ID: US-010
+- ID: US-012
 - Tytuł: Oczekiwanie na akceptację i realizacja
 - Opis: Jako rzemieślnik, po złożeniu propozycji, chcę otrzymać powiadomienie, gdy klient ją zaakceptuje, a następnie móc się z nim komunikować w celu realizacji.
 - Kryteria akceptacji:
@@ -167,7 +185,7 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
   - Na stronie projektu aktywuje się czat do komunikacji z klientem.
   - Po wykonaniu mebla, mogę oznaczyć projekt jako "Zakończony".
 
-- ID: US-011
+- ID: US-013
 - Tytuł: Otrzymanie oceny
 - Opis: Jako rzemieślnik, po zakończonym projekcie, chcę móc wystawić ocenę klientowi i zobaczyć ocenę, którą on mi wystawił.
 - Kryteria akceptacji:
@@ -175,7 +193,6 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
   - Moja średnia ocen jest aktualizowana i widoczna na moim publicznym profilu.
 
 ## 6. Metryki sukcesu
-
 | Kryterium | Definicja | Sposób Mierzenia | Cel dla MVP (pierwsze 3 miesiące) |
 | :--- | :--- | :--- | :--- |
 | Główny KPI: Finalizacja Transakcji | Liczba projektów, dla których klient zaakceptował propozycję rzemieślnika. | Zliczanie liczby projektów, których status zmienił się na "W realizacji" ("Projekt Rozpoczęty"). | 20+ sfinalizowanych transakcji miesięcznie. |
