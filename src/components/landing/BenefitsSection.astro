@@ -1,0 +1,134 @@
+---
+const benefits = {
+  clients: [
+    {
+      iconPath: "M9 18h6M10 22h4M15 4V2M9 4V2M10 4h4a4 4 0 0 1 0 8h-4a4 4 0 0 1 0-8z",
+      title: "Nielimitowana kreatywność",
+      description:
+        "Przekształć dowolny pomysł w projekt mebla dzięki mocy sztucznej inteligencji.",
+    },
+    {
+      iconPath: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75",
+      title: "Dostęp do najlepszych rzemieślników",
+      description:
+        "Współpracuj z utalentowanymi stolarzami i tapicerami z całej Polski.",
+    },
+    {
+      iconPath: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM9 12l2 2 4-4",
+      title: "Transparentny proces",
+      description:
+        "Otrzymuj i porównuj oferty, śledź postępy i ciesz się bezpieczną realizacją.",
+    },
+  ],
+  artisans: [
+    {
+      iconPath: "M12 12h.01M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2M8 6H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-4",
+      title: "Nowe zlecenia bez wysiłku",
+      description:
+        "Otrzymuj zapytania o wycenę projektów dopasowanych do Twoich umiejętności.",
+    },
+    {
+      iconPath: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8",
+      title: "Precyzyjne specyfikacje",
+      description:
+        "Pracuj na podstawie szczegółowych projektów wygenerowanych przez AI.",
+    },
+    {
+      iconPath: "M22 7L13.5 15.5 8.5 10.5 2 17M16 7h6v6",
+      title: "Rozwijaj swój biznes",
+      description:
+        "Buduj portfolio, zdobywaj opinie i docieraj do nowych klientów.",
+    },
+  ],
+};
+---
+
+<section id="benefits" class="w-full py-16 md:py-24 lg:py-32 bg-muted">
+  <div class="container px-4 md:px-6 lg:px-8 mx-auto">
+    <div
+      class="grid items-start gap-12 lg:grid-cols-2 lg:gap-16 xl:gap-20"
+    >
+      <div class="flex flex-col justify-center space-y-6 lg:space-y-8">
+        <div class="space-y-3">
+          <h2
+            class="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl"
+          >
+            Dla Klientów
+          </h2>
+          <p class="max-w-[600px] text-muted-foreground text-base md:text-lg lg:text-xl">
+            Odkryj, jak łatwo możesz zrealizować swoje meblarskie marzenia.
+          </p>
+        </div>
+        <ul class="grid gap-6 sm:gap-8">
+          {
+            benefits.clients.map((benefit) => (
+              <li class="flex gap-4">
+                <div class="flex-shrink-0 mt-1">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="h-6 w-6 sm:h-7 sm:w-7 text-primary"
+                  >
+                    <path d={benefit.iconPath} />
+                  </svg>
+                </div>
+                <div class="space-y-1">
+                  <h3 class="text-lg sm:text-xl font-bold leading-tight">{benefit.title}</h3>
+                  <p class="text-sm sm:text-base text-muted-foreground leading-relaxed">{benefit.description}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div class="flex flex-col justify-center space-y-6 lg:space-y-8">
+        <div class="space-y-3">
+          <h2
+            class="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl"
+          >
+            Dla Rzemieślników
+          </h2>
+          <p class="max-w-[600px] text-muted-foreground text-base md:text-lg lg:text-xl">
+            Dołącz do platformy, która docenia Twoje umiejętności i dostarcza
+            nowych zleceń.
+          </p>
+        </div>
+        <ul class="grid gap-6 sm:gap-8">
+          {
+            benefits.artisans.map((benefit) => (
+              <li class="flex gap-4">
+                <div class="flex-shrink-0 mt-1">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="h-6 w-6 sm:h-7 sm:w-7 text-primary"
+                  >
+                    <path d={benefit.iconPath} />
+                  </svg>
+                </div>
+                <div class="space-y-1">
+                  <h3 class="text-lg sm:text-xl font-bold leading-tight">{benefit.title}</h3>
+                  <p class="text-sm sm:text-base text-muted-foreground leading-relaxed">{benefit.description}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>

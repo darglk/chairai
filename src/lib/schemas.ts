@@ -89,3 +89,30 @@ export const PasswordResetSchema = z
   });
 
 export type PasswordResetInput = z.infer<typeof PasswordResetSchema>;
+
+// ============================================================================
+// Generated Images Schemas
+// ============================================================================
+
+/**
+ * Schema for generating image with AI
+ */
+export const GenerateImageSchema = z.object({
+  prompt: z
+    .string({ required_error: "Prompt jest wymagany" })
+    .min(10, "Prompt musi mieć co najmniej 10 znaków")
+    .max(500, "Prompt nie może przekraczać 500 znaków"),
+});
+
+export type GenerateImageInput = z.infer<typeof GenerateImageSchema>;
+
+/**
+ * Schema for listing generated images query parameters
+ */
+export const GeneratedImagesQuerySchema = z.object({
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(100).default(20),
+  unused_only: z.coerce.boolean().default(false),
+});
+
+export type GeneratedImagesQuery = z.infer<typeof GeneratedImagesQuerySchema>;

@@ -1,74 +1,40 @@
 ---
-import "../styles/global.css";
+import { ViewTransitions } from "astro:transitions";
+import Header from "@/components/layout/Header.astro";
+import Footer from "@/components/layout/Footer.astro";
 
 interface Props {
-  title?: string;
+  title: string;
 }
 
-const { title = "ChairAI" } = Astro.props;
-
-// Pobierz dane użytkownika z Astro.locals (będzie dostępne po implementacji middleware)
-const user = Astro.locals.user;
+const { title } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="pl">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="description" content="ChairAI application" />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <ViewTransitions />
   </head>
-  <body>
-    <header
-      class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
-    >
-      <nav class="container mx-auto flex h-16 items-center justify-between px-4">
-        <div class="flex items-center gap-6">
-          <a
-            href="/"
-            class="text-xl font-bold text-foreground hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
-          >
-            ChairAI
-          </a>
-        </div>
-
-        <div class="flex items-center gap-4">
-          {
-            !user ? (
-              <>
-                <a
-                  href="/login"
-                  class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  Zaloguj się
-                </a>
-                <a
-                  href="/register"
-                  class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-all bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-9 px-4 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  Zarejestruj się
-                </a>
-              </>
-            ) : (
-              <form method="POST" action="/api/auth/logout">
-                <button
-                  type="submit"
-                  class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  Wyloguj
-                </button>
-              </form>
-            )
-          }
-        </div>
-      </nav>
-    </header>
-
-    <slot />
+  <body class="min-h-screen bg-background font-sans antialiased">
+    <div class="relative flex min-h-screen flex-col bg-background">
+      <Header />
+      <main class="flex-1">
+        <slot />
+      </main>
+      <Footer />
+    </div>
   </body>
 </html>
+<style is:global>
+  @import "../styles/global.css";
+</style>
+
 
 <style>
   html,

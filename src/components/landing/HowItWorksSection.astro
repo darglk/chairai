@@ -1,0 +1,68 @@
+---
+const steps = [
+  {
+    iconPath: "M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76ZM12 8v8M8 12h8",
+    title: "1. Opisz i wygeneruj",
+    description: "Użyj naszego narzędzia AI, aby opisać swój wymarzony mebel. Nasz system stworzy dla Ciebie unikalny projekt.",
+  },
+  {
+    iconPath: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M12 18v-6M9 15h6",
+    title: "2. Opublikuj projekt",
+    description: "Opublikuj wygenerowany projekt na naszej platformie, określając szczegóły, takie jak wymiary i budżet.",
+  },
+  {
+    iconPath: "M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01",
+    title: "3. Wybierz ofertę",
+    description: "Otrzymuj oferty od zweryfikowanych rzemieślników. Wybierz najlepszą i rozpocznij realizację swojego projektu.",
+  },
+];
+---
+
+<section id="how-it-works" class="w-full py-16 md:py-24 lg:py-32">
+  <div class="container px-4 md:px-6 lg:px-8 mx-auto">
+    <div
+      class="flex flex-col items-center justify-center space-y-4 sm:space-y-6 text-center mb-12 md:mb-16"
+    >
+      <div class="space-y-3">
+        <h2 class="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+          Jak to działa?
+        </h2>
+        <p
+          class="max-w-[900px] text-muted-foreground text-base md:text-lg lg:text-xl"
+        >
+          W trzech prostych krokach od pomysłu do gotowego mebla.
+        </p>
+      </div>
+    </div>
+    <div
+      class="mx-auto grid max-w-6xl items-start gap-8 sm:gap-10 md:gap-12 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+    >
+      {
+        steps.map((step, index) => (
+          <div class="flex flex-col items-center text-center space-y-4 p-6 rounded-lg hover:bg-muted/50 transition-colors">
+            <div class="relative">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="h-12 w-12 sm:h-14 sm:w-14 text-primary"
+              >
+                <path d={step.iconPath} />
+              </svg>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold leading-tight">{step.title}</h3>
+            <p class="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-sm">
+              {step.description}
+            </p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
