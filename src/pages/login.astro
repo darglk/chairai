@@ -18,14 +18,16 @@ const error = Astro.url.searchParams.get("error");
         <p class="text-muted-foreground">Wprowadź swoje dane, aby zalogować się do konta</p>
       </div>
 
-      {error && (
-        <div
-          class="p-4 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md"
-          role="alert"
-        >
-          {decodeURIComponent(error)}
-        </div>
-      )}
+      {
+        error && (
+          <div
+            class="p-4 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md"
+            role="alert"
+          >
+            {decodeURIComponent(error)}
+          </div>
+        )
+      }
 
       <div class="bg-card p-8 rounded-lg border shadow-sm">
         <LoginForm client:load />

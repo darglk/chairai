@@ -55,6 +55,39 @@ Open your browser and navigate to `http://localhost:4321` to see the application
 - `npm run lint`: Lints the codebase for errors.
 - `npm run lint:fix`: Automatically fixes linting errors.
 - `npm run format`: Formats the code using Prettier.
+- `npm test`: Runs unit and integration tests in watch mode.
+- `npm run test:run`: Runs tests once (CI mode).
+- `npm run test:ui`: Runs tests with interactive UI.
+- `npm run test:coverage`: Generates code coverage report.
+- `npm run test:e2e`: Runs E2E tests using Playwright.
+- `npm run test:e2e:ui`: Runs E2E tests in interactive UI mode.
+- `npm run test:e2e:debug`: Runs E2E tests in debug mode.
+- `npm run test:e2e:report`: Shows the test report.
+
+## Testing
+
+The project uses a comprehensive testing strategy:
+
+### Unit & Integration Tests (Vitest + React Testing Library)
+- Tests for utility functions, validation schemas, and API helpers
+- Integration tests for React components
+- See [tests/UNIT-INTEGRATION-TESTS.md](tests/UNIT-INTEGRATION-TESTS.md) for details
+
+Quick start:
+```sh
+npm test                  # Watch mode
+npm run test:ui          # Interactive UI
+npm run test:coverage    # Coverage report
+```
+
+### End-to-End Tests (Playwright)
+- Full user flow testing across multiple browsers
+- See [TESTING.md](TESTING.md) for details
+
+Quick start:
+```sh
+npm run test:e2e
+```
 
 ## Project Scope (MVP)
 
