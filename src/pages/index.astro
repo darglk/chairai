@@ -1,8 +1,26 @@
 ---
 import Welcome from "../components/Welcome.astro";
 import Layout from "../layouts/Layout.astro";
+
+// Get user from middleware
+const user = Astro.locals.user;
 ---
 
 <Layout>
+  {user && (
+    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+      <p class="text-green-800">
+        Jesteś zalogowany jako: <strong>{user.email}</strong>
+      </p>
+      <form action="/api/auth/logout" method="POST" class="mt-2">
+        <button 
+          type="submit" 
+          class="text-sm text-green-700 hover:text-green-900 underline"
+        >
+          Wyloguj się
+        </button>
+      </form>
+    </div>
+  )}
   <Welcome />
 </Layout>
