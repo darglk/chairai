@@ -4,7 +4,8 @@
 
 - [x] Zainstalowany Playwright i zależności
 - [x] Utworzona konfiguracja Playwright (`playwright.config.ts`)
-- [x] Zaimplementowane testy dla TC-US-001
+- [x] Zaimplementowane testy dla TC-US-001 (Rejestracja konta klienta)
+- [x] Zaimplementowane testy dla TC-US-002 (Logowanie użytkownika)
 - [x] Utworzone funkcje pomocnicze (`helpers.ts`)
 - [x] Dodane skrypty npm do `package.json`
 - [x] Utworzony workflow GitHub Actions
@@ -39,15 +40,16 @@ W `playwright.config.ts` możesz zwiększyć globalne timeouty jeśli aplikacja 
 
 Kolejność zgodna z `test-plan.md`:
 
-1. **TC-US-002**: Logowanie użytkownika
-2. **TC-US-003**: Wylogowywanie użytkownika  
-3. **TC-US-004**: Generowanie obrazu mebla
-4. **TC-US-005**: Tworzenie projektu na podstawie obrazu
-5. **TC-US-006**: Przeglądanie i akceptacja propozycji
-6. **TC-US-007**: Komunikacja z rzemieślnikiem
-7. **TC-US-008**: Zakończenie i ocena projektu
-8. **TC-US-009**: Rejestracja i uzupełnienie profilu rzemieślnika
-9. **TC-US-010**: Przeglądanie rynku projektów
+1. ~~**TC-US-001**: Rejestracja konta klienta~~ ✅
+2. ~~**TC-US-002**: Logowanie użytkownika~~ ✅
+3. **TC-US-003**: Wylogowywanie użytkownika  
+4. **TC-US-004**: Generowanie obrazu mebla
+5. **TC-US-005**: Tworzenie projektu na podstawie obrazu
+6. **TC-US-006**: Przeglądanie i akceptacja propozycji
+7. **TC-US-007**: Komunikacja z rzemieślnikiem
+8. **TC-US-008**: Zakończenie i ocena projektu
+9. **TC-US-009**: Rejestracja i uzupełnienie profilu rzemieślnika
+10. **TC-US-010**: Przeglądanie rynku projektów
 10. **TC-US-011**: Składanie propozycji do projektu
 11. **TC-US-012**: Oczekiwanie na akceptację i realizacja
 12. **TC-US-013**: Otrzymanie oceny
