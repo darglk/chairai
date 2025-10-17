@@ -6,6 +6,7 @@
 - [x] Utworzona konfiguracja Playwright (`playwright.config.ts`)
 - [x] Zaimplementowane testy dla TC-US-001 (Rejestracja konta klienta)
 - [x] Zaimplementowane testy dla TC-US-002 (Logowanie użytkownika)
+- [x] Zaimplementowane testy dla TC-US-003 (Wylogowywanie użytkownika)
 - [x] Utworzone funkcje pomocnicze (`helpers.ts`)
 - [x] Dodane skrypty npm do `package.json`
 - [x] Utworzony workflow GitHub Actions
@@ -42,7 +43,7 @@ Kolejność zgodna z `test-plan.md`:
 
 1. ~~**TC-US-001**: Rejestracja konta klienta~~ ✅
 2. ~~**TC-US-002**: Logowanie użytkownika~~ ✅
-3. **TC-US-003**: Wylogowywanie użytkownika  
+3. ~~**TC-US-003**: Wylogowywanie użytkownika~~ ✅
 4. **TC-US-004**: Generowanie obrazu mebla
 5. **TC-US-005**: Tworzenie projektu na podstawie obrazu
 6. **TC-US-006**: Przeglądanie i akceptacja propozycji
