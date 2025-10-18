@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import type { GeneratedImageDTO, GenerateImageResponseDTO } from "@/types";
+import { useState, useCallback, useEffect } from "react";
+import type { GeneratedImageDTO, GenerateImageResponseDTO, GeneratedImagesListResponseDTO } from "@/types";
 
 export interface ErrorMessage {
   code: string;
@@ -88,6 +88,26 @@ export const useImageGenerator = (): UseImageGeneratorReturn => {
     generatedImage: null,
     remainingGenerations: 10,
   });
+
+  // Fetch remaining generations on component mount
+  useEffect(() => {
+    const fetchRemainingGenerations = async () => {
+      try {
+        const response = await fetch("/api/images/generated?page=1&limit=1");
+        if (response.ok) {
+          const data: GeneratedImagesListResponseDTO = await response.json();
+          setState((prev) => ({
+            ...prev,
+            remainingGenerations: data.remaining_generations,
+          }));
+        }
+      } catch {
+        // Silently fail - keep default value of 10
+      }
+    };
+
+    fetchRemainingGenerations();
+  }, []);
 
   const generateImage = useCallback(
     async (prompt: string) => {

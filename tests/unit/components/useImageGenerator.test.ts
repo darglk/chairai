@@ -211,4 +211,44 @@ describe("useImageGenerator", () => {
       expect(result.current.state.error?.code).toBe("SERVICE_UNAVAILABLE");
     });
   });
+
+  describe("Fetch Remaining Generations on Mount", () => {
+    it("should fetch remaining generations from API on mount", async () => {
+      global.fetch = vi.fn(() =>
+        Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              data: [],
+              pagination: { page: 1, limit: 1, total: 5, total_pages: 5 },
+              remaining_generations: 5,
+            }),
+        } as unknown as Response)
+      );
+
+      const { result } = renderHook(() => useImageGenerator());
+
+      // Wait for the useEffect to run
+      await waitFor(() => {
+        expect(result.current.state.remainingGenerations).toBe(5);
+      });
+
+      expect(global.fetch).toHaveBeenCalledWith("/api/images/generated?page=1&limit=1");
+    });
+
+    it("should keep default value if API call fails", async () => {
+      global.fetch = vi.fn(() => Promise.reject(new Error("Network error")));
+
+      const { result } = renderHook(() => useImageGenerator());
+
+      // Wait for the useEffect to run
+      await waitFor(
+        () => {
+          // Should stay at default value
+          expect(result.current.state.remainingGenerations).toBe(10);
+        },
+        { timeout: 500 }
+      );
+    });
+  });
 });
