@@ -2,12 +2,13 @@
 
 import type { SupabaseClient } from "./db/supabase.client.ts";
 import type { User } from "@supabase/supabase-js";
+import type { UserRole } from "./types.ts";
 
 declare global {
   namespace App {
     interface Locals {
       supabase: SupabaseClient;
-      user: User | null;
+      user: (User & { role?: UserRole }) | null;
     }
   }
 }

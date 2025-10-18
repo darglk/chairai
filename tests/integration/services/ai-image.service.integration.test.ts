@@ -13,6 +13,36 @@ vi.mock("@/lib/services/openrouter.service", () => {
   };
 });
 
+// Mock OpenRouterImageService aby testy integracyjne pracowały bez realnego API
+vi.mock("@/lib/services/openrouter-image.service", () => {
+  const mockImageUrls = [
+    "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1024",
+    "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1024",
+    "https://images.unsplash.com/photo-1505692952047-1d71bcad2d99?w=1024",
+  ];
+  const promptUrlMap = new Map<string, string>();
+  let urlIndex = 0;
+
+  return {
+    OpenRouterImageService: vi.fn().mockImplementation(() => ({
+      generateImage: vi.fn().mockImplementation(async (prompt: string) => {
+        // Return same URL for same prompt (deterministic)
+        if (!promptUrlMap.has(prompt)) {
+          promptUrlMap.set(prompt, mockImageUrls[urlIndex % mockImageUrls.length]);
+          urlIndex++;
+        }
+        const url = promptUrlMap.get(prompt);
+        return {
+          imageUrl: url,
+          success: true,
+          modelUsed: "google/gemini-2.5-flash-image-preview",
+          generationTime: 1000,
+        };
+      }),
+    })),
+  };
+});
+
 /**
  * Integracja testowa: AIImageService z OpenRouterService (zmockowany)
  *
@@ -122,20 +152,17 @@ describe("Integration: AIImageService + OpenRouterService", () => {
   describe("Konfiguracja serwisu", () => {
     it("powinien honorować ustawienia konfiguracyjne", async () => {
       const mockApiKey = "test-api-key-12345";
-      const customMocks = ["https://example.com/furniture-1.jpg", "https://example.com/furniture-2.jpg"];
 
       const service = new AIImageService(mockApiKey, {
         maxFreeGenerations: 20,
-        mockImages: customMocks,
       });
 
       expect(service.getMaxFreeGenerations()).toBe(20);
 
-      // Generuj obraz i sprawdź czy używa custom mock'a
+      // Generuj obraz i sprawdź czy działa z custom konfiguracją
       const result = await service.generateFurnitureImage("fotel testowy");
       expect(result.success).toBe(true);
-      // URL powinien być z naszych custom mock'ów
-      expect(customMocks).toContain(result.imageUrl);
+      expect(result.imageUrl).not.toBe("");
     });
 
     it("powinien używać ustawień domyślnych gdy konfiguracja nie podana", async () => {
@@ -256,7 +283,12 @@ describe("Integration: AIImageService + OpenRouterService", () => {
       expect(result).toBeDefined();
       expect(result).toHaveProperty("success");
       expect(result).toHaveProperty("imageUrl");
-      expect(result).toHaveProperty("error");
+      // Error should only be present if success is false
+      if (result.success) {
+        expect(result.error).toBeUndefined();
+      } else {
+        expect(result).toHaveProperty("error");
+      }
     });
   });
 

@@ -9,6 +9,7 @@
  */
 
 import { OpenRouterService } from "./openrouter.service";
+import { OpenRouterImageService } from "./openrouter-image.service";
 import { imagePromptSchema } from "@/lib/schemas";
 import { z } from "zod";
 
@@ -32,6 +33,7 @@ export interface GenerateImageResult {
  */
 export class AIImageService {
   private readonly openrouterService: OpenRouterService;
+  private readonly openrouterImageService: OpenRouterImageService;
   private readonly config: AIImageServiceConfig;
 
   // ============================================================================
@@ -41,14 +43,6 @@ export class AIImageService {
   private static readonly DEFAULT_CONFIG: AIImageServiceConfig = {
     maxFreeGenerations: 10,
     generationTimeout: 30000,
-    mockImagesEnabled: false,
-    mockImages: [
-      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80",
-      "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=800&q=80",
-      "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=800&q=80",
-      "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=800&q=80",
-      "https://images.unsplash.com/photo-1538688525198-9b88f6f53126?w=800&q=80",
-    ],
   };
 
   /**
@@ -64,6 +58,7 @@ export class AIImageService {
     }
 
     this.openrouterService = new OpenRouterService({ apiKey: openrouterApiKey });
+    this.openrouterImageService = new OpenRouterImageService({ apiKey: openrouterApiKey });
     this.config = { ...AIImageService.DEFAULT_CONFIG, ...config };
   }
 
@@ -92,11 +87,24 @@ export class AIImageService {
       // Generate enhanced prompt using OpenRouter
       const enhancedPrompt = await this.generateEnhancedPrompt(userDescription);
 
-      // For now, return mock image URL (in production, would generate actual image)
-      const mockImageUrl = this.getMockImageUrl(enhancedPrompt.positivePrompt);
+      // Generate actual image using OpenRouter Image Generation API
+      const generationResult = await this.openrouterImageService.generateImage(
+        enhancedPrompt.positivePrompt,
+        enhancedPrompt.negativePrompt
+      );
+
+      if (!generationResult.success) {
+        return {
+          imageUrl: "",
+          success: false,
+          error: generationResult.error || "Nie udało się wygenerować obrazu",
+          positivePrompt: enhancedPrompt.positivePrompt,
+          negativePrompt: enhancedPrompt.negativePrompt,
+        };
+      }
 
       return {
-        imageUrl: mockImageUrl,
+        imageUrl: generationResult.imageUrl,
         success: true,
         positivePrompt: enhancedPrompt.positivePrompt,
         negativePrompt: enhancedPrompt.negativePrompt,
@@ -168,20 +176,6 @@ export class AIImageService {
       throw new Error(`Nie udało się wygenerować prompt'u: ${errorMessage}`);
     }
   }
-
-  /**
-   * Get a mock image URL for development
-   *
-   * Uses a hash of the positive prompt to select a consistent mock image.
-   *
-   * @param positivePrompt The positive prompt to hash
-   * @returns Mock image URL
-   */
-  private getMockImageUrl(positivePrompt: string): string {
-    const hash = positivePrompt.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const imageIndex = hash % this.config.mockImages.length;
-    return this.config.mockImages[imageIndex];
-  }
 }
 
 // ============================================================================
@@ -191,8 +185,6 @@ export class AIImageService {
 interface AIImageServiceConfig {
   maxFreeGenerations: number;
   generationTimeout: number;
-  mockImagesEnabled: boolean;
-  mockImages: string[];
 }
 
 const DEFAULT_MAX_FREE_GENERATIONS = 10;
@@ -209,7 +201,10 @@ const DEFAULT_MAX_FREE_GENERATIONS = 10;
  * @returns Promise with image URL or error
  */
 export async function generateFurnitureImage(prompt: string): Promise<GenerateImageResult> {
-  const apiKey = import.meta.env.OPENROUTER_API_KEY;
+  const apiKey = import.meta.env.PUBLIC_OPENROUTER_API_KEY;
+
+  // eslint-disable-next-line no-console
+  console.log("[generateFurnitureImage] PUBLIC_OPENROUTER_API_KEY:", !!apiKey);
 
   if (!apiKey) {
     return {

@@ -51,6 +51,7 @@ import { GenerateImageSchema } from "@/lib/schemas";
 import { createErrorResponse, createSuccessResponse } from "@/lib/api-utils";
 import { AIImageService } from "@/lib/services/ai-image.service";
 import { checkImageGenerationRateLimit } from "@/lib/rate-limit";
+import { uploadBase64Image } from "@/lib/services/supabase-storage.service";
 import { ZodError } from "zod";
 import type { GenerateImageResponseDTO } from "@/types";
 
@@ -141,7 +142,7 @@ export const POST: APIRoute = async (context) => {
       return createErrorResponse("DATABASE_ERROR", "Nie udało się sprawdzić liczby wygenerowanych obrazów", 500);
     }
 
-    const apiKey = import.meta.env.OPENROUTER_API_KEY;
+    const apiKey = import.meta.env.PUBLIC_OPENROUTER_API_KEY;
     if (!apiKey) {
       return createErrorResponse("CONFIGURATION_ERROR", "Usługa generowania obrazów jest niedostępna", 503);
     }
@@ -170,16 +171,27 @@ export const POST: APIRoute = async (context) => {
     }
 
     // ========================================================================
-    // STEP 7: Persist to Database
-    // Save generated image metadata to the generated_images table
+    // STEP 7: Upload Base64 Image to Supabase Storage
+    // Convert base64 image from OpenRouter and upload to chairai_bucket
+    // ========================================================================
+
+    const uploadResult = await uploadBase64Image(context.locals.supabase, aiResult.imageUrl, user.id, {
+      contentType: "image/png",
+    });
+
+    if (!uploadResult.success || !uploadResult.publicUrl) {
+      return createErrorResponse("STORAGE_UPLOAD_FAILED", "Nie udało się zapisać obrazu do magazynu", 500);
+    }
+
+    // ========================================================================
+    // STEP 8: Persist to Database
+    // Save generated image metadata to the generated_images table with storage URL
     // ========================================================================
 
     const databaseEntry = {
       user_id: user.id,
       prompt: validatedData.prompt,
-      enhanced_positive_prompt: aiResult.positivePrompt || validatedData.prompt,
-      enhanced_negative_prompt: aiResult.negativePrompt || "",
-      image_url: aiResult.imageUrl,
+      image_url: uploadResult.publicUrl,
     };
 
     const { data: imageData, error: insertError } = await context.locals.supabase
@@ -189,11 +201,13 @@ export const POST: APIRoute = async (context) => {
       .single();
 
     if (insertError || !imageData) {
+      // eslint-disable-next-line no-console
+      console.error("Insert Error:", insertError);
       return createErrorResponse("DATABASE_ERROR", "Nie udało się zapisać wygenerowanego obrazu", 500);
     }
 
     // ========================================================================
-    // STEP 8: Check Image Usage
+    // STEP 9: Check Image Usage
     // Determine if this image is already used in any project
     // ========================================================================
 
@@ -203,7 +217,7 @@ export const POST: APIRoute = async (context) => {
       .eq("generated_image_id", imageData.id);
 
     // ========================================================================
-    // STEP 9: Build Response
+    // STEP 10: Build Response
     // Return GenerateImageResponseDTO with image data and remaining quota
     // ========================================================================
 

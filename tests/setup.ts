@@ -5,6 +5,9 @@ import * as matchers from "@testing-library/jest-dom/matchers";
 // Extend Vitest's expect with jest-dom matchers
 expect.extend(matchers);
 
+// Set up environment variables for tests
+import.meta.env.PUBLIC_OPENROUTER_API_KEY = "test-key-12345";
+
 // Cleanup after each test
 afterEach(() => {
   cleanup();

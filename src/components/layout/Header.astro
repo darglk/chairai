@@ -1,6 +1,8 @@
 ---
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/Logo.astro";
+
+const user = Astro.locals.user;
 ---
 
 <header
@@ -14,12 +16,42 @@ import Logo from "@/components/Logo.astro";
     </div>
     <div class="flex flex-1 items-center justify-end space-x-2 sm:space-x-4">
       <nav class="flex items-center gap-2 sm:gap-3">
-        <a href="/login">
-          <Button variant="ghost" size="sm" class="text-sm sm:text-base">Zaloguj się</Button>
-        </a>
-        <a href="/register">
-          <Button size="sm" class="text-sm sm:text-base">Zarejestruj się</Button>
-        </a>
+        {user ? (
+          <>
+            <a
+              href="/generate"
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5"
+            >
+              Generator
+            </a>
+            <a
+              href="/dashboard"
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5"
+            >
+              Panel
+            </a>
+            <form method="POST" action="/api/auth/logout">
+              <Button type="submit" size="sm" class="text-sm sm:text-base">
+                Wyloguj
+              </Button>
+            </form>
+          </>
+        ) : (
+          <>
+            <a
+              href="/login"
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5"
+            >
+              Zaloguj się
+            </a>
+            <a
+              href="/register"
+              class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5"
+            >
+              Zarejestruj się
+            </a>
+          </>
+        )}
       </nav>
     </div>
   </div>

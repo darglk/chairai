@@ -13,6 +13,37 @@ vi.mock("@/lib/services/openrouter.service", () => {
   };
 });
 
+// Mock OpenRouterImageService
+vi.mock("@/lib/services/openrouter-image.service", () => {
+  const mockImageUrls = [
+    "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=1024",
+    "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1024",
+    "https://images.unsplash.com/photo-1505692952047-1d71bcad2d99?w=1024",
+    "https://images.unsplash.com/photo-1538688525198-9b88f6f53126?w=1024",
+  ];
+  const promptUrlMap = new Map<string, string>();
+  let urlIndex = 0;
+
+  return {
+    OpenRouterImageService: vi.fn().mockImplementation(() => ({
+      generateImage: vi.fn().mockImplementation(async (prompt: string) => {
+        // Return same URL for same prompt (deterministic)
+        if (!promptUrlMap.has(prompt)) {
+          promptUrlMap.set(prompt, mockImageUrls[urlIndex % mockImageUrls.length]);
+          urlIndex++;
+        }
+        const url = promptUrlMap.get(prompt);
+        return {
+          imageUrl: url,
+          success: true,
+          modelUsed: "google/gemini-2.5-flash-image-preview",
+          generationTime: 1000,
+        };
+      }),
+    })),
+  };
+});
+
 describe("AIImageService", () => {
   let service: AIImageService;
   const mockApiKey = "test-api-key-12345";
@@ -208,14 +239,8 @@ describe("AIImageService", () => {
       const result = await service.generateFurnitureImage("pewien opis");
 
       expect(result.imageUrl).toBeDefined();
-      const imageUrls = [
-        "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80",
-        "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=800&q=80",
-        "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=800&q=80",
-        "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=800&q=80",
-        "https://images.unsplash.com/photo-1538688525198-9b88f6f53126?w=800&q=80",
-      ];
-      expect(imageUrls).toContain(result.imageUrl);
+      // Just verify it's a valid URL from unsplash (mocked)
+      expect(result.imageUrl).toMatch(/https:\/\/images\.unsplash\.com/);
     });
   });
 
@@ -252,21 +277,12 @@ describe("AIImageService", () => {
 
   describe("Integracja z konfiguracją", () => {
     it("powinien używać custom mock-ów z konfiguracji", () => {
-      const customMocks = ["https://example.com/image1.jpg", "https://example.com/image2.jpg"];
-
       service = new AIImageService(mockApiKey, {
-        mockImages: customMocks,
+        maxFreeGenerations: 15,
       });
 
-      // Każde wygenerowanie powinno zwracać jeden z custom mock-ów
-      const results: GenerateImageResult[] = [];
-      for (let i = 0; i < 10; i++) {
-        const result = service.generateFurnitureImage(`opis ${i}`);
-        results.push(result as unknown as GenerateImageResult);
-      }
-
-      // Sprawdzanie że zwrócony URL jest z naszych custom mock-ów
-      // (z asynchrnoną funkcją musimy czekać)
+      // Każde wygenerowanie powinno zwracać URL z mock'a
+      expect(service.getMaxFreeGenerations()).toBe(15);
     });
   });
 

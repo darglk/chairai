@@ -186,20 +186,23 @@ export class OpenRouterService {
    * @returns Request payload object for the API
    */
   private buildRequestPayload(userContent: string): Record<string, unknown> {
-    const systemPrompt = `You are an expert in interior design and creative writing, specializing in crafting detailed prompts for AI image generation models. Your task is to take a user's simple description of a piece of furniture and expand it into a rich, detailed prompt that will produce a photorealistic and aesthetically pleasing image. You must also provide a negative prompt to exclude common visual artifacts.
+    const systemPrompt = `You are an expert in interior design and creative writing, specializing in crafting detailed prompts for AI image generation models.
 
-Guidelines for positive prompt:
-- Be specific about materials, colors, textures, and design style
-- Include lighting and ambiance details
-- Mention quality descriptors like "4k", "photorealistic", "cinematic"
-- Use comma-separated format for clarity
-- Aim for 50-100 words
+Your task: Take a user's furniture description and create TWO things:
+1. A positive prompt (detailed, 50-100 words)
+2. A negative prompt (20-40 words)
 
-Guidelines for negative prompt:
-- List common image defects and unwanted styles
-- Include terms like "blurry", "low quality", "cartoon", "deformed", "ugly"
-- Use comma-separated format
-- Keep it concise (20-40 words)`;
+RESPOND EXACTLY IN THIS FORMAT (no markdown, no extra text):
+{
+  "positivePrompt": "your positive prompt here with specific materials colors textures style",
+  "negativePrompt": "blurry low quality cartoon deformed ugly"
+}
+
+Example response:
+{
+  "positivePrompt": "Modern oak dining table, minimalist Scandinavian design, solid light wood top, sleek white steel legs, geometric lines, 8-seater rectangular, natural daylight, photorealistic, 4k",
+  "negativePrompt": "blurry, low quality, cartoon, deformed, ugly, distorted, oversaturated"
+}`;
 
     return {
       model: OPENROUTER_CONFIG.MODEL,
@@ -218,22 +221,20 @@ Guidelines for negative prompt:
       response_format: {
         type: "json_schema",
         json_schema: {
-          name: "imagePromptGenerator",
-          strict: true,
+          name: "ImagePrompt",
           schema: {
             type: "object",
             properties: {
               positivePrompt: {
                 type: "string",
-                description: "A detailed, comma-separated prompt for generating a high-quality image.",
+                description: "Detailed positive prompt for image generation",
               },
               negativePrompt: {
                 type: "string",
-                description: "A comma-separated list of keywords to avoid in the generated image.",
+                description: "Negative prompt to exclude unwanted elements",
               },
             },
             required: ["positivePrompt", "negativePrompt"],
-            additionalProperties: false,
           },
         },
       },
@@ -326,11 +327,41 @@ Guidelines for negative prompt:
         throw new ValidationError("API response does not contain expected message content");
       }
 
+      // eslint-disable-next-line no-console
+      console.log("[parseAndValidateResponse] Raw messageContent:", messageContent.substring(0, 500));
+
       // Parse JSON from message content
       let parsedContent: unknown;
       try {
-        parsedContent = JSON.parse(messageContent);
-      } catch {
+        // Remove markdown code blocks if present
+        let jsonString = messageContent.trim();
+
+        // Try to extract JSON from markdown code block if present
+        const jsonBlockMatch = jsonString.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+        if (jsonBlockMatch && jsonBlockMatch[1]) {
+          jsonString = jsonBlockMatch[1].trim();
+          // eslint-disable-next-line no-console
+          console.log("[parseAndValidateResponse] Extracted from markdown block");
+        }
+
+        // Try to extract JSON object if text contains it
+        const objectMatch = jsonString.match(/\{[\s\S]*\}/);
+        if (objectMatch) {
+          jsonString = objectMatch[0];
+        }
+
+        // eslint-disable-next-line no-console
+        console.log("[parseAndValidateResponse] JSON string to parse:", jsonString.substring(0, 300));
+
+        parsedContent = JSON.parse(jsonString);
+        // eslint-disable-next-line no-console
+        console.log(
+          "[parseAndValidateResponse] Successfully parsed JSON:",
+          JSON.stringify(parsedContent).substring(0, 300)
+        );
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error("[parseAndValidateResponse] JSON parse error:", error);
         throw new ValidationError("API response content is not valid JSON");
       }
 

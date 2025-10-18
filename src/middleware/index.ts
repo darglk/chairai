@@ -1,5 +1,6 @@
 import { defineMiddleware } from "astro:middleware";
 import { supabaseClient } from "../db/supabase.client.ts";
+import type { UserRole } from "../types.ts";
 
 /**
  * Authentication Middleware
@@ -14,10 +15,25 @@ import { supabaseClient } from "../db/supabase.client.ts";
  */
 
 // Routes that require authentication
-const PROTECTED_ROUTES = ["/dashboard"];
+const PROTECTED_ROUTES = ["/dashboard", "/generate"];
 
 // Routes that should redirect authenticated users
 const AUTH_ROUTES = ["/login", "/register", "/password-recovery", "/password-reset"];
+
+/**
+ * Fetch user role from database
+ */
+async function fetchUserRole(userId: string | undefined): Promise<UserRole | undefined> {
+  if (!userId) return undefined;
+
+  try {
+    const { data, error } = await supabaseClient.from("users").select("role").eq("id", userId).single();
+
+    return !error && data ? data.role : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 export const onRequest = defineMiddleware(async (context, next) => {
   // Initialize Supabase client in locals
@@ -42,7 +58,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
             refresh_token: refreshToken,
           });
 
-          if (!refreshError && data.session) {
+          if (!refreshError && data.session && data.user) {
             // Update cookies with new tokens
             context.cookies.set("sb-access-token", data.session.access_token, {
               path: "/",
@@ -60,7 +76,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
               maxAge: 60 * 60 * 24 * 30, // 30 days
             });
 
-            // Set user in locals
+            // Fetch role from database
+            const role = await fetchUserRole(data.user.id);
+            if (role) {
+              Object.assign(data.user, { role });
+            }
+            // @ts-expect-error - adding role property to User type
             context.locals.user = data.user;
           } else {
             // Refresh failed, clear invalid cookies
@@ -72,7 +93,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
           context.cookies.delete("sb-access-token", { path: "/" });
         }
       } else if (user) {
-        // Valid token and user, set in locals
+        // Valid token and user, fetch role from database
+        const role = await fetchUserRole(user.id);
+        if (role) {
+          Object.assign(user, { role });
+        }
+        // @ts-expect-error - adding role property to User type
         context.locals.user = user;
       }
     } catch {

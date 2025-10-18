@@ -3,6 +3,7 @@
  *
  * Handles user registration via Supabase Auth.
  * Sends email confirmation link to the user's email address.
+ * User role record is created automatically via database trigger.
  */
 
 import type { APIRoute } from "astro";
@@ -51,6 +52,7 @@ export const POST: APIRoute = async (context) => {
 
     // Return success response
     // Note: Supabase will send a confirmation email to the user
+    // User role record is created automatically via database trigger
     return createSuccessResponse(
       {
         success: true,
