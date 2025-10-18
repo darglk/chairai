@@ -116,3 +116,21 @@ export const GeneratedImagesQuerySchema = z.object({
 });
 
 export type GeneratedImagesQuery = z.infer<typeof GeneratedImagesQuerySchema>;
+
+// ============================================================================
+// AI Image Prompt Schemas
+// ============================================================================
+
+/**
+ * Schema for AI-generated image prompt with positive and negative prompts
+ */
+export const imagePromptSchema = z.object({
+  positivePrompt: z
+    .string({ required_error: "Pozytywny prompt jest wymagany" })
+    .min(1, "Pozytywny prompt nie może być pusty"),
+  negativePrompt: z
+    .string({ required_error: "Negatywny prompt jest wymagany" })
+    .min(1, "Negatywny prompt nie może być pusty"),
+});
+
+export type ImagePrompt = z.infer<typeof imagePromptSchema>;

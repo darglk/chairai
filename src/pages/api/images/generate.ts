@@ -3,13 +3,20 @@
  *
  * POST /api/images/generate
  * Generates furniture image using AI based on text prompt.
- * Enforces 10 free generations limit per client.
+ * Workflow:
+ * 1. Authenticates user
+ * 2. Checks rate limits
+ * 3. Validates prompt
+ * 4. Enhances prompt using OpenRouter
+ * 5. Generates image
+ * 6. Saves to database
  */
 
 import type { APIRoute } from "astro";
 import { GenerateImageSchema } from "@/lib/schemas";
 import { createErrorResponse, createSuccessResponse } from "@/lib/api-utils";
-import { generateFurnitureImage, getMaxFreeGenerations } from "@/lib/services/ai-image.service";
+import { AIImageService } from "@/lib/services/ai-image.service";
+import { checkImageGenerationRateLimit } from "@/lib/rate-limit";
 import { ZodError } from "zod";
 import type { GenerateImageResponseDTO } from "@/types";
 
@@ -27,7 +34,21 @@ export const POST: APIRoute = async (context) => {
       return createErrorResponse("UNAUTHORIZED", "Musisz być zalogowany, aby generować obrazy", 401);
     }
 
-    // Get user role from metadata or database
+    // Get client IP address for rate limiting
+    const xForwardedFor = context.request.headers.get("x-forwarded-for");
+    const clientIp = xForwardedFor ?? context.request.headers.get("client-ip") ?? "unknown";
+
+    // Check rate limit
+    const rateLimitResult = checkImageGenerationRateLimit(user.id, clientIp);
+    if (!rateLimitResult.allowed) {
+      return createErrorResponse(
+        "RATE_LIMIT_EXCEEDED",
+        `Zbyt wiele żądań. Spróbuj ponownie za ${Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)} sekund`,
+        429
+      );
+    }
+
+    // Get user role from database
     const { data: userData, error: userError } = await context.locals.supabase
       .from("users")
       .select("role")
@@ -57,7 +78,14 @@ export const POST: APIRoute = async (context) => {
       return createErrorResponse("DATABASE_ERROR", "Nie udało się sprawdzić liczby wygenerowanych obrazów", 500);
     }
 
-    const maxGenerations = getMaxFreeGenerations();
+    // Get max generations for user
+    const apiKey = import.meta.env.OPENROUTER_API_KEY;
+    if (!apiKey) {
+      return createErrorResponse("CONFIGURATION_ERROR", "Usługa generowania obrazów jest niedostępna", 503);
+    }
+
+    const aiImageService = new AIImageService(apiKey);
+    const maxGenerations = aiImageService.getMaxFreeGenerations();
     const remainingGenerations = maxGenerations - (count ?? 0);
 
     // Check if user has reached generation limit
@@ -69,21 +97,26 @@ export const POST: APIRoute = async (context) => {
       );
     }
 
-    // Generate image using AI service
-    const aiResult = await generateFurnitureImage(validatedData.prompt);
+    // Generate image with enhanced prompt using AI service
+    const aiResult = await aiImageService.generateFurnitureImage(validatedData.prompt);
 
     if (!aiResult.success || !aiResult.imageUrl) {
       return createErrorResponse("AI_GENERATION_FAILED", aiResult.error || "Nie udało się wygenerować obrazu", 503);
     }
 
+    // Prepare database entry with original and enhanced prompts
+    const databaseEntry = {
+      user_id: user.id,
+      prompt: validatedData.prompt,
+      enhanced_positive_prompt: aiResult.positivePrompt || validatedData.prompt,
+      enhanced_negative_prompt: aiResult.negativePrompt || "",
+      image_url: aiResult.imageUrl,
+    };
+
     // Save generated image to database
     const { data: imageData, error: insertError } = await context.locals.supabase
       .from("generated_images")
-      .insert({
-        user_id: user.id,
-        prompt: validatedData.prompt,
-        image_url: aiResult.imageUrl,
-      })
+      .insert(databaseEntry)
       .select()
       .single();
 
@@ -121,6 +154,17 @@ export const POST: APIRoute = async (context) => {
       });
 
       return createErrorResponse("VALIDATION_ERROR", "Błąd walidacji danych", 422, fieldErrors);
+    }
+
+    // Handle API errors
+    if (error instanceof Error) {
+      const errorMessage = error.message;
+      if (errorMessage.includes("rate limit") || errorMessage.includes("RATE_LIMITED")) {
+        return createErrorResponse("RATE_LIMITED", "Zbyt wiele żądań. Spróbuj ponownie później.", 429);
+      }
+      if (errorMessage.includes("UNAUTHORIZED")) {
+        return createErrorResponse("API_UNAUTHORIZED", "Błąd autentykacji z usługą AI", 503);
+      }
     }
 
     // Handle unexpected errors
