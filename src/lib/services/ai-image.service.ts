@@ -10,6 +10,7 @@
 
 import { OpenRouterService } from "./openrouter.service";
 import { OpenRouterImageService } from "./openrouter-image.service";
+import { PromptEngineerService } from "./prompt-engineer.service";
 import { imagePromptSchema } from "@/lib/schemas";
 import { z } from "zod";
 
@@ -34,6 +35,7 @@ export interface GenerateImageResult {
 export class AIImageService {
   private readonly openrouterService: OpenRouterService;
   private readonly openrouterImageService: OpenRouterImageService;
+  private readonly promptEngineer: PromptEngineerService;
   private readonly config: AIImageServiceConfig;
 
   // ============================================================================
@@ -59,6 +61,12 @@ export class AIImageService {
 
     this.openrouterService = new OpenRouterService({ apiKey: openrouterApiKey });
     this.openrouterImageService = new OpenRouterImageService({ apiKey: openrouterApiKey });
+    this.promptEngineer = new PromptEngineerService({
+      includePhotographyStyle: true,
+      includeTechnicalDetails: true,
+      emphasizeMaterials: true,
+      emphasizePrecision: true,
+    });
     this.config = { ...AIImageService.DEFAULT_CONFIG, ...config };
   }
 
@@ -158,10 +166,12 @@ export class AIImageService {
   }
 
   /**
-   * Generate enhanced prompt using OpenRouter
+   * Generate enhanced prompt using PromptEngineerService and OpenRouter
    *
-   * Takes a simple user description and transforms it into detailed,
-   * creative prompts optimized for image generation.
+   * Process:
+   * 1. Use PromptEngineerService to locally enhance the user description
+   * 2. Send the enhanced description to OpenRouter for AI refinement
+   * 3. Return the final prompt pair for image generation
    *
    * @param userDescription User's furniture description
    * @returns Enhanced positive and negative prompts
@@ -169,8 +179,21 @@ export class AIImageService {
    */
   private async generateEnhancedPrompt(userDescription: string): Promise<z.infer<typeof imagePromptSchema>> {
     try {
-      const enhancedPrompt = await this.openrouterService.generateImagePrompt(userDescription);
-      return enhancedPrompt;
+      // Step 1: Local enhancement using PromptEngineerService
+      const localEnhancement = this.promptEngineer.enhancePrompt(userDescription);
+
+      // Step 2: Use OpenRouter to further refine the prompt
+      // Send the locally enhanced prompt for AI refinement
+      const openrouterRefined = await this.openrouterService.generateImagePrompt(
+        `${userDescription}\n\nDesign context: ${localEnhancement.style} style, Materials: ${localEnhancement.materials.join(", ")}`
+      );
+
+      // Step 3: Combine both enhancements
+      // Use OpenRouter's response as primary, with our technical guidance
+      return {
+        positivePrompt: `${openrouterRefined.positivePrompt}\n${localEnhancement.technicalNotes}`,
+        negativePrompt: openrouterRefined.negativePrompt,
+      };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Błąd podczas generowania ulepszenia prompt'u";
       throw new Error(`Nie udało się wygenerować prompt'u: ${errorMessage}`);

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { AIImageService, type GenerateImageResult } from "@/lib/services/ai-image.service";
+import { AIImageService } from "@/lib/services/ai-image.service";
 
 // Mock OpenRouterService
 vi.mock("@/lib/services/openrouter.service", () => {
@@ -8,6 +8,21 @@ vi.mock("@/lib/services/openrouter.service", () => {
       generateImagePrompt: vi.fn().mockResolvedValue({
         positivePrompt: "mockowy pozytywny prompt",
         negativePrompt: "mockowy negatywny prompt",
+      }),
+    })),
+  };
+});
+
+// Mock PromptEngineerService
+vi.mock("@/lib/services/prompt-engineer.service", () => {
+  return {
+    PromptEngineerService: vi.fn().mockImplementation(() => ({
+      enhancePrompt: vi.fn().mockReturnValue({
+        positivePrompt: "professional furniture piece",
+        negativePrompt: "low quality, blurry, distorted",
+        technicalNotes: "Construction focus: joinery, materials quality",
+        materials: ["wood"],
+        style: "Modern",
       }),
     })),
   };
