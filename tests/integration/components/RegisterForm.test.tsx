@@ -44,19 +44,6 @@ describe("RegisterForm - Testy Integracyjne", () => {
   describe("Walidacja hasła", () => {
     it("powinien pokazać błąd gdy hasło jest za krótkie", async () => {
       const user = userEvent.setup();
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        json: async () => ({
-          error: {
-            code: "VALIDATION_ERROR",
-            details: {
-              password: "Hasło musi mieć co najmniej 8 znaków",
-            },
-          },
-        }),
-      });
-
       render(<RegisterForm />);
 
       const emailInput = screen.getByLabelText(/e-?mail/i);
@@ -78,19 +65,6 @@ describe("RegisterForm - Testy Integracyjne", () => {
 
     it("powinien pokazać błąd gdy hasło nie zawiera wielkiej litery", async () => {
       const user = userEvent.setup();
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        json: async () => ({
-          error: {
-            code: "VALIDATION_ERROR",
-            details: {
-              password: "Hasło musi zawierać co najmniej jedną wielką literę",
-            },
-          },
-        }),
-      });
-
       render(<RegisterForm />);
 
       const emailInput = screen.getByLabelText(/e-?mail/i);
@@ -110,21 +84,50 @@ describe("RegisterForm - Testy Integracyjne", () => {
       });
     });
 
+    it("powinien pokazać błąd gdy hasło nie zawiera małej litery", async () => {
+      const user = userEvent.setup();
+      render(<RegisterForm />);
+
+      const emailInput = screen.getByLabelText(/e-?mail/i);
+      const passwordInput = screen.getByLabelText(/^hasło$/i);
+      const confirmPasswordInput = screen.getByLabelText(/powtórz hasło|potwierdź hasło/i);
+      const clientRadio = screen.getByRole("radio", { name: /klient/i });
+      const submitButton = screen.getByRole("button", { name: /zarejestruj/i });
+
+      await user.type(emailInput, "test@example.com");
+      await user.type(passwordInput, "PASSWORD123");
+      await user.type(confirmPasswordInput, "PASSWORD123");
+      await user.click(clientRadio);
+      await user.click(submitButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/małą literę/i)).toBeInTheDocument();
+      });
+    });
+
+    it("powinien pokazać błąd gdy hasło nie zawiera cyfry", async () => {
+      const user = userEvent.setup();
+      render(<RegisterForm />);
+
+      const emailInput = screen.getByLabelText(/e-?mail/i);
+      const passwordInput = screen.getByLabelText(/^hasło$/i);
+      const confirmPasswordInput = screen.getByLabelText(/powtórz hasło|potwierdź hasło/i);
+      const clientRadio = screen.getByRole("radio", { name: /klient/i });
+      const submitButton = screen.getByRole("button", { name: /zarejestruj/i });
+
+      await user.type(emailInput, "test@example.com");
+      await user.type(passwordInput, "PasswordABC");
+      await user.type(confirmPasswordInput, "PasswordABC");
+      await user.click(clientRadio);
+      await user.click(submitButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/cyfrę/i)).toBeInTheDocument();
+      });
+    });
+
     it("powinien pokazać błąd gdy hasła nie są zgodne", async () => {
       const user = userEvent.setup();
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: false,
-        status: 400,
-        json: async () => ({
-          error: {
-            code: "VALIDATION_ERROR",
-            details: {
-              confirmPassword: "Hasła nie są zgodne",
-            },
-          },
-        }),
-      });
-
       render(<RegisterForm />);
 
       const emailInput = screen.getByLabelText(/e-?mail/i);

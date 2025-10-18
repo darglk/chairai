@@ -25,7 +25,7 @@ export function RegisterForm() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
-  const [accountType, setAccountType] = React.useState<"client" | "artisan">("client");
+  const [accountType, setAccountType] = React.useState<"client" | "artisan" | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
@@ -33,11 +33,36 @@ export function RegisterForm() {
     email?: string;
     password?: string;
     confirmPassword?: string;
+    accountType?: string;
   }>({});
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+  };
+
+  const validatePassword = (password: string): string | null => {
+    if (!password) {
+      return "Hasło jest wymagane";
+    }
+
+    if (password.length < 8) {
+      return "Hasło musi mieć co najmniej 8 znaków";
+    }
+
+    if (!/[a-z]/.test(password)) {
+      return "Hasło musi zawierać co najmniej jedną małą literę";
+    }
+
+    if (!/[A-Z]/.test(password)) {
+      return "Hasło musi zawierać co najmniej jedną wielką literę";
+    }
+
+    if (!/\d/.test(password)) {
+      return "Hasło musi zawierać co najmniej jedną cyfrę";
+    }
+
+    return null;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,13 +82,9 @@ export function RegisterForm() {
       return;
     }
 
-    if (!password) {
-      setFieldErrors({ password: "To pole jest wymagane" });
-      return;
-    }
-
-    if (password.length < 8) {
-      setFieldErrors({ password: "Hasło musi mieć co najmniej 8 znaków" });
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setFieldErrors({ password: passwordError });
       return;
     }
 
@@ -74,6 +95,11 @@ export function RegisterForm() {
 
     if (password !== confirmPassword) {
       setFieldErrors({ confirmPassword: "Hasła nie są zgodne" });
+      return;
+    }
+
+    if (!accountType) {
+      setFieldErrors({ accountType: "Musisz wybrać typ konta" });
       return;
     }
 
@@ -222,6 +248,7 @@ export function RegisterForm() {
             <span className="text-sm">Rzemieślnik</span>
           </label>
         </div>
+        {fieldErrors.accountType && <p className="text-sm text-destructive">{fieldErrors.accountType}</p>}
       </div>
 
       {error && (
