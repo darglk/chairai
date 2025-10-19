@@ -108,6 +108,7 @@ export type GenerateImageInput = z.infer<typeof GenerateImageSchema>;
 
 /**
  * Schema for listing generated images query parameters
+ * Maps to GeneratedImagesQueryParams interface from types.ts
  */
 export const GeneratedImagesQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),

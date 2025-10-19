@@ -3,30 +3,57 @@
  *
  * GET /api/images/generated
  * Returns paginated list of user's generated images with filtering options.
+ *
+ * Authentication required: YES (JWT Bearer token)
+ * Authorization required: User must have 'client' role
+ *
+ * Query Parameters:
+ *   - page: number (optional, default: 1) - Page number for pagination
+ *   - limit: number (optional, default: 20, max: 100) - Items per page
+ *   - unused_only: boolean (optional, default: false) - Filter to only unused images
+ *
+ * Response: GeneratedImagesListResponseDTO
+ *   - data: Array of GeneratedImageDTO objects
+ *   - pagination: Pagination metadata
+ *   - remaining_generations: Number of generations remaining for user
+ *
+ * Status Codes:
+ *   - 200: Success
+ *   - 400: Invalid query parameters
+ *   - 401: Not authenticated
+ *   - 403: User doesn't have 'client' role
+ *   - 422: Validation error on query parameters
+ *   - 500: Server error
  */
 
 import type { APIRoute } from "astro";
 import { GeneratedImagesQuerySchema } from "@/lib/schemas";
 import { createErrorResponse, createSuccessResponse } from "@/lib/api-utils";
-import { getMaxFreeGenerations } from "@/lib/services/ai-image.service";
+import { GeneratedImagesService } from "@/lib/services/generated-images.service";
 import { ZodError } from "zod";
-import type { GeneratedImagesListResponseDTO, GeneratedImageDTO } from "@/types";
+import type { GeneratedImagesListResponseDTO } from "@/types";
 
 export const prerender = false;
 
 export const GET: APIRoute = async (context) => {
   try {
-    // Check authentication
+    // ====================================================================
+    // STEP 1: Authentication - Verify JWT token
+    // ====================================================================
+
     const {
       data: { user },
       error: authError,
     } = await context.locals.supabase.auth.getUser();
 
     if (authError || !user) {
-      return createErrorResponse("UNAUTHORIZED", "Musisz być zalogowany", 401);
+      return createErrorResponse("UNAUTHORIZED", "Musisz być zalogowany, aby przeglądać wygenerowane obrazy", 401);
     }
 
-    // Get user role from database
+    // ====================================================================
+    // STEP 2: Authorization - Check user role
+    // ====================================================================
+
     const { data: userData, error: userError } = await context.locals.supabase
       .from("users")
       .select("role")
@@ -34,7 +61,7 @@ export const GET: APIRoute = async (context) => {
       .single();
 
     if (userError || !userData) {
-      return createErrorResponse("USER_NOT_FOUND", "Nie znaleziono użytkownika", 404);
+      return createErrorResponse("USER_NOT_FOUND", "Nie znaleziono profilu użytkownika", 404);
     }
 
     // Only clients can access generated images
@@ -42,7 +69,10 @@ export const GET: APIRoute = async (context) => {
       return createErrorResponse("FORBIDDEN", "Tylko klienci mogą przeglądać wygenerowane obrazy", 403);
     }
 
-    // Parse and validate query parameters
+    // ====================================================================
+    // STEP 3: Parse and validate query parameters
+    // ====================================================================
+
     const url = new URL(context.request.url);
     const queryParams = {
       page: url.searchParams.get("page"),
@@ -50,84 +80,43 @@ export const GET: APIRoute = async (context) => {
       unused_only: url.searchParams.get("unused_only"),
     };
 
-    const validatedQuery = GeneratedImagesQuerySchema.parse(queryParams);
+    let validatedQuery;
+    try {
+      validatedQuery = GeneratedImagesQuerySchema.parse(queryParams);
+    } catch (validationError) {
+      if (validationError instanceof ZodError) {
+        const fieldErrors: Record<string, string> = {};
 
-    // Build query
-    let query = context.locals.supabase
-      .from("generated_images")
-      .select("*", { count: "exact" })
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+        validationError.errors.forEach((err) => {
+          if (err.path.length > 0) {
+            fieldErrors[err.path[0].toString()] = err.message;
+          }
+        });
 
-    // Apply unused_only filter if requested
-    if (validatedQuery.unused_only) {
-      // Get IDs of images that are used in projects
-      const { data: usedImages } = await context.locals.supabase.from("projects").select("generated_image_id");
-
-      if (usedImages && usedImages.length > 0) {
-        const usedImageIds = usedImages.map((p) => p.generated_image_id);
-        query = query.not("id", "in", `(${usedImageIds.join(",")})`);
+        return createErrorResponse("VALIDATION_ERROR", "Parametry zapytania są nieprawidłowe", 422, fieldErrors);
       }
+      throw validationError;
     }
 
-    // Apply pagination
-    const offset = (validatedQuery.page - 1) * validatedQuery.limit;
-    query = query.range(offset, offset + validatedQuery.limit - 1);
+    // ====================================================================
+    // STEP 4: Fetch data using GeneratedImagesService
+    // ====================================================================
 
-    // Execute query
-    const { data: images, error: queryError, count } = await query;
+    const generatedImagesService = new GeneratedImagesService(context.locals.supabase);
 
-    if (queryError) {
-      return createErrorResponse("DATABASE_ERROR", "Nie udało się pobrać obrazów", 500);
-    }
+    const response: GeneratedImagesListResponseDTO = await generatedImagesService.listUserGeneratedImages(user.id, {
+      page: validatedQuery.page,
+      limit: validatedQuery.limit,
+      unused_only: validatedQuery.unused_only,
+    });
 
-    // Check which images are used in projects
-    const imageIds = images?.map((img) => img.id) || [];
-    let usedImageIds: string[] = [];
+    // ====================================================================
+    // STEP 5: Return success response
+    // ====================================================================
 
-    if (imageIds.length > 0) {
-      const { data: projects } = await context.locals.supabase
-        .from("projects")
-        .select("generated_image_id")
-        .in("generated_image_id", imageIds);
-
-      usedImageIds = projects?.map((p) => p.generated_image_id) || [];
-    }
-
-    // Map to DTO with is_used flag
-    const imageDTOs: GeneratedImageDTO[] = (images || []).map((img) => ({
-      id: img.id,
-      user_id: img.user_id,
-      prompt: img.prompt,
-      image_url: img.image_url,
-      created_at: img.created_at,
-      is_used: usedImageIds.includes(img.id),
-    }));
-
-    // Count total generations for user
-    const { count: totalGenerations } = await context.locals.supabase
-      .from("generated_images")
-      .select("*", { count: "exact", head: true })
-      .eq("user_id", user.id);
-
-    const maxGenerations = getMaxFreeGenerations();
-    const remainingGenerations = maxGenerations - (totalGenerations ?? 0);
-
-    // Prepare response
-    const response: GeneratedImagesListResponseDTO = {
-      data: imageDTOs,
-      pagination: {
-        page: validatedQuery.page,
-        limit: validatedQuery.limit,
-        total: count ?? 0,
-        total_pages: Math.ceil((count ?? 0) / validatedQuery.limit),
-      },
-      remaining_generations: Math.max(0, remainingGenerations),
-    };
-
-    return createSuccessResponse(response);
+    return createSuccessResponse(response, 200);
   } catch (error) {
-    // Handle validation errors from Zod
+    // Handle Zod validation errors
     if (error instanceof ZodError) {
       const fieldErrors: Record<string, string> = {};
 
@@ -140,7 +129,16 @@ export const GET: APIRoute = async (context) => {
       return createErrorResponse("VALIDATION_ERROR", "Błąd walidacji parametrów", 422, fieldErrors);
     }
 
-    // Handle unexpected errors
-    return createErrorResponse("INTERNAL_ERROR", "Wystąpił błąd serwera. Spróbuj ponownie później.", 500);
+    // Handle service/database errors
+    if (error instanceof Error) {
+      return createErrorResponse(
+        "INTERNAL_ERROR",
+        "Nie udało się pobrać listy obrazów. Spróbuj ponownie później.",
+        500
+      );
+    }
+
+    // Handle unknown errors
+    return createErrorResponse("INTERNAL_ERROR", "Nieznany błąd serwera. Spróbuj ponownie później.", 500);
   }
 };
