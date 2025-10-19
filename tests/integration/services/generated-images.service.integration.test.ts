@@ -19,12 +19,13 @@ describe("Integration: GeneratedImagesService", () => {
 
   const mockUserId = "test-user-123";
 
-  const createMockImage = (id: string, prompt = "test prompt", createdAt = new Date().toISOString()) => ({
+  const createMockImage = (id: string, prompt = "test prompt", createdAt = new Date().toISOString(), isUsed = false) => ({
     id,
     user_id: mockUserId,
     prompt,
     image_url: `https://images.example.com/${id}.jpg`,
     created_at: createdAt,
+    is_used: isUsed,
   });
 
   const createMockSupabase = (selectResolvedValues: unknown[]) => {
@@ -70,6 +71,7 @@ describe("Integration: GeneratedImagesService", () => {
       const mockSelect = [
         { count: 0, error: null },
         { data: [], error: null },
+        { count: 0, error: null }, // total images count for quota
       ];
 
       mockSupabase = createMockSupabase(mockSelect);
@@ -108,6 +110,7 @@ describe("Integration: GeneratedImagesService", () => {
       const mockSelect = [
         { count: 12, error: null },
         { data: mockImages.slice(0, 5), error: null },
+        { count: 12, error: null }, // total images count for quota
       ];
 
       mockSupabase = createMockSupabase(mockSelect);
@@ -136,6 +139,7 @@ describe("Integration: GeneratedImagesService", () => {
       const mockSelect = [
         { count: 12, error: null },
         { data: mockImages.slice(10, 12), error: null },
+        { count: 12, error: null }, // total images count for quota
       ];
 
       mockSupabase = createMockSupabase(mockSelect);
@@ -150,9 +154,7 @@ describe("Integration: GeneratedImagesService", () => {
   });
 
   describe("Filtrowanie unused_only", () => {
-    // FIXME: Tymczasowo wyłączone z powodu infinite recursion w RLS
-    // TODO: Przywrócić po naprawie RLS policies - zobacz RLS-INFINITE-RECURSION-PROBLEM.md
-    it.skip("zwraca tylko nieużyte obrazy (WYŁĄCZONE - RLS issue)", async () => {
+    it("zwraca tylko nieużyte obrazy", async () => {
       const params: Required<GeneratedImagesQueryParams> & {
         page: number;
         limit: number;
@@ -162,12 +164,14 @@ describe("Integration: GeneratedImagesService", () => {
         unused_only: true,
       };
 
-      const mockImages = [createMockImage("image-1"), createMockImage("image-2")];
+      const mockImages = [createMockImage("image-1", "prompt", new Date().toISOString(), false), createMockImage("image-2", "prompt", new Date().toISOString(), false)];
 
-      // Tymczasowo: unused_only jest ignorowane, zwracane są wszystkie obrazy
+      // Z filtrowanym unused_only=true, zwracamy tylko nieużyte obrazy (is_used=false)
+      // Dodajemy trzecie zapytanie dla total images (quota calculation)
       const mockSelect = [
-        { count: 2, error: null },
-        { data: mockImages, error: null },
+        { count: 2, error: null }, // count dla filtered query
+        { data: mockImages, error: null }, // data dla filtered query
+        { count: 5, error: null }, // count dla total images (quota)
       ];
 
       mockSupabase = createMockSupabase(mockSelect);
@@ -177,40 +181,11 @@ describe("Integration: GeneratedImagesService", () => {
 
       expect(result.data).toHaveLength(2);
       expect(result.pagination.total).toBe(2);
-    });
-
-    // FIXME: Tymczasowo wyłączone z powodu infinite recursion w RLS
-    // TODO: Przywrócić po naprawie RLS policies - zobacz RLS-INFINITE-RECURSION-PROBLEM.md
-    it.skip("oznacza obrazy jako użyte (WYŁĄCZONE - RLS issue)", async () => {
-      const params: Required<GeneratedImagesQueryParams> & {
-        page: number;
-        limit: number;
-      } = {
-        page: 1,
-        limit: 20,
-        unused_only: false,
-      };
-
-      const mockImages = [createMockImage("image-1"), createMockImage("image-2"), createMockImage("image-3")];
-
-      // Tymczasowo: is_used zawsze false (nie sprawdzamy tabeli projects)
-      const mockSelect = [
-        { count: 3, error: null },
-        { data: mockImages, error: null },
-      ];
-
-      mockSupabase = createMockSupabase(mockSelect);
-      service = new GeneratedImagesService(mockSupabase);
-
-      const result = await service.listUserGeneratedImages(mockUserId, params);
-
-      // Tymczasowo wszystkie obrazy mają is_used = false
       expect(result.data[0].is_used).toBe(false);
       expect(result.data[1].is_used).toBe(false);
-      expect(result.data[2].is_used).toBe(false);
     });
 
-    it("zwraca wszystkie obrazy z is_used=false (workaround RLS)", async () => {
+    it("poprawnie oznacza obrazy jako użyte lub nieużyte", async () => {
       const params: Required<GeneratedImagesQueryParams> & {
         page: number;
         limit: number;
@@ -220,11 +195,16 @@ describe("Integration: GeneratedImagesService", () => {
         unused_only: false,
       };
 
-      const mockImages = [createMockImage("image-1"), createMockImage("image-2"), createMockImage("image-3")];
+      const mockImages = [
+        createMockImage("image-1", "prompt", new Date().toISOString(), true),
+        createMockImage("image-2", "prompt", new Date().toISOString(), false),
+        createMockImage("image-3", "prompt", new Date().toISOString(), true),
+      ];
 
       const mockSelect = [
         { count: 3, error: null },
         { data: mockImages, error: null },
+        { count: 3, error: null }, // total images count for quota
       ];
 
       mockSupabase = createMockSupabase(mockSelect);
@@ -232,13 +212,12 @@ describe("Integration: GeneratedImagesService", () => {
 
       const result = await service.listUserGeneratedImages(mockUserId, params);
 
-      // Sprawdź że wszystkie obrazy są zwrócone
-      expect(result.data).toHaveLength(3);
-      // Sprawdź że wszystkie mają is_used = false (tymczasowe rozwiązanie)
-      result.data.forEach((image) => {
-        expect(image.is_used).toBe(false);
-      });
+      // Sprawdź że flagi is_used są poprawnie ustawione z bazy danych
+      expect(result.data[0].is_used).toBe(true);
+      expect(result.data[1].is_used).toBe(false);
+      expect(result.data[2].is_used).toBe(true);
     });
+
   });
 
   describe("Limit generacji", () => {
@@ -257,6 +236,7 @@ describe("Integration: GeneratedImagesService", () => {
       const mockSelect = [
         { count: 7, error: null },
         { data: mockImages, error: null },
+        { count: 7, error: null }, // total images count for quota
       ];
 
       mockSupabase = createMockSupabase(mockSelect);
@@ -282,6 +262,7 @@ describe("Integration: GeneratedImagesService", () => {
       const mockSelect = [
         { count: 10, error: null },
         { data: mockImages, error: null },
+        { count: 10, error: null }, // total images count for quota
       ];
 
       mockSupabase = createMockSupabase(mockSelect);
@@ -350,6 +331,7 @@ describe("Integration: GeneratedImagesService", () => {
       const mockSelect = [
         { count: 1000, error: null },
         { data: mockImages, error: null },
+        { count: 1000, error: null }, // total images count for quota
       ];
 
       mockSupabase = createMockSupabase(mockSelect);

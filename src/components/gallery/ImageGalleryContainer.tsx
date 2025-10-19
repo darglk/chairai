@@ -6,7 +6,7 @@ import PaginationControls from "@/components/gallery/PaginationControls";
 import { Button } from "@/components/ui/button";
 
 export default function ImageGalleryContainer() {
-  const { images, pagination, isLoading, error, setCurrentPage } = useImageGallery();
+  const { images, pagination, isLoading, error, setCurrentPage, showOnlyUnused, toggleUnusedFilter } = useImageGallery();
 
   // Loading state
   if (isLoading) {
@@ -39,20 +39,43 @@ export default function ImageGalleryContainer() {
         <div className="text-6xl">🖼️</div>
         <h2 className="text-2xl font-semibold">Brak wygenerowanych obrazów</h2>
         <p className="text-muted-foreground text-center max-w-md">
-          Nie wygenerowałeś jeszcze żadnych obrazów. Przejdź do generatora, aby zacząć tworzyć!
+          {showOnlyUnused 
+            ? "Nie masz nieużytych obrazów. Wyłącz filtr, aby zobaczyć wszystkie obrazy."
+            : "Nie wygenerowałeś jeszcze żadnych obrazów. Przejdź do generatora, aby zacząć tworzyć!"}
         </p>
-        <Button asChild>
-          <a href="/generate">Przejdź do generatora</a>
-        </Button>
+        <div className="flex gap-3">
+          <Button asChild>
+            <a href="/generate">Przejdź do generatora</a>
+          </Button>
+          {showOnlyUnused && (
+            <Button onClick={toggleUnusedFilter} variant="outline">
+              Pokaż wszystkie obrazy
+            </Button>
+          )}
+        </div>
       </div>
     );
   }
 
   // Success state with images
-  // Note: Filter controls temporarily disabled due to RLS infinite recursion issue
-  // TODO: Re-enable filter after fixing RLS policies on projects table
   return (
     <div className="space-y-6">
+      {/* Filter controls */}
+      <div className="flex items-center justify-between border-b pb-4">
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">
+            Wyświetlanie: {pagination?.total || 0} {showOnlyUnused ? "nieużytych " : ""}obrazów
+          </span>
+        </div>
+        <Button
+          onClick={toggleUnusedFilter}
+          variant={showOnlyUnused ? "default" : "outline"}
+          size="sm"
+        >
+          {showOnlyUnused ? "✓ Tylko nieużyte" : "Pokaż tylko nieużyte"}
+        </Button>
+      </div>
+
       {/* Images grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {images.map((image) => (

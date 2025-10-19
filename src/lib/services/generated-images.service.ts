@@ -68,14 +68,16 @@ export class GeneratedImagesService {
     // ========================================================================
     // STEP 1: Get total count of images for pagination
     // ========================================================================
-    // Note: We don't filter by unused_only at database level to avoid RLS infinite recursion
-    // with projects table. Instead, we'll mark is_used=false for all images for now.
-    // The unused_only filter is ignored until RLS policies are fixed.
 
     const countQuery = this.supabase
       .from("generated_images")
       .select("*", { count: "exact", head: true })
       .eq("user_id", userId);
+
+    // Apply unused_only filter if requested
+    if (params.unused_only) {
+      countQuery.eq("is_used", false);
+    }
 
     const { count: totalCount, error: countError } = await countQuery;
 
@@ -95,6 +97,11 @@ export class GeneratedImagesService {
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
+    // Apply unused_only filter if requested
+    if (params.unused_only) {
+      dataQuery.eq("is_used", false);
+    }
+
     // Apply pagination
     const offset = (params.page - 1) * params.limit;
     const paginatedQuery = dataQuery.range(offset, offset + params.limit - 1);
@@ -106,10 +113,8 @@ export class GeneratedImagesService {
     }
 
     // ========================================================================
-    // STEP 3: Map to DTO with is_used flag
+    // STEP 3: Map to DTO with is_used flag from database
     // ========================================================================
-    // Note: Setting is_used to false for all images to avoid RLS infinite recursion
-    // TODO: Fix RLS policies on projects table to enable proper is_used detection
 
     const imageDTOs: GeneratedImageDTO[] = (images || []).map((img) => ({
       id: img.id,
@@ -117,15 +122,22 @@ export class GeneratedImagesService {
       prompt: img.prompt,
       image_url: img.image_url,
       created_at: img.created_at,
-      is_used: false, // Temporarily set to false due to RLS recursion issue
+      is_used: img.is_used, // Now using real value from database
     }));
 
     // ========================================================================
     // STEP 4: Calculate remaining generation quota
     // ========================================================================
+    // Note: Quota is based on total images, not filtered count
+    const totalImagesQuery = this.supabase
+      .from("generated_images")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", userId);
+
+    const { count: totalImages } = await totalImagesQuery;
 
     const maxGenerations = getMaxFreeGenerations();
-    const remainingGenerations = Math.max(0, maxGenerations - total);
+    const remainingGenerations = Math.max(0, maxGenerations - (totalImages ?? 0));
 
     // ========================================================================
     // STEP 5: Build pagination metadata

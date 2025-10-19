@@ -102,6 +102,7 @@ export interface Database {
           created_at: string;
           id: string;
           image_url: string;
+          is_used: boolean;
           prompt: string | null;
           user_id: string;
         };
@@ -109,6 +110,7 @@ export interface Database {
           created_at?: string;
           id?: string;
           image_url: string;
+          is_used?: boolean;
           prompt?: string | null;
           user_id: string;
         };
@@ -116,6 +118,7 @@ export interface Database {
           created_at?: string;
           id?: string;
           image_url?: string;
+          is_used?: boolean;
           prompt?: string | null;
           user_id?: string;
         };
