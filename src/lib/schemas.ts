@@ -135,3 +135,21 @@ export const imagePromptSchema = z.object({
 });
 
 export type ImagePrompt = z.infer<typeof imagePromptSchema>;
+
+// ============================================================================
+// Project Schemas
+// ============================================================================
+
+/**
+ * Schema for creating a new project
+ * Maps to CreateProjectCommand interface from types.ts
+ */
+export const CreateProjectSchema = z.object({
+  generated_image_id: z.string().uuid({ message: "Nieprawidłowy UUID dla wygenerowanego obrazu" }),
+  category_id: z.string().uuid({ message: "Nieprawidłowy UUID dla kategorii" }),
+  material_id: z.string().uuid({ message: "Nieprawidłowy UUID dla materiału" }),
+  dimensions: z.string().max(100, "Wymiary nie mogą przekraczać 100 znaków").optional(),
+  budget_range: z.string().max(50, "Budżet nie może przekraczać 50 znaków").optional(),
+});
+
+export type CreateProjectInput = z.infer<typeof CreateProjectSchema>;
