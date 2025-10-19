@@ -172,3 +172,31 @@ export const CreateUpdateArtisanProfileSchema = z.object({
 });
 
 export type CreateUpdateArtisanProfileInput = z.infer<typeof CreateUpdateArtisanProfileSchema>;
+
+/**
+ * Schema for adding specializations to artisan profile
+ * Maps to AddArtisanSpecializationsCommand interface from types.ts
+ */
+export const AddArtisanSpecializationsSchema = z.object({
+  specialization_ids: z
+    .array(z.string().uuid({ message: "Nieprawidłowy format UUID" }))
+    .min(1, "Wymagana jest co najmniej jedna specjalizacja"),
+});
+
+export type AddArtisanSpecializationsInput = z.infer<typeof AddArtisanSpecializationsSchema>;
+
+/**
+ * Schema for portfolio image upload
+ * Validates file size and type
+ */
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+export const PortfolioImageUploadSchema = z.object({
+  image: z
+    .instanceof(File)
+    .refine((file) => file.size <= MAX_FILE_SIZE, "Maksymalny rozmiar pliku to 5MB")
+    .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), "Obsługiwane są tylko formaty .jpg, .png i .webp"),
+});
+
+export type PortfolioImageUploadInput = z.infer<typeof PortfolioImageUploadSchema>;
