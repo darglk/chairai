@@ -131,6 +131,8 @@ export const GET: APIRoute = async (context) => {
 
     // Handle service/database errors
     if (error instanceof Error) {
+      // eslint-disable-next-line no-console
+      console.error("[API] Generated Images Error:", error.message, error.stack);
       return createErrorResponse(
         "INTERNAL_ERROR",
         "Nie udało się pobrać listy obrazów. Spróbuj ponownie później.",
@@ -139,6 +141,8 @@ export const GET: APIRoute = async (context) => {
     }
 
     // Handle unknown errors
+    // eslint-disable-next-line no-console
+    console.error("[API] Unknown error:", error);
     return createErrorResponse("INTERNAL_ERROR", "Nieznany błąd serwera. Spróbuj ponownie później.", 500);
   }
 };

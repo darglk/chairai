@@ -3,6 +3,10 @@ import { Button } from "@/components/ui/button";
 import Logo from "@/components/Logo.astro";
 
 const user = Astro.locals.user;
+const currentPath = Astro.url.pathname;
+
+// Helper function to determine if link is active
+const isActive = (path: string) => currentPath.startsWith(path);
 ---
 
 <header
@@ -19,15 +23,43 @@ const user = Astro.locals.user;
         {
           user ? (
             <>
-              <a
-                href="/generate"
-                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5"
-              >
-                Generator
-              </a>
+              {
+                /* @ts-expect-error - user.role is added by middleware */
+                user.role === "client" && (
+                  <>
+                    <a
+                      href="/generate"
+                      class:list={[
+                        "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
+                        isActive("/generate")
+                          ? "bg-accent text-accent-foreground"
+                          : "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+                      ]}
+                    >
+                      Generator
+                    </a>
+                    <a
+                      href="/gallery"
+                      class:list={[
+                        "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
+                        isActive("/gallery")
+                          ? "bg-accent text-accent-foreground"
+                          : "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+                      ]}
+                    >
+                      Galeria
+                    </a>
+                  </>
+                )
+              }
               <a
                 href="/dashboard"
-                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5"
+                class:list={[
+                  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
+                  isActive("/dashboard")
+                    ? "bg-accent text-accent-foreground"
+                    : "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+                ]}
               >
                 Panel
               </a>

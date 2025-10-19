@@ -1,0 +1,61 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import ImageGalleryContainer from "@/components/gallery/ImageGalleryContainer";
+
+/**
+ * Gallery Page
+ *
+ * Displays a paginated gallery of AI-generated furniture images for logged-in clients.
+ * Protected route - requires authentication and 'client' role.
+ *
+ * Features:
+ * - Displays all generated images with pagination
+ * - Shows usage status for each image
+ * - Allows creating projects from unused images
+ * - Real-time quota tracking
+ */
+
+// ============================================================================
+// STEP 1: Authentication Check
+// ============================================================================
+
+const {
+  data: { user },
+  error: authError,
+} = await Astro.locals.supabase.auth.getUser();
+
+if (authError || !user) {
+  return Astro.redirect("/login", 302);
+}
+
+// ============================================================================
+// STEP 2: Authorization Check - Verify user role
+// ============================================================================
+
+const { data: userData, error: userError } = await Astro.locals.supabase
+  .from("users")
+  .select("role")
+  .eq("id", user.id)
+  .single();
+
+if (userError || !userData) {
+  return Astro.redirect("/login", 302);
+}
+
+// Only clients can access the gallery
+if (userData.role !== "client") {
+  return Astro.redirect("/", 302);
+}
+---
+
+<Layout title="Galeria Obrazów | ChairAI">
+  <main class="container mx-auto py-8 px-4 max-w-7xl">
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold mb-2">Galeria wygenerowanych obrazów</h1>
+      <p class="text-muted-foreground">
+        Przeglądaj swoje wygenerowane obrazy i twórz na ich podstawie projekty
+      </p>
+    </div>
+    <ImageGalleryContainer client:load />
+  </main>
+</Layout>

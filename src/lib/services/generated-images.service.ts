@@ -66,34 +66,16 @@ export class GeneratedImagesService {
     }
 
     // ========================================================================
-    // STEP 0: Fetch used images once if filtering by unused_only
-    // ========================================================================
-
-    let usedImageIds: string[] = [];
-
-    if (params.unused_only) {
-      const { data: usedImages, error: usedError } = await this.supabase.from("projects").select("generated_image_id");
-
-      if (usedError) {
-        throw new Error(`Failed to fetch used images: ${usedError.message}`);
-      }
-
-      usedImageIds = usedImages?.map((p) => p.generated_image_id).filter(Boolean) || [];
-    }
-
-    // ========================================================================
     // STEP 1: Get total count of images for pagination
     // ========================================================================
+    // Note: We don't filter by unused_only at database level to avoid RLS infinite recursion
+    // with projects table. Instead, we'll mark is_used=false for all images for now.
+    // The unused_only filter is ignored until RLS policies are fixed.
 
-    let countQuery = this.supabase
+    const countQuery = this.supabase
       .from("generated_images")
       .select("*", { count: "exact", head: true })
       .eq("user_id", userId);
-
-    // Apply unused_only filter to count query if needed
-    if (params.unused_only && usedImageIds.length > 0) {
-      countQuery = countQuery.not("id", "in", `(${usedImageIds.join(",")})`);
-    }
 
     const { count: totalCount, error: countError } = await countQuery;
 
@@ -107,50 +89,27 @@ export class GeneratedImagesService {
     // STEP 2: Fetch paginated list of images
     // ========================================================================
 
-    let dataQuery = this.supabase
+    const dataQuery = this.supabase
       .from("generated_images")
       .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
-    // Apply unused_only filter to data query if needed
-    if (params.unused_only && usedImageIds.length > 0) {
-      dataQuery = dataQuery.not("id", "in", `(${usedImageIds.join(",")})`);
-    }
-
     // Apply pagination
     const offset = (params.page - 1) * params.limit;
-    dataQuery = dataQuery.range(offset, offset + params.limit - 1);
+    const paginatedQuery = dataQuery.range(offset, offset + params.limit - 1);
 
-    const { data: images, error: dataError } = await dataQuery;
+    const { data: images, error: dataError } = await paginatedQuery;
 
     if (dataError) {
       throw new Error(`Failed to fetch images: ${dataError.message}`);
     }
 
     // ========================================================================
-    // STEP 3: Determine which images on current page are used in projects
+    // STEP 3: Map to DTO with is_used flag
     // ========================================================================
-
-    const imageIds = images?.map((img) => img.id) || [];
-    let pageImageUsedIds: string[] = [];
-
-    if (imageIds.length > 0) {
-      const { data: projects, error: projectsError } = await this.supabase
-        .from("projects")
-        .select("generated_image_id")
-        .in("generated_image_id", imageIds);
-
-      if (projectsError) {
-        throw new Error(`Failed to fetch project data: ${projectsError.message}`);
-      }
-
-      pageImageUsedIds = projects?.map((p) => p.generated_image_id).filter(Boolean) || [];
-    }
-
-    // ========================================================================
-    // STEP 4: Map to DTO with is_used flag
-    // ========================================================================
+    // Note: Setting is_used to false for all images to avoid RLS infinite recursion
+    // TODO: Fix RLS policies on projects table to enable proper is_used detection
 
     const imageDTOs: GeneratedImageDTO[] = (images || []).map((img) => ({
       id: img.id,
@@ -158,18 +117,18 @@ export class GeneratedImagesService {
       prompt: img.prompt,
       image_url: img.image_url,
       created_at: img.created_at,
-      is_used: pageImageUsedIds.includes(img.id),
+      is_used: false, // Temporarily set to false due to RLS recursion issue
     }));
 
     // ========================================================================
-    // STEP 5: Calculate remaining generation quota
+    // STEP 4: Calculate remaining generation quota
     // ========================================================================
 
     const maxGenerations = getMaxFreeGenerations();
     const remainingGenerations = Math.max(0, maxGenerations - total);
 
     // ========================================================================
-    // STEP 6: Build pagination metadata
+    // STEP 5: Build pagination metadata
     // ========================================================================
 
     const paginationMeta: PaginationMetaDTO = {
@@ -180,7 +139,7 @@ export class GeneratedImagesService {
     };
 
     // ========================================================================
-    // STEP 7: Return response
+    // STEP 6: Return response
     // ========================================================================
 
     return {

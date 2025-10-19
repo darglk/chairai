@@ -15,7 +15,7 @@ import type { UserRole } from "../types.ts";
  */
 
 // Routes that require authentication
-const PROTECTED_ROUTES = ["/dashboard", "/generate"];
+const PROTECTED_ROUTES = ["/dashboard", "/generate", "/gallery"];
 
 // Routes that should redirect authenticated users
 const AUTH_ROUTES = ["/login", "/register", "/password-recovery", "/password-reset"];
