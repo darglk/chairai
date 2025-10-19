@@ -19,7 +19,12 @@ describe("Integration: GeneratedImagesService", () => {
 
   const mockUserId = "test-user-123";
 
-  const createMockImage = (id: string, prompt = "test prompt", createdAt = new Date().toISOString(), isUsed = false) => ({
+  const createMockImage = (
+    id: string,
+    prompt = "test prompt",
+    createdAt = new Date().toISOString(),
+    isUsed = false
+  ) => ({
     id,
     user_id: mockUserId,
     prompt,
@@ -164,7 +169,10 @@ describe("Integration: GeneratedImagesService", () => {
         unused_only: true,
       };
 
-      const mockImages = [createMockImage("image-1", "prompt", new Date().toISOString(), false), createMockImage("image-2", "prompt", new Date().toISOString(), false)];
+      const mockImages = [
+        createMockImage("image-1", "prompt", new Date().toISOString(), false),
+        createMockImage("image-2", "prompt", new Date().toISOString(), false),
+      ];
 
       // Z filtrowanym unused_only=true, zwracamy tylko nieużyte obrazy (is_used=false)
       // Dodajemy trzecie zapytanie dla total images (quota calculation)
@@ -217,7 +225,6 @@ describe("Integration: GeneratedImagesService", () => {
       expect(result.data[1].is_used).toBe(false);
       expect(result.data[2].is_used).toBe(true);
     });
-
   });
 
   describe("Limit generacji", () => {

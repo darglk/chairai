@@ -6,7 +6,8 @@ import PaginationControls from "@/components/gallery/PaginationControls";
 import { Button } from "@/components/ui/button";
 
 export default function ImageGalleryContainer() {
-  const { images, pagination, isLoading, error, setCurrentPage, showOnlyUnused, toggleUnusedFilter } = useImageGallery();
+  const { images, pagination, isLoading, error, setCurrentPage, showOnlyUnused, toggleUnusedFilter } =
+    useImageGallery();
 
   // Loading state
   if (isLoading) {
@@ -39,7 +40,7 @@ export default function ImageGalleryContainer() {
         <div className="text-6xl">🖼️</div>
         <h2 className="text-2xl font-semibold">Brak wygenerowanych obrazów</h2>
         <p className="text-muted-foreground text-center max-w-md">
-          {showOnlyUnused 
+          {showOnlyUnused
             ? "Nie masz nieużytych obrazów. Wyłącz filtr, aby zobaczyć wszystkie obrazy."
             : "Nie wygenerowałeś jeszcze żadnych obrazów. Przejdź do generatora, aby zacząć tworzyć!"}
         </p>
@@ -67,11 +68,7 @@ export default function ImageGalleryContainer() {
             Wyświetlanie: {pagination?.total || 0} {showOnlyUnused ? "nieużytych " : ""}obrazów
           </span>
         </div>
-        <Button
-          onClick={toggleUnusedFilter}
-          variant={showOnlyUnused ? "default" : "outline"}
-          size="sm"
-        >
+        <Button onClick={toggleUnusedFilter} variant={showOnlyUnused ? "default" : "outline"} size="sm">
           {showOnlyUnused ? "✓ Tylko nieużyte" : "Pokaż tylko nieużyte"}
         </Button>
       </div>
