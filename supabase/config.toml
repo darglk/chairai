@@ -111,7 +111,7 @@ file_size_limit = "50MiB"
 
 # Configure local storage buckets
 [storage.buckets.chairai_bucket]
-public = false
+public = true
 file_size_limit = "50MiB"
 allowed_mime_types = ["image/png", "image/jpeg", "image/webp"]
 
