@@ -30,11 +30,122 @@ export class ArtisanProfileError extends Error {
 /**
  * Service for managing artisan profiles
  *
- * Provides methods for creating and updating artisan profiles, including validation
- * of NIP uniqueness and business rules.
+ * Provides methods for creating, updating, and retrieving artisan profiles,
+ * including validation of NIP uniqueness and business rules.
  */
 export class ArtisanProfileService {
   constructor(private supabase: SupabaseClient) {}
+
+  /**
+   * Retrieves the complete artisan profile for a given user ID
+   *
+   * Fetches all profile data including:
+   * - Basic profile information (company_name, NIP, is_public)
+   * - Specializations with names
+   * - Portfolio images
+   * - Aggregated review statistics (average rating, total reviews)
+   *
+   * This method returns all profile data regardless of public status,
+   * intended for artisans viewing their own profile or public endpoints
+   * with appropriate authorization checks.
+   *
+   * Performance optimization: Uses Promise.all to fetch independent data
+   * in parallel, reducing total query time.
+   *
+   * @param userId - ID of the artisan user
+   * @returns Promise containing the complete artisan profile, or null if profile doesn't exist
+   * @throws ArtisanProfileError if database errors occur
+   *
+   * @example
+   * const profile = await artisanProfileService.getArtisanProfile("user-uuid");
+   */
+  async getArtisanProfile(userId: string): Promise<ArtisanProfileDTO | null> {
+    // Step 1: Fetch basic profile information
+    const { data: profile, error: profileError } = await this.supabase
+      .from("artisan_profiles")
+      .select(
+        `
+        user_id,
+        company_name,
+        nip,
+        is_public,
+        updated_at
+      `
+      )
+      .eq("user_id", userId)
+      .single();
+
+    // If profile doesn't exist, return null (early return)
+    if (profileError || !profile) {
+      return null;
+    }
+
+    // Step 2: Fetch all dependent data in parallel for better performance
+    // These queries are independent and can be executed simultaneously
+    const [specializationsResult, portfolioResult, reviewsResult] = await Promise.all([
+      // Fetch specializations with names using JOIN
+      this.supabase
+        .from("artisan_specializations")
+        .select(
+          `
+          specialization_id,
+          specializations (
+            id,
+            name
+          )
+        `
+        )
+        .eq("artisan_id", userId),
+
+      // Fetch portfolio images sorted by creation date
+      this.supabase
+        .from("portfolio_images")
+        .select("id, image_url, created_at")
+        .eq("artisan_id", userId)
+        .order("created_at", { ascending: false }),
+
+      // Fetch review ratings for aggregation
+      this.supabase.from("reviews").select("rating").eq("reviewee_id", userId),
+    ]);
+
+    // Step 3: Handle errors from parallel queries
+    if (specializationsResult.error) {
+      throw new ArtisanProfileError("Błąd podczas pobierania specjalizacji", "SPECIALIZATIONS_FETCH_ERROR", 500);
+    }
+
+    if (portfolioResult.error) {
+      throw new ArtisanProfileError("Błąd podczas pobierania zdjęć portfolio", "PORTFOLIO_FETCH_ERROR", 500);
+    }
+
+    if (reviewsResult.error) {
+      throw new ArtisanProfileError("Błąd podczas pobierania statystyk recenzji", "REVIEWS_FETCH_ERROR", 500);
+    }
+
+    // Step 4: Transform specializations data to match DTO structure
+    const specializations: ArtisanSpecializationDTO[] =
+      specializationsResult.data?.map((item) => ({
+        id: (item.specializations as { id: string; name: string }).id,
+        name: (item.specializations as { id: string; name: string }).name,
+      })) || [];
+
+    // Step 5: Calculate aggregated review statistics
+    const totalReviews = reviewsResult.data?.length || 0;
+    const averageRating =
+      totalReviews > 0 ? reviewsResult.data.reduce((sum, review) => sum + review.rating, 0) / totalReviews : null;
+
+    // Step 6: Construct and return complete profile DTO
+    return {
+      user_id: profile.user_id,
+      company_name: profile.company_name,
+      nip: profile.nip,
+      is_public: profile.is_public,
+      specializations,
+      portfolio_images: portfolioResult.data || [],
+      average_rating: averageRating ? Number(averageRating.toFixed(2)) : null,
+      total_reviews: totalReviews,
+      updated_at: profile.updated_at,
+    };
+  }
 
   /**
    * Creates or updates an artisan profile (upsert operation)

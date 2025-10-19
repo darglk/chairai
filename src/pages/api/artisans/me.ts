@@ -142,3 +142,86 @@ export const PUT: APIRoute = async (context) => {
     return createErrorResponse("INTERNAL_ERROR", "Wystąpił nieoczekiwany błąd serwera", 500);
   }
 };
+
+/**
+ * GET handler for artisan profile endpoint.
+ *
+ * Retrieves the complete profile of the authenticated artisan, including:
+ * - Profile information (company name, NIP, public status)
+ * - Specializations
+ * - Portfolio images
+ * - Aggregated review statistics (average rating, total reviews)
+ *
+ * This endpoint returns all profile data regardless of public status,
+ * as it's intended for the artisan to view and manage their own profile.
+ *
+ * @param context - Astro APIContext containing request, locals (Supabase client), and cookies
+ * @returns Response with 200 status and full profile data, or error response with appropriate status code
+ *
+ * @throws {Error} Unexpected errors are caught and returned as 500 Internal Server Error
+ */
+export const GET: APIRoute = async (context) => {
+  try {
+    // ========================================================================
+    // STEP 1: Authentication
+    // Verify user is logged in using Supabase Auth token from context
+    // ========================================================================
+
+    const {
+      data: { user },
+      error: authError,
+    } = await context.locals.supabase.auth.getUser();
+
+    if (authError || !user) {
+      return createErrorResponse("UNAUTHORIZED", "Musisz być zalogowany, aby uzyskać dostęp do profilu", 401);
+    }
+
+    // ========================================================================
+    // STEP 2: Authorization - Role Check
+    // Verify user has "artisan" role (only artisans can view their profile)
+    // ========================================================================
+
+    const { data: userData, error: userError } = await context.locals.supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (userError || !userData) {
+      return createErrorResponse("USER_NOT_FOUND", "Nie znaleziono użytkownika", 404);
+    }
+
+    if (userData.role !== "artisan") {
+      return createErrorResponse("FORBIDDEN", "Tylko rzemieślnicy mogą przeglądać profil zawodowy", 403);
+    }
+
+    // ========================================================================
+    // STEP 3: Business Logic - Fetch Profile
+    // Call service layer to retrieve complete artisan profile
+    // ========================================================================
+
+    const artisanProfileService = new ArtisanProfileService(context.locals.supabase);
+    const profile = await artisanProfileService.getArtisanProfile(user.id);
+
+    // If profile doesn't exist, return 404
+    if (!profile) {
+      return createErrorResponse("PROFILE_NOT_FOUND", "Profil rzemieślnika nie został jeszcze utworzony", 404);
+    }
+
+    // ========================================================================
+    // STEP 4: Success Response
+    // Return complete profile data
+    // ========================================================================
+
+    return createSuccessResponse(profile, 200);
+  } catch (error) {
+    // Handle business logic errors from service layer
+    if (error instanceof ArtisanProfileError) {
+      return createErrorResponse(error.code, error.message, error.statusCode);
+    }
+
+    // Handle unexpected errors
+    // TODO: Implement proper logging service in production
+    return createErrorResponse("INTERNAL_ERROR", "Wystąpił nieoczekiwany błąd serwera", 500);
+  }
+};
