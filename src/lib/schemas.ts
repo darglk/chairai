@@ -153,3 +153,22 @@ export const CreateProjectSchema = z.object({
 });
 
 export type CreateProjectInput = z.infer<typeof CreateProjectSchema>;
+
+// ============================================================================
+// Artisan Profile Schemas
+// ============================================================================
+
+/**
+ * Schema for creating or updating artisan profile
+ * Maps to CreateUpdateArtisanProfileCommand interface from types.ts
+ */
+export const CreateUpdateArtisanProfileSchema = z.object({
+  company_name: z
+    .string({ required_error: "Nazwa firmy jest wymagana" })
+    .min(1, { message: "Nazwa firmy nie może być pusta" }),
+  nip: z
+    .string({ required_error: "NIP jest wymagany" })
+    .regex(/^\d{10}$/, { message: "NIP musi składać się z dokładnie 10 cyfr" }),
+});
+
+export type CreateUpdateArtisanProfileInput = z.infer<typeof CreateUpdateArtisanProfileSchema>;
