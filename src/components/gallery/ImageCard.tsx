@@ -34,7 +34,7 @@ export default function ImageCard({ image }: ImageCardProps) {
         {!image.is_used && (
           <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <Button asChild size="lg" className="shadow-xl">
-              <a href={`/projects/create?imageId=${image.id}`}>Stwórz projekt</a>
+              <a href={`/projects/new/${image.id}`}>Stwórz projekt</a>
             </Button>
           </div>
         )}

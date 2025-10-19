@@ -1,0 +1,86 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import ProjectFormContainer from "@/components/projects/ProjectFormContainer";
+import type { CategoryDTO, MaterialDTO, GeneratedImageDTO } from "@/types";
+import type { SupabaseClient } from "@/db/supabase.client";
+
+export const prerender = false;
+
+const { imageId } = Astro.params;
+
+if (!imageId) {
+  return Astro.redirect("/gallery");
+}
+
+const supabase: SupabaseClient = Astro.locals.supabase;
+
+// Sprawdzenie autoryzacji
+const {
+  data: { session },
+} = await supabase.auth.getSession();
+
+if (!session) {
+  return Astro.redirect("/login");
+}
+
+// Pobranie danych obrazu
+const { data: imageData, error: imageError } = await supabase
+  .from("generated_images")
+  .select("*")
+  .eq("id", imageId)
+  .eq("user_id", session.user.id)
+  .single();
+
+if (imageError || !imageData) {
+  return Astro.redirect("/gallery");
+}
+
+// Sprawdzenie czy obraz nie został już użyty
+if (imageData.is_used) {
+  return Astro.redirect("/gallery?error=image_already_used");
+}
+
+// Pobranie kategorii
+const { data: categories, error: categoriesError } = await supabase
+  .from("categories")
+  .select("*")
+  .order("name");
+
+if (categoriesError) {
+  console.error("Error fetching categories:", categoriesError);
+  return new Response("Internal Server Error", { status: 500 });
+}
+
+// Pobranie materiałów
+const { data: materials, error: materialsError } = await supabase
+  .from("materials")
+  .select("*")
+  .order("name");
+
+if (materialsError) {
+  console.error("Error fetching materials:", materialsError);
+  return new Response("Internal Server Error", { status: 500 });
+}
+
+const image: GeneratedImageDTO = {
+  id: imageData.id,
+  user_id: imageData.user_id,
+  prompt: imageData.prompt,
+  image_url: imageData.image_url,
+  created_at: imageData.created_at,
+  is_used: imageData.is_used,
+};
+---
+
+<Layout title="Utwórz nowy projekt">
+  <div class="container mx-auto px-4 py-8 max-w-4xl">
+    <ProjectFormContainer
+      client:load
+      imageId={image.id}
+      imageUrl={image.image_url}
+      imagePrompt={image.prompt}
+      categories={categories as CategoryDTO[]}
+      materials={materials as MaterialDTO[]}
+    />
+  </div>
+</Layout>

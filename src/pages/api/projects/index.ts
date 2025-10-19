@@ -116,6 +116,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     // Handle unexpected errors
+    // eslint-disable-next-line no-console
+    console.error("[API] Unexpected error in POST /api/projects:", error);
     return createErrorResponse("INTERNAL_SERVER_ERROR", "Wystąpił nieoczekiwany błąd", 500);
   }
 };

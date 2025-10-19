@@ -56,12 +56,18 @@ export class ProjectService {
    * }, clientId);
    */
   async createProject(dto: CreateProjectCommand, clientId: string): Promise<ProjectDTO> {
+    // eslint-disable-next-line no-console
+    console.log("[ProjectService] Starting createProject", { dto, clientId });
+    
     // Step 1: Validate generated image exists and belongs to client
     const { data: generatedImage, error: imageError } = await this.supabase
       .from("generated_images")
       .select("id, user_id")
       .eq("id", dto.generated_image_id)
       .single();
+
+    // eslint-disable-next-line no-console
+    console.log("[ProjectService] Image validation result:", { generatedImage, imageError });
 
     if (imageError || !generatedImage) {
       throw new ProjectError("Nie znaleziono wygenerowanego obrazu", "IMAGE_NOT_FOUND", 404);
@@ -115,6 +121,9 @@ export class ProjectService {
       budget_range: dto.budget_range || null,
     };
 
+    // eslint-disable-next-line no-console
+    console.log("[ProjectService] Inserting project:", projectInsert);
+
     const { data: project, error: projectError } = await this.supabase
       .from("projects")
       .insert(projectInsert)
@@ -146,11 +155,16 @@ export class ProjectService {
       )
       .single();
 
+    // eslint-disable-next-line no-console
+    console.log("[ProjectService] Insert result:", { project, projectError });
+
     if (projectError || !project) {
       // Check if it's a unique constraint violation (image already used)
       if (projectError?.code === "23505") {
         throw new ProjectError("Ten obraz jest już używany w innym projekcie", "IMAGE_ALREADY_USED", 409);
       }
+      // eslint-disable-next-line no-console
+      console.error("[ProjectService] Project creation failed:", projectError);
       throw new ProjectError("Nie udało się utworzyć projektu", "PROJECT_CREATE_FAILED", 500);
     }
 
