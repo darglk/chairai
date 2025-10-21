@@ -257,3 +257,45 @@ export type ProjectsQuery = z.infer<typeof ProjectsQuerySchema>;
 export const ProjectIdSchema = z.string().uuid({ message: "Nieprawidłowy UUID dla projektu" });
 
 export type ProjectId = z.infer<typeof ProjectIdSchema>;
+
+// ============================================================================
+// Proposal Schemas
+// ============================================================================
+
+/**
+ * Schema for creating a proposal
+ * Validates price and attachment file for proposal submission
+ */
+export const CreateProposalSchema = z.object({
+  price: z
+    .number({
+      required_error: "Cena jest wymagana",
+      invalid_type_error: "Cena musi być liczbą",
+    })
+    .positive({ message: "Cena musi być dodatnia" })
+    .max(1000000, { message: "Cena nie może przekraczać 1,000,000 PLN" }),
+  attachment: z
+    .instanceof(File, { message: "Załącznik jest wymagany" })
+    .refine((file) => file.size > 0, {
+      message: "Plik nie może być pusty",
+    })
+    .refine((file) => file.size <= 5 * 1024 * 1024, {
+      message: "Rozmiar pliku nie może przekraczać 5MB",
+    })
+    .refine((file) => ["application/pdf", "image/jpeg", "image/png", "image/jpg"].includes(file.type), {
+      message: "Nieprawidłowy typ pliku. Dozwolone są tylko PDF, JPG i PNG",
+    }),
+});
+
+export type CreateProposalInput = z.infer<typeof CreateProposalSchema>;
+
+// ============================================================================
+// Artisan Profile Schemas
+// ============================================================================
+
+/**
+ * Schema for artisan ID path parameter
+ */
+export const ArtisanIdSchema = z.string().uuid({ message: "Nieprawidłowy format ID rzemieślnika" });
+
+export type ArtisanId = z.infer<typeof ArtisanIdSchema>;

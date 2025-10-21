@@ -472,4 +472,34 @@ export class ArtisanProfileService {
     // Step 5: Delete from storage (best effort - don't fail if this fails)
     await this.supabase.storage.from("portfolio-images").remove([filePath]);
   }
+
+  /**
+   * Get public artisan profile
+   *
+   * Retrieves artisan profile for public viewing. Unlike getArtisanProfile,
+   * this method enforces that the profile must be published (is_public = true).
+   *
+   * @param artisanId - User ID of the artisan
+   * @returns ArtisanProfileDTO with complete profile information
+   * @throws ArtisanProfileError if profile not found or not published
+   *
+   * @example
+   * const profile = await artisanProfileService.getPublicProfile("artisan-uuid");
+   */
+  async getPublicProfile(artisanId: string): Promise<ArtisanProfileDTO> {
+    // Fetch complete profile
+    const profile = await this.getArtisanProfile(artisanId);
+
+    // Check if profile exists
+    if (!profile) {
+      throw new ArtisanProfileError("Nie znaleziono profilu rzemieślnika", "PROFILE_NOT_FOUND", 404);
+    }
+
+    // Check if profile is published
+    if (!profile.is_public) {
+      throw new ArtisanProfileError("Profil rzemieślnika nie jest opublikowany", "PROFILE_NOT_PUBLISHED", 403);
+    }
+
+    return profile;
+  }
 }

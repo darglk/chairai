@@ -486,3 +486,190 @@ describe("ArtisanProfileService - Portfolio Images", () => {
     });
   });
 });
+
+describe("ArtisanProfileService - getPublicProfile()", () => {
+  let service: ArtisanProfileService;
+  let mockSupabase: SupabaseClient;
+  let mockFrom: ReturnType<typeof vi.fn>;
+
+  const mockArtisanId = "artisan-uuid-1";
+
+  beforeEach(() => {
+    mockSupabase = createMockSupabaseClient();
+    mockFrom = mockSupabase.from as ReturnType<typeof vi.fn>;
+    service = new ArtisanProfileService(mockSupabase);
+    vi.clearAllMocks();
+  });
+
+  describe("Error Cases", () => {
+    it("powinien rzucić błąd 404 gdy profil nie istnieje", async () => {
+      // Mock: Profile not found
+      const mockProfileChain = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        single: vi.fn().mockResolvedValue({
+          data: null,
+          error: { message: "Profile not found" },
+        }),
+      };
+
+      mockFrom.mockReturnValue(mockProfileChain);
+
+      try {
+        await service.getPublicProfile(mockArtisanId);
+        expect.fail("Should have thrown an error");
+      } catch (error) {
+        expect(error).toBeInstanceOf(ArtisanProfileError);
+        expect((error as ArtisanProfileError).code).toBe("PROFILE_NOT_FOUND");
+        expect((error as ArtisanProfileError).statusCode).toBe(404);
+        expect((error as ArtisanProfileError).message).toContain("Nie znaleziono profilu");
+      }
+    });
+
+    it("powinien rzucić błąd 403 gdy profil nie jest opublikowany", async () => {
+      // Mock: Profile exists but is not public
+      const mockProfileChain = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        single: vi.fn().mockResolvedValue({
+          data: {
+            user_id: mockArtisanId,
+            company_name: "Test Company",
+            nip: "1234567890",
+            is_public: false,
+            updated_at: "2025-10-21T12:00:00Z",
+          },
+          error: null,
+        }),
+      };
+
+      // Mock: Specializations
+      const mockSpecializationsChain = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockResolvedValue({
+          data: [],
+          error: null,
+        }),
+      };
+
+      // Mock: Portfolio
+      const mockPortfolioChain = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        order: vi.fn().mockResolvedValue({
+          data: [],
+          error: null,
+        }),
+      };
+
+      // Mock: Reviews
+      const mockReviewsChain = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockResolvedValue({
+          data: [],
+          error: null,
+        }),
+      };
+
+      mockFrom
+        .mockReturnValueOnce(mockProfileChain)
+        .mockReturnValueOnce(mockSpecializationsChain)
+        .mockReturnValueOnce(mockPortfolioChain)
+        .mockReturnValueOnce(mockReviewsChain);
+
+      try {
+        await service.getPublicProfile(mockArtisanId);
+        expect.fail("Should have thrown an error");
+      } catch (error) {
+        expect(error).toBeInstanceOf(ArtisanProfileError);
+        expect((error as ArtisanProfileError).code).toBe("PROFILE_NOT_PUBLISHED");
+        expect((error as ArtisanProfileError).statusCode).toBe(403);
+        expect((error as ArtisanProfileError).message).toContain("nie jest opublikowany");
+      }
+    });
+  });
+
+  describe("Success Cases", () => {
+    it("powinien zwrócić publiczny profil z pełnymi danymi", async () => {
+      // Mock: Profile exists and is public
+      const mockProfileChain = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        single: vi.fn().mockResolvedValue({
+          data: {
+            user_id: mockArtisanId,
+            company_name: "Test Company",
+            nip: "1234567890",
+            is_public: true,
+            updated_at: "2025-10-21T12:00:00Z",
+          },
+          error: null,
+        }),
+      };
+
+      // Mock: Specializations
+      const mockSpecializationsChain = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockResolvedValue({
+          data: [
+            {
+              specialization_id: "spec-1",
+              specializations: { id: "spec-1", name: "Stolarz" },
+            },
+          ],
+          error: null,
+        }),
+      };
+
+      // Mock: Portfolio
+      const mockPortfolioChain = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        order: vi.fn().mockResolvedValue({
+          data: [
+            {
+              id: "img-1",
+              image_url: "https://example.com/img1.jpg",
+              created_at: "2025-10-20T10:00:00Z",
+            },
+          ],
+          error: null,
+        }),
+      };
+
+      // Mock: Reviews
+      const mockReviewsChain = {
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockResolvedValue({
+          data: [{ rating: 5 }, { rating: 4 }],
+          error: null,
+        }),
+      };
+
+      mockFrom
+        .mockReturnValueOnce(mockProfileChain)
+        .mockReturnValueOnce(mockSpecializationsChain)
+        .mockReturnValueOnce(mockPortfolioChain)
+        .mockReturnValueOnce(mockReviewsChain);
+
+      const result = await service.getPublicProfile(mockArtisanId);
+
+      expect(result).toMatchObject({
+        user_id: mockArtisanId,
+        company_name: "Test Company",
+        nip: "1234567890",
+        is_public: true,
+        specializations: [{ id: "spec-1", name: "Stolarz" }],
+        portfolio_images: [
+          {
+            id: "img-1",
+            image_url: "https://example.com/img1.jpg",
+            created_at: "2025-10-20T10:00:00Z",
+          },
+        ],
+        average_rating: 4.5,
+        total_reviews: 2,
+      });
+    });
+  });
+});
