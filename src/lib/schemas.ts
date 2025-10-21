@@ -212,3 +212,48 @@ export const PortfolioImageUploadSchema = z.object({
 });
 
 export type PortfolioImageUploadInput = z.infer<typeof PortfolioImageUploadSchema>;
+
+// ============================================================================
+// Project Query Schemas
+// ============================================================================
+
+/**
+ * Schema for listing projects query parameters
+ * Maps to ProjectsQueryParams interface from types.ts
+ */
+export const ProjectsQuerySchema = z.object({
+  status: z
+    .string()
+    .nullable()
+    .transform((val) => val || "open")
+    .pipe(z.enum(["open", "in_progress", "completed", "closed"])),
+  category_id: z
+    .string()
+    .nullable()
+    .transform((val) => val || undefined)
+    .pipe(z.string().uuid({ message: "Nieprawidłowy UUID dla kategorii" }).optional()),
+  material_id: z
+    .string()
+    .nullable()
+    .transform((val) => val || undefined)
+    .pipe(z.string().uuid({ message: "Nieprawidłowy UUID dla materiału" }).optional()),
+  page: z
+    .string()
+    .nullable()
+    .transform((val) => (val ? parseInt(val, 10) : 1))
+    .pipe(z.number().int().positive()),
+  limit: z
+    .string()
+    .nullable()
+    .transform((val) => (val ? parseInt(val, 10) : 20))
+    .pipe(z.number().int().positive().max(100)),
+});
+
+export type ProjectsQuery = z.infer<typeof ProjectsQuerySchema>;
+
+/**
+ * Schema for project ID path parameter
+ */
+export const ProjectIdSchema = z.string().uuid({ message: "Nieprawidłowy UUID dla projektu" });
+
+export type ProjectId = z.infer<typeof ProjectIdSchema>;

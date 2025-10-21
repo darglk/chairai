@@ -598,4 +598,417 @@ describe("Unit: ProjectService", () => {
         });
     });
   });
+
+  // ============================================================================
+  // LIST PROJECTS TESTS
+  // ============================================================================
+
+  describe("listProjects", () => {
+    const mockUserId = "artisan-123";
+    const mockArtisanRole = "artisan";
+    const mockClientRole = "client";
+
+    describe("Success Cases", () => {
+      it("should list projects for artisan with default parameters", async () => {
+        const mockProjects = [
+          {
+            id: "project-1",
+            client_id: "client-1",
+            status: "open",
+            dimensions: "100x50x80 cm",
+            budget_range: "1000-2000 PLN",
+            accepted_proposal_id: null,
+            accepted_price: null,
+            created_at: "2025-10-19T12:00:00Z",
+            updated_at: "2025-10-19T12:00:00Z",
+            generated_image: {
+              id: "image-1",
+              image_url: "https://example.com/image1.jpg",
+              prompt: "test prompt 1",
+            },
+            category: {
+              id: "category-1",
+              name: "Krzesła",
+            },
+            material: {
+              id: "material-1",
+              name: "Dąb",
+            },
+          },
+          {
+            id: "project-2",
+            client_id: "client-2",
+            status: "open",
+            dimensions: "200x100x75 cm",
+            budget_range: "5000-8000 PLN",
+            accepted_proposal_id: null,
+            accepted_price: null,
+            created_at: "2025-10-19T11:00:00Z",
+            updated_at: "2025-10-19T11:00:00Z",
+            generated_image: {
+              id: "image-2",
+              image_url: "https://example.com/image2.jpg",
+              prompt: "test prompt 2",
+            },
+            category: {
+              id: "category-2",
+              name: "Stoły",
+            },
+            material: {
+              id: "material-2",
+              name: "Sosna",
+            },
+          },
+        ];
+
+        (mockSupabase.from as ReturnType<typeof vi.fn>).mockReturnValue({
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          order: vi.fn().mockReturnThis(),
+          range: vi.fn().mockResolvedValue({
+            data: mockProjects,
+            error: null,
+            count: 2,
+          }),
+        });
+
+        const result = await service.listProjects(
+          {
+            status: "open",
+            page: 1,
+            limit: 20,
+          },
+          mockUserId,
+          mockArtisanRole
+        );
+
+        expect(result).toEqual({
+          data: mockProjects,
+          pagination: {
+            page: 1,
+            limit: 20,
+            total: 2,
+            total_pages: 1,
+          },
+        });
+        expect(mockSupabase.from).toHaveBeenCalledWith("projects");
+      });
+
+      it("should apply filters correctly", async () => {
+        const mockSelect = vi.fn().mockReturnThis();
+        const mockEq = vi.fn().mockReturnThis();
+        const mockOrder = vi.fn().mockReturnThis();
+        const mockRange = vi.fn().mockResolvedValue({
+          data: [],
+          error: null,
+          count: 0,
+        });
+
+        (mockSupabase.from as ReturnType<typeof vi.fn>).mockReturnValue({
+          select: mockSelect,
+          eq: mockEq,
+          order: mockOrder,
+          range: mockRange,
+        });
+
+        await service.listProjects(
+          {
+            status: "in_progress",
+            category_id: "category-123",
+            material_id: "material-123",
+            page: 2,
+            limit: 10,
+          },
+          mockUserId,
+          mockArtisanRole
+        );
+
+        expect(mockEq).toHaveBeenCalledWith("status", "in_progress");
+        expect(mockEq).toHaveBeenCalledWith("category_id", "category-123");
+        expect(mockEq).toHaveBeenCalledWith("material_id", "material-123");
+        expect(mockRange).toHaveBeenCalledWith(10, 19); // page 2, limit 10
+      });
+
+      it("should calculate pagination correctly", async () => {
+        (mockSupabase.from as ReturnType<typeof vi.fn>).mockReturnValue({
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          order: vi.fn().mockReturnThis(),
+          range: vi.fn().mockResolvedValue({
+            data: [],
+            error: null,
+            count: 53,
+          }),
+        });
+
+        const result = await service.listProjects(
+          {
+            status: "open",
+            page: 2,
+            limit: 20,
+          },
+          mockUserId,
+          mockArtisanRole
+        );
+
+        expect(result.pagination).toEqual({
+          page: 2,
+          limit: 20,
+          total: 53,
+          total_pages: 3,
+        });
+      });
+    });
+
+    describe("Authorization", () => {
+      it("should reject non-artisan users", async () => {
+        await expect(
+          service.listProjects(
+            {
+              status: "open",
+              page: 1,
+              limit: 20,
+            },
+            mockUserId,
+            mockClientRole
+          )
+        ).rejects.toThrow(ProjectError);
+
+        try {
+          await service.listProjects(
+            {
+              status: "open",
+              page: 1,
+              limit: 20,
+            },
+            mockUserId,
+            mockClientRole
+          );
+        } catch (error) {
+          expect((error as ProjectError).code).toBe("FORBIDDEN");
+          expect((error as ProjectError).statusCode).toBe(403);
+        }
+      });
+    });
+
+    describe("Error Handling", () => {
+      it("should handle database errors", async () => {
+        (mockSupabase.from as ReturnType<typeof vi.fn>).mockReturnValue({
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          order: vi.fn().mockReturnThis(),
+          range: vi.fn().mockResolvedValue({
+            data: null,
+            error: { message: "Database error" },
+            count: null,
+          }),
+        });
+
+        await expect(
+          service.listProjects(
+            {
+              status: "open",
+              page: 1,
+              limit: 20,
+            },
+            mockUserId,
+            mockArtisanRole
+          )
+        ).rejects.toThrow(ProjectError);
+
+        try {
+          await service.listProjects(
+            {
+              status: "open",
+              page: 1,
+              limit: 20,
+            },
+            mockUserId,
+            mockArtisanRole
+          );
+        } catch (error) {
+          expect((error as ProjectError).code).toBe("PROJECT_LIST_FAILED");
+          expect((error as ProjectError).statusCode).toBe(500);
+        }
+      });
+    });
+  });
+
+  // ============================================================================
+  // GET PROJECT DETAILS TESTS
+  // ============================================================================
+
+  describe("getProjectDetails", () => {
+    const mockProjectId = "project-123";
+    const mockClientId = "client-123";
+    const mockArtisanId = "artisan-123";
+
+    const mockProject = {
+      id: mockProjectId,
+      client_id: mockClientId,
+      status: "open",
+      dimensions: "100x50x80 cm",
+      budget_range: "1000-2000 PLN",
+      accepted_proposal_id: null,
+      accepted_price: null,
+      created_at: "2025-10-19T12:00:00Z",
+      updated_at: "2025-10-19T12:00:00Z",
+      generated_image: {
+        id: "image-123",
+        image_url: "https://example.com/image.jpg",
+        prompt: "test prompt",
+      },
+      category: {
+        id: "category-123",
+        name: "Krzesła",
+      },
+      material: {
+        id: "material-123",
+        name: "Dąb",
+      },
+    };
+
+    describe("Success Cases", () => {
+      it("should return project details for owner", async () => {
+        let callIndex = 0;
+        (mockSupabase.from as ReturnType<typeof vi.fn>).mockImplementation(() => {
+          callIndex++;
+
+          if (callIndex === 1) {
+            // First call: fetch project
+            return {
+              select: vi.fn().mockReturnThis(),
+              eq: vi.fn().mockReturnThis(),
+              single: vi.fn().mockResolvedValue({
+                data: mockProject,
+                error: null,
+              }),
+            };
+          }
+
+          if (callIndex === 2) {
+            // Second call: count proposals
+            return {
+              select: vi.fn().mockReturnThis(),
+              eq: vi.fn().mockResolvedValue({
+                count: 3,
+                error: null,
+              }),
+            };
+          }
+
+          return {};
+        });
+
+        const result = await service.getProjectDetails(mockProjectId, mockClientId, "client");
+
+        expect(result.id).toBe(mockProjectId);
+        expect(result.client_id).toBe(mockClientId);
+        expect(result.proposals_count).toBe(3);
+      });
+
+      it("should return project details for artisan when project is open", async () => {
+        let callIndex = 0;
+        (mockSupabase.from as ReturnType<typeof vi.fn>).mockImplementation(() => {
+          callIndex++;
+
+          if (callIndex === 1) {
+            return {
+              select: vi.fn().mockReturnThis(),
+              eq: vi.fn().mockReturnThis(),
+              single: vi.fn().mockResolvedValue({
+                data: mockProject,
+                error: null,
+              }),
+            };
+          }
+
+          if (callIndex === 2) {
+            return {
+              select: vi.fn().mockReturnThis(),
+              eq: vi.fn().mockResolvedValue({
+                count: 5,
+                error: null,
+              }),
+            };
+          }
+
+          return {};
+        });
+
+        const result = await service.getProjectDetails(mockProjectId, mockArtisanId, "artisan");
+
+        expect(result.id).toBe(mockProjectId);
+        expect(result.proposals_count).toBe(5);
+      });
+    });
+
+    describe("Authorization", () => {
+      it("should reject artisan access to closed project", async () => {
+        const closedProject = { ...mockProject, status: "completed" };
+
+        (mockSupabase.from as ReturnType<typeof vi.fn>).mockReturnValue({
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({
+            data: closedProject,
+            error: null,
+          }),
+        });
+
+        await expect(service.getProjectDetails(mockProjectId, mockArtisanId, "artisan")).rejects.toThrow(ProjectError);
+
+        try {
+          await service.getProjectDetails(mockProjectId, mockArtisanId, "artisan");
+        } catch (error) {
+          expect((error as ProjectError).code).toBe("PROJECT_FORBIDDEN");
+          expect((error as ProjectError).statusCode).toBe(403);
+        }
+      });
+
+      it("should reject non-owner client access", async () => {
+        (mockSupabase.from as ReturnType<typeof vi.fn>).mockReturnValue({
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({
+            data: mockProject,
+            error: null,
+          }),
+        });
+
+        await expect(service.getProjectDetails(mockProjectId, "different-client-id", "client")).rejects.toThrow(
+          ProjectError
+        );
+
+        try {
+          await service.getProjectDetails(mockProjectId, "different-client-id", "client");
+        } catch (error) {
+          expect((error as ProjectError).code).toBe("PROJECT_FORBIDDEN");
+          expect((error as ProjectError).statusCode).toBe(403);
+        }
+      });
+    });
+
+    describe("Error Handling", () => {
+      it("should handle project not found", async () => {
+        (mockSupabase.from as ReturnType<typeof vi.fn>).mockReturnValue({
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          single: vi.fn().mockResolvedValue({
+            data: null,
+            error: { message: "Not found" },
+          }),
+        });
+
+        await expect(service.getProjectDetails(mockProjectId, mockClientId, "client")).rejects.toThrow(ProjectError);
+
+        try {
+          await service.getProjectDetails(mockProjectId, mockClientId, "client");
+        } catch (error) {
+          expect((error as ProjectError).code).toBe("PROJECT_NOT_FOUND");
+          expect((error as ProjectError).statusCode).toBe(404);
+        }
+      });
+    });
+  });
 });
