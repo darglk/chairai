@@ -4,10 +4,10 @@ import { CheckCircle2 } from "lucide-react";
 
 /**
  * In Progress Projects List
- * 
+ *
  * Displays projects currently in progress for the artisan
  * Shows projects where artisan's proposal was accepted
- * 
+ *
  * TODO: Connect to real projects API endpoint when available
  * Endpoint: GET /api/projects/me?status=in_progress
  */
@@ -35,9 +35,5 @@ export function InProgressProjectsList() {
   }
 
   // TODO: Render project cards when API is available
-  return (
-    <div className="space-y-4">
-      {/* Project cards will be rendered here */}
-    </div>
-  );
+  return <div className="space-y-4">{/* Project cards will be rendered here */}</div>;
 }

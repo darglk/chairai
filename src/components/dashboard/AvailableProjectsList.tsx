@@ -4,10 +4,10 @@ import { ExternalLink } from "lucide-react";
 
 /**
  * Available Projects List
- * 
+ *
  * Displays a preview of recent projects available in marketplace
  * Shows up to 3 projects with option to view all
- * 
+ *
  * TODO: Connect to real projects API endpoint when available
  * Endpoint: GET /api/projects?status=open&limit=3
  */
@@ -35,9 +35,5 @@ export function AvailableProjectsList() {
   }
 
   // TODO: Render project cards when API is available
-  return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {/* Project cards will be rendered here */}
-    </div>
-  );
+  return <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{/* Project cards will be rendered here */}</div>;
 }

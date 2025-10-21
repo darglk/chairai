@@ -79,7 +79,7 @@ export function LoginForm() {
         if (userData.role === "artisan") {
           window.location.href = "/dashboard/artisan";
         } else {
-          window.location.href = "/generate";
+          window.location.href = "/dashboard/client";
         }
       } else {
         // Fallback to home if role fetch fails

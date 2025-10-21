@@ -4,6 +4,25 @@ import HeroSection from "@/components/landing/HeroSection.astro";
 import BenefitsSection from "@/components/landing/BenefitsSection.astro";
 import HowItWorksSection from "@/components/landing/HowItWorksSection.astro";
 import CallToActionSection from "@/components/landing/CallToActionSection.astro";
+
+// Check if user is authenticated and redirect to appropriate dashboard
+const { data: { user } } = await Astro.locals.supabase.auth.getUser();
+
+if (user) {
+  // Get user role
+  const { data: userData } = await Astro.locals.supabase
+    .from("users")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  // Redirect based on role
+  if (userData?.role === "artisan") {
+    return Astro.redirect("/dashboard/artisan");
+  } else if (userData?.role === "client") {
+    return Astro.redirect("/dashboard/client");
+  }
+}
 ---
 
 <Layout title="ChairAI - Przekształć swoje pomysły w realne meble">

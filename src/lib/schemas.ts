@@ -111,9 +111,21 @@ export type GenerateImageInput = z.infer<typeof GenerateImageSchema>;
  * Maps to GeneratedImagesQueryParams interface from types.ts
  */
 export const GeneratedImagesQuerySchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(20),
-  unused_only: z.coerce.boolean().default(false),
+  page: z
+    .string()
+    .nullable()
+    .transform((val) => (val ? parseInt(val, 10) : 1))
+    .pipe(z.number().int().positive()),
+  limit: z
+    .string()
+    .nullable()
+    .transform((val) => (val ? parseInt(val, 10) : 20))
+    .pipe(z.number().int().positive().max(100)),
+  unused_only: z
+    .string()
+    .nullable()
+    .transform((val) => val === "true")
+    .pipe(z.boolean()),
 });
 
 export type GeneratedImagesQuery = z.infer<typeof GeneratedImagesQuerySchema>;

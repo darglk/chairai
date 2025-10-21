@@ -9,7 +9,7 @@ import type { ApiErrorDTO } from "@/types";
 
 /**
  * Main Artisan Dashboard Container
- * 
+ *
  * Orchestrates all dashboard sections and manages data fetching
  */
 export default function ArtisanDashboard() {
@@ -103,9 +103,7 @@ export default function ArtisanDashboard() {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Pulpit Rzemieślnika</h1>
-        <p className="text-muted-foreground">
-          Zarządzaj swoimi projektami i ofertami w jednym miejscu
-        </p>
+        <p className="text-muted-foreground">Zarządzaj swoimi projektami i ofertami w jednym miejscu</p>
       </div>
 
       {/* Main content */}
@@ -127,10 +125,7 @@ export default function ArtisanDashboard() {
               <h2 className="text-2xl font-semibold">Dostępne Projekty</h2>
               <p className="text-sm text-muted-foreground">Projekty oczekujące na ofertę</p>
             </div>
-            <a
-              href="/market"
-              className="text-sm font-medium text-primary hover:underline"
-            >
+            <a href="/market" className="text-sm font-medium text-primary hover:underline">
               Zobacz wszystkie →
             </a>
           </div>

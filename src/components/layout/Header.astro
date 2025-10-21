@@ -68,10 +68,10 @@ const isActive = (path: string) => currentPath.startsWith(path);
                   </a>
                 ) : (
                   <a
-                    href="/generate"
+                    href="/dashboard/client"
                     class:list={[
                       "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-                      isActive("/generate")
+                      isActive("/dashboard")
                         ? "bg-accent text-accent-foreground"
                         : "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
                     ]}

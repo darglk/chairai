@@ -7,7 +7,7 @@ import type { ArtisanProfileDTO, ApiErrorDTO } from "@/types";
 
 /**
  * Profile Summary Card
- * 
+ *
  * Displays artisan's profile overview with key information:
  * - Company name
  * - Profile status (public/private)
@@ -88,9 +88,7 @@ export function ProfileSummaryCard() {
         {/* Rating */}
         <div className="flex items-center gap-2">
           <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-          <span className="font-semibold">
-            {profile.average_rating ? profile.average_rating.toFixed(1) : "—"}
-          </span>
+          <span className="font-semibold">{profile.average_rating ? profile.average_rating.toFixed(1) : "—"}</span>
           <span className="text-sm text-muted-foreground">
             ({profile.total_reviews} {profile.total_reviews === 1 ? "ocena" : "ocen"})
           </span>

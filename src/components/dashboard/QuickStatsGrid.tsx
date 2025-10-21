@@ -3,13 +3,13 @@ import { Briefcase, Clock, TrendingUp, DollarSign } from "lucide-react";
 
 /**
  * Quick Stats Grid
- * 
+ *
  * Displays key metrics for artisan at a glance:
  * - Active proposals (submitted but not yet accepted/rejected)
  * - Projects in progress
  * - Completed projects this month
  * - Estimated monthly revenue (placeholder for future feature)
- * 
+ *
  * TODO: Connect to real data from API endpoints when available
  */
 export function QuickStatsGrid() {

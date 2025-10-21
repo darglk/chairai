@@ -1,0 +1,41 @@
+---
+/**
+ * Client Dashboard Page
+ * 
+ * Central hub for clients to manage their projects and access key actions.
+ * 
+ * Features:
+ * - Quick actions section (create new project, view gallery)
+ * - List of active projects with status
+ * - Statistics about user's activity
+ * 
+ * Access: Authenticated clients only
+ */
+
+import Layout from "@/layouts/Layout.astro";
+import ClientDashboard from "@/components/dashboard/ClientDashboard";
+
+// Get authenticated user
+const { data: { user } } = await Astro.locals.supabase.auth.getUser();
+
+// Redirect to login if not authenticated
+if (!user) {
+  return Astro.redirect("/login");
+}
+
+// Get user role
+const { data: userData } = await Astro.locals.supabase
+  .from("users")
+  .select("role")
+  .eq("id", user.id)
+  .single();
+
+// Redirect to home if not a client
+if (!userData || userData.role !== "client") {
+  return Astro.redirect("/");
+}
+---
+
+<Layout title="Pulpit - ChairAI">
+  <ClientDashboard client:load />
+</Layout>

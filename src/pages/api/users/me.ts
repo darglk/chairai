@@ -1,8 +1,8 @@
 /**
  * Current User API Endpoint
- * 
+ *
  * Returns information about the currently authenticated user
- * 
+ *
  * GET /api/users/me
  * Returns: { id, email, role }
  */
