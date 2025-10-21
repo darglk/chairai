@@ -134,10 +134,13 @@ export const PUT: APIRoute = async (context) => {
 
     // Handle business logic errors from service layer
     if (error instanceof ArtisanProfileError) {
+      console.error("ArtisanProfileError in PUT /api/artisans/me:", error);
       return createErrorResponse(error.code, error.message, error.statusCode);
     }
 
     // Handle unexpected errors
+    console.error("Unexpected error in PUT /api/artisans/me:", error);
+    console.error("Error stack:", error instanceof Error ? error.stack : "No stack trace");
     // TODO: Implement proper logging service in production
     return createErrorResponse("INTERNAL_ERROR", "Wystąpił nieoczekiwany błąd serwera", 500);
   }

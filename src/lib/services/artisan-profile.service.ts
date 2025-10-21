@@ -209,6 +209,13 @@ export class ArtisanProfileService {
       .single();
 
     if (upsertError) {
+      // eslint-disable-next-line no-console
+      console.error("Database upsert error details:", {
+        message: upsertError.message,
+        code: upsertError.code,
+        details: upsertError.details,
+        hint: upsertError.hint,
+      });
       throw new ArtisanProfileError("Błąd podczas tworzenia/aktualizacji profilu rzemieślnika", "UPSERT_ERROR", 500);
     }
 
@@ -346,7 +353,14 @@ export class ArtisanProfileService {
     });
 
     if (uploadError) {
-      throw new ArtisanProfileError("Błąd podczas przesyłania obrazu", "IMAGE_UPLOAD_ERROR", 500);
+      // Log error details for debugging (TODO: use proper logging service in production)
+      // eslint-disable-next-line no-console
+      console.error("Storage upload error:", uploadError);
+      throw new ArtisanProfileError(
+        `Błąd podczas przesyłania obrazu: ${uploadError.message}`,
+        "IMAGE_UPLOAD_ERROR",
+        500
+      );
     }
 
     // Step 3: Get public URL

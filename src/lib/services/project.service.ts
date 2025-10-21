@@ -58,7 +58,7 @@ export class ProjectService {
   async createProject(dto: CreateProjectCommand, clientId: string): Promise<ProjectDTO> {
     // eslint-disable-next-line no-console
     console.log("[ProjectService] Starting createProject", { dto, clientId });
-    
+
     // Step 1: Validate generated image exists and belongs to client
     const { data: generatedImage, error: imageError } = await this.supabase
       .from("generated_images")

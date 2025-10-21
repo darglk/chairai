@@ -1,0 +1,22 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import ArtisanProfileEditView from "@/components/profile/ArtisanProfileEditView";
+
+// Check if user is authenticated and has artisan role
+const user = Astro.locals.user;
+
+if (!user) {
+  return Astro.redirect("/login");
+}
+
+// @ts-expect-error - role is added in middleware
+if (user.role !== "artisan") {
+  return Astro.redirect("/");
+}
+---
+
+<Layout title="Edycja profilu rzemieślnika">
+  <main class="container mx-auto px-4 py-8">
+    <ArtisanProfileEditView client:load />
+  </main>
+</Layout>

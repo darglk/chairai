@@ -71,8 +71,20 @@ export function LoginForm() {
         return;
       }
 
-      // Successful login - redirect to home page
-      window.location.href = "/";
+      // Successful login - fetch user role and redirect accordingly
+      const userResponse = await fetch("/api/users/me");
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        // Redirect based on role
+        if (userData.role === "artisan") {
+          window.location.href = "/dashboard/artisan";
+        } else {
+          window.location.href = "/generate";
+        }
+      } else {
+        // Fallback to home if role fetch fails
+        window.location.href = "/";
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Wystąpił błąd serwera. Spróbuj ponownie później.");
     } finally {

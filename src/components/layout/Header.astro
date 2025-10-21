@@ -52,17 +52,34 @@ const isActive = (path: string) => currentPath.startsWith(path);
                   </>
                 )
               }
-              <a
-                href="/dashboard"
-                class:list={[
-                  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
-                  isActive("/dashboard")
-                    ? "bg-accent text-accent-foreground"
-                    : "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-                ]}
-              >
-                Panel
-              </a>
+              {
+                /* @ts-expect-error - user.role is added by middleware */
+                user.role === "artisan" ? (
+                  <a
+                    href="/dashboard/artisan"
+                    class:list={[
+                      "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
+                      isActive("/dashboard")
+                        ? "bg-accent text-accent-foreground"
+                        : "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+                    ]}
+                  >
+                    Panel
+                  </a>
+                ) : (
+                  <a
+                    href="/generate"
+                    class:list={[
+                      "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
+                      isActive("/generate")
+                        ? "bg-accent text-accent-foreground"
+                        : "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+                    ]}
+                  >
+                    Panel
+                  </a>
+                )
+              }
               <form method="POST" action="/api/auth/logout">
                 <Button type="submit" size="sm" class="text-sm sm:text-base">
                   Wyloguj
