@@ -22,6 +22,7 @@ interface FieldErrors {
 export function CompanyDataForm({ initialData, onNext, isSubmitting }: CompanyDataFormProps) {
   const [companyName, setCompanyName] = useState(initialData.company_name);
   const [nip, setNip] = useState(initialData.nip);
+  const [isPublic, setIsPublic] = useState(initialData.is_public);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [touched, setTouched] = useState<{ company_name: boolean; nip: boolean }>({
     company_name: false,
@@ -95,6 +96,7 @@ export function CompanyDataForm({ initialData, onNext, isSubmitting }: CompanyDa
       onNext({
         company_name: companyName.trim(),
         nip: nip.trim(),
+        is_public: isPublic,
       });
     }
   };
@@ -152,6 +154,26 @@ export function CompanyDataForm({ initialData, onNext, isSubmitting }: CompanyDa
             </p>
           )}
           <p className="text-xs text-muted-foreground">Wprowadź 10 cyfr bez kresek i spacji</p>
+        </div>
+
+        {/* Profile Visibility Field */}
+        <div className="flex items-center space-x-2 rounded-lg border p-4">
+          <input
+            id="is_public"
+            type="checkbox"
+            checked={isPublic}
+            onChange={(e) => setIsPublic(e.target.checked)}
+            disabled={isSubmitting}
+            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary"
+          />
+          <div className="flex-1">
+            <Label htmlFor="is_public" className="cursor-pointer">
+              Udostępnij profil publicznie
+            </Label>
+            <p className="text-xs text-muted-foreground mt-1">
+              Twój profil będzie widoczny w katalogu rzemieślników i dostępny dla potencjalnych klientów
+            </p>
+          </div>
         </div>
       </div>
 

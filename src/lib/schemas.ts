@@ -181,6 +181,7 @@ export const CreateUpdateArtisanProfileSchema = z.object({
   nip: z
     .string({ required_error: "NIP jest wymagany" })
     .regex(/^\d{10}$/, { message: "NIP musi składać się z dokładnie 10 cyfr" }),
+  is_public: z.boolean(),
 });
 
 export type CreateUpdateArtisanProfileInput = z.infer<typeof CreateUpdateArtisanProfileSchema>;

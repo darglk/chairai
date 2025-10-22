@@ -140,6 +140,22 @@ export default function ArtisanDashboard() {
           </div>
           <InProgressProjectsList />
         </section>
+
+        {/* Completed Projects - Link only */}
+        <section>
+          <div className="rounded-lg border bg-card p-6 text-center">
+            <h2 className="text-xl font-semibold mb-2">Zakończone Projekty</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Zobacz wszystkie projekty, które zrealizowałeś oraz opinie klientów
+            </p>
+            <a
+              href="/projects?status=completed"
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+            >
+              Pokaż zakończone projekty
+            </a>
+          </div>
+        </section>
       </div>
     </div>
   );

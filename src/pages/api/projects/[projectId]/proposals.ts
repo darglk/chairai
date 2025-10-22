@@ -200,6 +200,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
     }
 
     // Fetch proposals with artisan details
+    // Note: proposals.artisan_id -> users.id -> artisan_profiles.user_id
     const { data: proposals, error: proposalsError } = await locals.supabase
       .from("proposals")
       .select(
@@ -211,11 +212,9 @@ export const GET: APIRoute = async ({ params, locals }) => {
         message,
         attachment_url,
         created_at,
-        artisan_profiles!inner (
-          company_name,
-          city,
-          users!inner (
-            full_name
+        users!proposals_artisan_id_fkey (
+          artisan_profiles (
+            company_name
           )
         )
       `
@@ -229,7 +228,22 @@ export const GET: APIRoute = async ({ params, locals }) => {
       return createErrorResponse("INTERNAL_SERVER_ERROR", "Nie udało się pobrać ofert", 500);
     }
 
-    return createSuccessResponse(proposals || []);
+    // Transform data to match expected structure
+    // proposals.users.artisan_profiles -> proposals.artisan_profiles
+    const transformedProposals = (proposals || []).map((proposal) => ({
+      id: proposal.id,
+      project_id: proposal.project_id,
+      artisan_id: proposal.artisan_id,
+      price: proposal.price,
+      message: proposal.message,
+      attachment_url: proposal.attachment_url,
+      created_at: proposal.created_at,
+      artisan_profiles: {
+        company_name: proposal.users?.artisan_profiles?.company_name || "Nieznany rzemieślnik",
+      },
+    }));
+
+    return createSuccessResponse({ data: transformedProposals });
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error("[API] Unexpected error in GET /api/projects/{projectId}/proposals:", error);

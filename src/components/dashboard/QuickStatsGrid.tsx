@@ -1,5 +1,14 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Briefcase, Clock, TrendingUp, DollarSign } from "lucide-react";
+import { Briefcase, Clock, TrendingUp, DollarSign, Loader2 } from "lucide-react";
+import type { MyProposalDTO } from "@/types";
+
+interface Stats {
+  activeProposals: number;
+  inProgress: number;
+  completedThisMonth: number;
+  potentialRevenue: number;
+}
 
 /**
  * Quick Stats Grid
@@ -8,46 +17,114 @@ import { Briefcase, Clock, TrendingUp, DollarSign } from "lucide-react";
  * - Active proposals (submitted but not yet accepted/rejected)
  * - Projects in progress
  * - Completed projects this month
- * - Estimated monthly revenue (placeholder for future feature)
- *
- * TODO: Connect to real data from API endpoints when available
+ * - Potential revenue from active proposals
  */
 export function QuickStatsGrid() {
-  // Placeholder data - will be replaced with real API calls
-  const stats = [
+  const [stats, setStats] = useState<Stats>({
+    activeProposals: 0,
+    inProgress: 0,
+    completedThisMonth: 0,
+    potentialRevenue: 0,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setIsLoading(true);
+
+        // Fetch all proposals
+        const response = await fetch("/api/proposals/me");
+        if (!response.ok) {
+          throw new Error("Failed to fetch proposals");
+        }
+
+        const data = await response.json();
+        const proposals: MyProposalDTO[] = data.data || [];
+
+        // Calculate stats
+        const activeProposals = proposals.filter((p) => p.project.status === "open" && !p.is_accepted).length;
+
+        const inProgress = proposals.filter((p) => p.project.status === "in_progress" && p.is_accepted).length;
+
+        // Completed this month
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const completedThisMonth = proposals.filter((p) => {
+          if (p.project.status !== "completed" || !p.is_accepted) return false;
+          const createdDate = new Date(p.created_at);
+          return createdDate >= firstDayOfMonth;
+        }).length;
+
+        // Potential revenue from active proposals
+        const potentialRevenue = proposals
+          .filter((p) => p.project.status === "open" && !p.is_accepted)
+          .reduce((sum, p) => sum + p.price, 0);
+
+        setStats({
+          activeProposals,
+          inProgress,
+          completedThisMonth,
+          potentialRevenue,
+        });
+      } catch {
+        // Silently fail - stats will remain at 0
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  const statsDisplay = [
     {
       title: "Aktywne oferty",
-      value: "0",
+      value: stats.activeProposals.toString(),
       description: "Oczekujące na odpowiedź",
       icon: Clock,
       trend: null,
     },
     {
       title: "W realizacji",
-      value: "0",
+      value: stats.inProgress.toString(),
       description: "Projekty do ukończenia",
       icon: Briefcase,
       trend: null,
     },
     {
       title: "Ukończone w tym miesiącu",
-      value: "0",
+      value: stats.completedThisMonth.toString(),
       description: "Zrealizowane projekty",
       icon: TrendingUp,
       trend: null,
     },
     {
       title: "Potencjalny przychód",
-      value: "0 zł",
+      value: `${stats.potentialRevenue.toLocaleString("pl-PL")} zł`,
       description: "Z aktywnych ofert",
       icon: DollarSign,
       trend: null,
     },
   ];
 
+  if (isLoading) {
+    return (
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[1, 2, 3, 4].map((i) => (
+          <Card key={i}>
+            <CardContent className="p-6 flex items-center justify-center">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {stats.map((stat, index) => {
+      {statsDisplay.map((stat, index) => {
         const Icon = stat.icon;
         return (
           <Card key={index}>

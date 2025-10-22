@@ -1,0 +1,40 @@
+---
+/**
+ * Artisan Projects List Page
+ *
+ * Displays list of artisan's projects (proposals) with filtering by status.
+ *
+ * Query Parameters:
+ * - status: "open" | "in_progress" | "completed" | "closed" (optional)
+ *
+ * Access: Authenticated artisans only
+ */
+
+import Layout from "@/layouts/Layout.astro";
+import ArtisanProjectsList from "@/components/projects/ArtisanProjectsList";
+
+// Get authenticated user
+const {
+  data: { user },
+} = await Astro.locals.supabase.auth.getUser();
+
+// Redirect to login if not authenticated
+if (!user) {
+  return Astro.redirect("/login");
+}
+
+// Get user role
+const { data: userData } = await Astro.locals.supabase.from("users").select("role").eq("id", user.id).single();
+
+// Redirect to home if not an artisan
+if (!userData || userData.role !== "artisan") {
+  return Astro.redirect("/");
+}
+
+// Get status filter from query params
+const status = Astro.url.searchParams.get("status") || undefined;
+---
+
+<Layout title="Moje Projekty - ChairAI">
+  <ArtisanProjectsList client:load status={status} />
+</Layout>

@@ -24,6 +24,7 @@ export interface ArtisanProfileViewModel {
 export interface CompanyDataViewModel {
   company_name: string;
   nip: string;
+  is_public: boolean;
 }
 
 /**
@@ -121,6 +122,7 @@ export function useArtisanProfileForm(): UseArtisanProfileFormReturn {
       ...prev,
       company_name: data.company_name,
       nip: data.nip,
+      is_public: data.is_public,
     }));
     setCurrentStep(FormStep.Specializations);
     setError(null);
@@ -146,6 +148,7 @@ export function useArtisanProfileForm(): UseArtisanProfileFormReturn {
         const companyDataCommand: CreateUpdateArtisanProfileCommand = {
           company_name: profileData.company_name,
           nip: profileData.nip,
+          is_public: profileData.is_public,
         };
 
         const companyResponse = await fetch("/api/artisans/me", {
@@ -194,7 +197,7 @@ export function useArtisanProfileForm(): UseArtisanProfileFormReturn {
         setIsSubmitting(false);
       }
     },
-    [profileData.company_name, profileData.nip]
+    [profileData.company_name, profileData.nip, profileData.is_public]
   );
 
   /**

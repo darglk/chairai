@@ -191,6 +191,7 @@ export class ArtisanProfileService {
           user_id: userId,
           company_name: dto.company_name,
           nip: dto.nip,
+          is_public: dto.is_public,
           updated_at: new Date().toISOString(),
         },
         {

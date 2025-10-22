@@ -3,14 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, MapPin, Download, User } from "lucide-react";
+import { Loader2, Download, User } from "lucide-react";
 
 interface ArtisanProfile {
   company_name: string;
-  city: string;
-  users: {
-    full_name: string;
-  };
 }
 
 interface Proposal {
@@ -26,6 +22,7 @@ interface Proposal {
 
 interface ProposalsListProps {
   projectId: string;
+  onProposalAccepted?: () => void;
 }
 
 /**
@@ -34,10 +31,11 @@ interface ProposalsListProps {
  * Displays list of proposals for a project (client view).
  * Allows client to view and accept proposals.
  */
-export function ProposalsList({ projectId }: ProposalsListProps) {
+export function ProposalsList({ projectId, onProposalAccepted }: ProposalsListProps) {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [acceptingProposalId, setAcceptingProposalId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProposals = async () => {
@@ -63,6 +61,37 @@ export function ProposalsList({ projectId }: ProposalsListProps) {
 
     fetchProposals();
   }, [projectId]);
+
+  const handleAcceptProposal = async (proposalId: string) => {
+    if (acceptingProposalId) return; // Prevent multiple clicks
+
+    setAcceptingProposalId(proposalId);
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}/accept-proposal`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ proposal_id: proposalId }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || "Nie udało się zaakceptować oferty");
+      }
+
+      // Call parent callback to refresh project data
+      if (onProposalAccepted) {
+        onProposalAccepted();
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Wystąpił błąd podczas akceptacji oferty";
+      alert(errorMessage);
+    } finally {
+      setAcceptingProposalId(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -117,10 +146,6 @@ export function ProposalsList({ projectId }: ProposalsListProps) {
                         <User className="h-4 w-4 text-muted-foreground" />
                         <span className="font-semibold">{proposal.artisan_profiles.company_name}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <MapPin className="h-3 w-3" />
-                        <span>{proposal.artisan_profiles.city}</span>
-                      </div>
                     </div>
                     <Badge variant="secondary" className="text-lg font-bold">
                       {proposal.price.toLocaleString("pl-PL")} PLN
@@ -143,8 +168,20 @@ export function ProposalsList({ projectId }: ProposalsListProps) {
                         </a>
                       </Button>
                     )}
-                    <Button size="sm" className="ml-auto">
-                      Akceptuj ofertę
+                    <Button
+                      size="sm"
+                      className="ml-auto"
+                      onClick={() => handleAcceptProposal(proposal.id)}
+                      disabled={acceptingProposalId !== null}
+                    >
+                      {acceptingProposalId === proposal.id ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Akceptowanie...
+                        </>
+                      ) : (
+                        "Akceptuj ofertę"
+                      )}
                     </Button>
                   </div>
 

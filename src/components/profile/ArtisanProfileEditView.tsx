@@ -86,6 +86,7 @@ export default function ArtisanProfileEditView() {
               initialData={{
                 company_name: profileData.company_name,
                 nip: profileData.nip,
+                is_public: profileData.is_public,
               }}
               onNext={handleCompanyDataNext}
               isSubmitting={isSubmitting}

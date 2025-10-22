@@ -1,19 +1,70 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CheckCircle2, Loader2, ExternalLink } from "lucide-react";
+import type { MyProposalDTO } from "@/types";
 
 /**
  * In Progress Projects List
  *
  * Displays projects currently in progress for the artisan
  * Shows projects where artisan's proposal was accepted
- *
- * TODO: Connect to real projects API endpoint when available
- * Endpoint: GET /api/projects/me?status=in_progress
  */
 export function InProgressProjectsList() {
-  // Placeholder - no projects yet
-  const projects: never[] = [];
+  const [projects, setProjects] = useState<MyProposalDTO[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchInProgressProjects = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const response = await fetch("/api/proposals/me?status=in_progress");
+
+        if (!response.ok) {
+          throw new Error("Nie udało się pobrać projektów");
+        }
+
+        const data = await response.json();
+        // Filter only accepted proposals (is_accepted: true)
+        const acceptedProposals = (data.data || []).filter((p: MyProposalDTO) => p.is_accepted);
+        setProjects(acceptedProposals);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "Wystąpił błąd podczas ładowania projektów";
+        setError(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchInProgressProjects();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="py-6">
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (projects.length === 0) {
     return (
@@ -34,6 +85,44 @@ export function InProgressProjectsList() {
     );
   }
 
-  // TODO: Render project cards when API is available
-  return <div className="space-y-4">{/* Project cards will be rendered here */}</div>;
+  return (
+    <div className="grid gap-4 md:grid-cols-2">
+      {projects.map((proposal) => (
+        <Card key={proposal.id}>
+          <CardHeader className="pb-3">
+            <div className="flex items-start justify-between">
+              <CardTitle className="text-lg">{proposal.project.category.name}</CardTitle>
+              <Badge variant="secondary">W realizacji</Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {/* Project Image */}
+            <div className="aspect-video relative bg-muted rounded-lg overflow-hidden mb-4">
+              <img
+                src={proposal.project.generated_image.image_url}
+                alt={proposal.project.category.name}
+                className="object-cover w-full h-full"
+              />
+            </div>
+
+            {/* Price */}
+            <div className="mb-4">
+              <p className="text-sm text-muted-foreground">Zaakceptowana cena</p>
+              <p className="text-lg font-bold">{proposal.price.toLocaleString("pl-PL")} PLN</p>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-2">
+              <Button size="sm" className="flex-1" asChild>
+                <a href={`/projects/${proposal.project.id}`}>
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Szczegóły projektu
+                </a>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
 }

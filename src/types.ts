@@ -131,6 +131,7 @@ export interface ArtisanProfileDTO {
 export interface CreateUpdateArtisanProfileCommand {
   company_name: string;
   nip: string;
+  is_public: boolean;
 }
 
 /**

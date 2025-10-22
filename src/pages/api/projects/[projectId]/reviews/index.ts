@@ -41,18 +41,22 @@
  */
 
 import type { APIRoute } from "astro";
-import { ProjectIdSchema, CreateReviewSchema } from "../../../../lib/schemas";
-import { ReviewService, ReviewError } from "../../../../lib/services/review.service";
-import { createErrorResponse, createSuccessResponse } from "../../../../lib/api-utils";
+import { ProjectIdSchema, CreateReviewSchema } from "../../../../../lib/schemas";
+import { ReviewService, ReviewError } from "../../../../../lib/services/review.service";
+import { createErrorResponse, createSuccessResponse } from "../../../../../lib/api-utils";
 import { ZodError } from "zod";
 
 export const POST: APIRoute = async ({ params, request, locals }) => {
+  // eslint-disable-next-line no-console
+  console.log("[DEBUG] POST /api/projects/{projectId}/reviews called");
   try {
     // ========================================================================
     // STEP 1: Authentication
     // Verify user is logged in (handled by middleware in locals.user)
     // ========================================================================
     const user = locals.user;
+    // eslint-disable-next-line no-console
+    console.log("[DEBUG] User:", user?.id, "Role:", user?.role);
     if (!user || !user.id) {
       return createErrorResponse("UNAUTHORIZED", "Wymagane uwierzytelnienie", 401);
     }
@@ -91,6 +95,8 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     // STEP 4: Create Review
     // Use ReviewService to handle business logic
     // ========================================================================
+    // eslint-disable-next-line no-console
+    console.log("[DEBUG] Creating review for project:", projectId);
     const reviewService = new ReviewService(locals.supabase);
 
     const review = await reviewService.createReview(projectId, user.id, {
@@ -98,17 +104,25 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
       comment: validationResult.data.comment,
     });
 
+    // eslint-disable-next-line no-console
+    console.log("[DEBUG] Review created successfully:", review.id);
     // Return 201 Created with review data
     return createSuccessResponse(review, 201);
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("[DEBUG] Error in review creation:", error);
     // Handle known business logic errors from ReviewService
     if (error instanceof ReviewError) {
+      // eslint-disable-next-line no-console
+      console.log("[DEBUG] ReviewError:", error.code, error.message);
       return createErrorResponse(error.code, error.message, error.statusCode);
     }
 
     // Handle Zod validation errors (shouldn't happen due to safeParse, but just in case)
     if (error instanceof ZodError) {
       const firstError = error.errors[0];
+      // eslint-disable-next-line no-console
+      console.log("[DEBUG] ZodError:", firstError?.message);
       return createErrorResponse("VALIDATION_ERROR", firstError?.message || "Błąd walidacji", 400);
     }
 

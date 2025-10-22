@@ -531,7 +531,21 @@ export class ProjectService {
     const isOwner = project.client_id === userId;
     const isArtisanViewingOpenProject = userRole === "artisan" && project.status === "open";
 
-    if (!isOwner && !isArtisanViewingOpenProject) {
+    // Check if artisan has accepted proposal on this project (for in_progress/completed projects)
+    let isArtisanWithAcceptedProposal = false;
+    if (userRole === "artisan" && !isArtisanViewingOpenProject) {
+      const { data: artisanProposal } = await this.supabase
+        .from("proposals")
+        .select("id")
+        .eq("project_id", project.id)
+        .eq("artisan_id", userId)
+        .eq("id", project.accepted_proposal_id || "")
+        .maybeSingle();
+
+      isArtisanWithAcceptedProposal = !!artisanProposal;
+    }
+
+    if (!isOwner && !isArtisanViewingOpenProject && !isArtisanWithAcceptedProposal) {
       throw new ProjectError("Brak uprawnień do wyświetlenia tego projektu", "PROJECT_FORBIDDEN", 403);
     }
 

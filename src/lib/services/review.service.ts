@@ -62,8 +62,7 @@ export class ReviewService {
         id,
         client_id,
         status,
-        accepted_proposal_id,
-        proposals!inner(artisan_id)
+        accepted_proposal_id
       `
       )
       .eq("id", projectId)
@@ -167,15 +166,8 @@ export class ReviewService {
       throw new ReviewError("Nie udało się pobrać utworzonej recenzji", "REVIEW_FETCH_FAILED", 500);
     }
 
-    // Step 8: Get reviewer email from auth
-    const {
-      data: { user: reviewerUser },
-      error: reviewerError,
-    } = await this.supabase.auth.admin.getUserById(reviewerId);
-
-    if (reviewerError || !reviewerUser) {
-      throw new ReviewError("Nie udało się pobrać danych recenzenta", "REVIEWER_FETCH_FAILED", 500);
-    }
+    // Step 8: Get reviewer data - for now just use ID
+    // TODO: In future, fetch from auth.users or add display name to public.users
 
     // Step 9: Transform to ReviewDTO
     return {
@@ -188,7 +180,7 @@ export class ReviewService {
       },
       reviewer: {
         id: reviewerId,
-        name: reviewerUser.email?.split("@")[0] || "Anonim",
+        name: "Użytkownik", // Placeholder - email is in auth.users which requires admin access
       },
       rating: completeReview.rating,
       comment: completeReview.comment,
