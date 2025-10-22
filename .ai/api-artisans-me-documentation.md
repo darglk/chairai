@@ -7,25 +7,30 @@ Endpoint umożliwiający uwierzytelnionym rzemieślnikom utworzenie lub aktualiz
 ## Szczegóły żądania
 
 ### Metoda HTTP
+
 `PUT`
 
 ### URL
+
 ```
 /api/artisans/me
 ```
 
 ### Autoryzacja
+
 - **Wymagana**: Tak
 - **Typ**: Bearer Token (Supabase Auth)
 - **Rola**: `artisan` (tylko rzemieślnicy mogą zarządzać profilem)
 
 ### Nagłówki
+
 ```http
 Authorization: Bearer {access_token}
 Content-Type: application/json
 ```
 
 ### Request Body
+
 ```json
 {
   "company_name": "Master Woodworks",
@@ -35,10 +40,10 @@ Content-Type: application/json
 
 #### Parametry
 
-| Pole | Typ | Wymagane | Opis | Walidacja |
-|------|-----|----------|------|-----------|
-| `company_name` | string | Tak | Nazwa firmy rzemieślnika | Min. 1 znak, nie może być pusta |
-| `nip` | string | Tak | Numer identyfikacji podatkowej | Dokładnie 10 cyfr |
+| Pole           | Typ    | Wymagane | Opis                           | Walidacja                       |
+| -------------- | ------ | -------- | ------------------------------ | ------------------------------- |
+| `company_name` | string | Tak      | Nazwa firmy rzemieślnika       | Min. 1 znak, nie może być pusta |
+| `nip`          | string | Tak      | Numer identyfikacji podatkowej | Dokładnie 10 cyfr               |
 
 ## Odpowiedzi
 
@@ -63,6 +68,7 @@ Zwraca utworzony lub zaktualizowany profil rzemieślnika.
 ### Błędy
 
 #### 401 Unauthorized
+
 Użytkownik nie jest zalogowany lub token jest nieprawidłowy.
 
 ```json
@@ -75,6 +81,7 @@ Użytkownik nie jest zalogowany lub token jest nieprawidłowy.
 ```
 
 #### 403 Forbidden
+
 Użytkownik nie ma roli `artisan`.
 
 ```json
@@ -87,6 +94,7 @@ Użytkownik nie ma roli `artisan`.
 ```
 
 #### 404 Not Found
+
 Użytkownik nie został znaleziony w bazie danych.
 
 ```json
@@ -99,6 +107,7 @@ Użytkownik nie został znaleziony w bazie danych.
 ```
 
 #### 409 Conflict
+
 Podany NIP jest już używany przez innego rzemieślnika.
 
 ```json
@@ -111,6 +120,7 @@ Podany NIP jest już używany przez innego rzemieślnika.
 ```
 
 #### 422 Unprocessable Entity
+
 Błąd walidacji danych wejściowych.
 
 ```json
@@ -127,6 +137,7 @@ Błąd walidacji danych wejściowych.
 ```
 
 #### 500 Internal Server Error
+
 Nieoczekiwany błąd serwera lub błąd bazy danych.
 
 ```json
@@ -163,6 +174,7 @@ lub
 ### cURL
 
 #### Utworzenie nowego profilu
+
 ```bash
 curl -X PUT https://example.com/api/artisans/me \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
@@ -174,6 +186,7 @@ curl -X PUT https://example.com/api/artisans/me \
 ```
 
 #### Aktualizacja istniejącego profilu
+
 ```bash
 curl -X PUT https://example.com/api/artisans/me \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
@@ -188,15 +201,15 @@ curl -X PUT https://example.com/api/artisans/me \
 
 ```javascript
 const updateProfile = async () => {
-  const response = await fetch('/api/artisans/me', {
-    method: 'PUT',
+  const response = await fetch("/api/artisans/me", {
+    method: "PUT",
     headers: {
-      'Authorization': `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      company_name: 'Master Woodworks',
-      nip: '1234567890',
+      company_name: "Master Woodworks",
+      nip: "1234567890",
     }),
   });
 
@@ -213,22 +226,22 @@ const updateProfile = async () => {
 ### TypeScript (z Supabase)
 
 ```typescript
-import type { CreateUpdateArtisanProfileCommand, ArtisanProfileDTO } from '@/types';
+import type { CreateUpdateArtisanProfileCommand, ArtisanProfileDTO } from "@/types";
 
-const updateArtisanProfile = async (
-  data: CreateUpdateArtisanProfileCommand
-): Promise<ArtisanProfileDTO> => {
-  const { data: { session } } = await supabase.auth.getSession();
-  
+const updateArtisanProfile = async (data: CreateUpdateArtisanProfileCommand): Promise<ArtisanProfileDTO> => {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
   if (!session) {
-    throw new Error('Nie jesteś zalogowany');
+    throw new Error("Nie jesteś zalogowany");
   }
 
-  const response = await fetch('/api/artisans/me', {
-    method: 'PUT',
+  const response = await fetch("/api/artisans/me", {
+    method: "PUT",
     headers: {
-      'Authorization': `Bearer ${session.access_token}`,
-      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session.access_token}`,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
   });
@@ -244,12 +257,12 @@ const updateArtisanProfile = async (
 // Użycie
 try {
   const profile = await updateArtisanProfile({
-    company_name: 'Master Woodworks',
-    nip: '1234567890',
+    company_name: "Master Woodworks",
+    nip: "1234567890",
   });
-  console.log('Profil zaktualizowany:', profile);
+  console.log("Profil zaktualizowany:", profile);
 } catch (error) {
-  console.error('Błąd:', error.message);
+  console.error("Błąd:", error.message);
 }
 ```
 
@@ -266,6 +279,7 @@ try {
 ### Operacja Upsert
 
 Endpoint wykorzystuje operację **upsert** (update + insert), co oznacza:
+
 - Jeśli profil rzemieślnika nie istnieje, zostanie utworzony
 - Jeśli profil już istnieje, zostanie zaktualizowany
 - Wielokrotne wywołania z tymi samymi danymi są idempotentne
@@ -273,6 +287,7 @@ Endpoint wykorzystuje operację **upsert** (update + insert), co oznacza:
 ### Wartości domyślne
 
 Przy pierwszym utworzeniu profilu:
+
 - `is_public`: `false` (profil jest domyślnie niewidoczny publicznie)
 - `specializations`: `[]` (pusta lista, wypełniana osobnym endpointem)
 - `portfolio_images`: `[]` (puste portfolio, wypełniane osobno)
@@ -286,11 +301,13 @@ Przy pierwszym utworzeniu profilu:
 Lokalizacja: `tests/unit/lib/artisan-profile.service.test.ts` i `tests/unit/api/artisans/me.test.ts`
 
 Uruchomienie:
+
 ```bash
 npm run test:run -- tests/unit/lib/artisan-profile.service.test.ts tests/unit/api/artisans/me.test.ts
 ```
 
 Pokrycie testowe:
+
 - ✅ Pomyślne utworzenie profilu
 - ✅ Pomyślna aktualizacja profilu
 - ✅ Walidacja unikalności NIP
@@ -304,16 +321,20 @@ Pokrycie testowe:
 ## Zależności
 
 ### Serwisy
+
 - `ArtisanProfileService` (`src/lib/services/artisan-profile.service.ts`)
 
 ### Schematy walidacji
+
 - `CreateUpdateArtisanProfileSchema` (`src/lib/schemas.ts`)
 
 ### Typy
+
 - `CreateUpdateArtisanProfileCommand` (`src/types.ts`)
 - `ArtisanProfileDTO` (`src/types.ts`)
 
 ### Narzędzia
+
 - `createErrorResponse` (`src/lib/api-utils.ts`)
 - `createSuccessResponse` (`src/lib/api-utils.ts`)
 
@@ -338,6 +359,7 @@ Pokrycie testowe:
 ## Historia zmian
 
 ### 2025-10-19
+
 - ✅ Implementacja endpointu PUT /api/artisans/me
 - ✅ Utworzenie serwisu ArtisanProfileService
 - ✅ Dodanie walidacji Zod

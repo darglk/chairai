@@ -1,14 +1,14 @@
 ---
 /**
  * Artisan Dashboard Page
- * 
+ *
  * Central hub for artisans to manage their activity and access projects.
- * 
+ *
  * Features:
  * - Profile summary with key stats
  * - List of available projects (marketplace preview)
  * - List of in-progress projects
- * 
+ *
  * Access: Authenticated artisans only
  */
 
@@ -16,7 +16,9 @@ import Layout from "@/layouts/Layout.astro";
 import ArtisanDashboard from "@/components/dashboard/ArtisanDashboard";
 
 // Get authenticated user
-const { data: { user } } = await Astro.locals.supabase.auth.getUser();
+const {
+  data: { user },
+} = await Astro.locals.supabase.auth.getUser();
 
 // Redirect to login if not authenticated
 if (!user) {
@@ -24,11 +26,7 @@ if (!user) {
 }
 
 // Get user role
-const { data: userData } = await Astro.locals.supabase
-  .from("users")
-  .select("role")
-  .eq("id", user.id)
-  .single();
+const { data: userData } = await Astro.locals.supabase.from("users").select("role").eq("id", user.id).single();
 
 // Redirect to home if not an artisan
 if (!userData || userData.role !== "artisan") {

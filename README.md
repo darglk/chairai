@@ -69,11 +69,13 @@ Open your browser and navigate to `http://localhost:4321` to see the application
 The project uses a comprehensive testing strategy:
 
 ### Unit & Integration Tests (Vitest + React Testing Library)
+
 - Tests for utility functions, validation schemas, and API helpers
 - Integration tests for React components
 - See [tests/UNIT-INTEGRATION-TESTS.md](tests/UNIT-INTEGRATION-TESTS.md) for details
 
 Quick start:
+
 ```sh
 npm test                  # Watch mode
 npm run test:ui          # Interactive UI
@@ -81,10 +83,12 @@ npm run test:coverage    # Coverage report
 ```
 
 ### End-to-End Tests (Playwright)
+
 - Full user flow testing across multiple browsers
 - See [TESTING.md](TESTING.md) for details
 
 Quick start:
+
 ```sh
 npm run test:e2e
 ```
@@ -93,22 +97,22 @@ npm run test:e2e
 
 ### Included Features:
 
--   **Full User Flow:** From AI image generation to accepting an artisan's offer.
--   **User Authentication:** Separate registration and profiles for "Client" and "Artisan" roles.
--   **AI Image Generation:** A limit of 10 free generations per client account.
--   **Marketplace:** Artisans can browse and bid on open projects.
--   **Communication:** An external chat API is used for communication after an offer is accepted.
--   **Rating System:** A two-way rating and review system is activated upon project completion.
--   **Project History:** Users can track their prompt history, generated images, and accepted quotes.
+- **Full User Flow:** From AI image generation to accepting an artisan's offer.
+- **User Authentication:** Separate registration and profiles for "Client" and "Artisan" roles.
+- **AI Image Generation:** A limit of 10 free generations per client account.
+- **Marketplace:** Artisans can browse and bid on open projects.
+- **Communication:** An external chat API is used for communication after an offer is accepted.
+- **Rating System:** A two-way rating and review system is activated upon project completion.
+- **Project History:** Users can track their prompt history, generated images, and accepted quotes.
 
 ### Excluded Features:
 
--   Integrated payment processing.
--   Monetization features (e.g., commissions, paid plans).
--   Advanced image editing tools.
--   A native, built-in chat system.
--   Advanced verification for artisan portfolios.
--   Native mobile applications.
+- Integrated payment processing.
+- Monetization features (e.g., commissions, paid plans).
+- Advanced image editing tools.
+- A native, built-in chat system.
+- Advanced verification for artisan portfolios.
+- Native mobile applications.
 
 ## Project Status
 

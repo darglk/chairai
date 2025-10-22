@@ -18,21 +18,22 @@ Podczas implementacji widoku galerii wygenerowanych obrazów napotkano problem z
 ## 🐛 Szczegóły błędu
 
 ### Komunikat błędu:
+
 ```
 Failed to fetch used images: infinite recursion detected in policy for relation "projects"
 ```
 
 ### Lokalizacja:
+
 - **Plik:** `src/lib/services/generated-images.service.ts`
 - **Metoda:** `listUserGeneratedImages()`
 - **Linia problematyczna:** Każde zapytanie SELECT do tabeli `projects`
 
 ### Stack trace:
+
 ```typescript
-await this.supabase
-  .from("projects")
-  .select("generated_image_id")
-  // ❌ Błąd: infinite recursion w RLS policy
+await this.supabase.from("projects").select("generated_image_id");
+// ❌ Błąd: infinite recursion w RLS policy
 ```
 
 ---
@@ -48,15 +49,15 @@ await this.supabase
 create policy "allow anyone to view open projects" on public.projects for select
     using (status = 'open');
 
--- Polityka 2: Pozwala klientom zarządzać własnymi projektami  
+-- Polityka 2: Pozwala klientom zarządzać własnymi projektami
 create policy "allow clients to manage their own projects" on public.projects for all
     using (auth.uid() = client_id);
 
 -- Polityka 3: Pozwala rzemieślnikom zobaczyć projekty z ich propozycjami
 create policy "allow involved artisans to view projects" on public.projects for select
     using (exists (
-      select 1 
-      from public.proposals 
+      select 1
+      from public.proposals
       where project_id = id and artisan_id = auth.uid()
     ));
 ```
@@ -64,14 +65,16 @@ create policy "allow involved artisans to view projects" on public.projects for 
 ### Problem:
 
 **Polityka 3** używa subquery do tabeli `proposals`:
+
 ```sql
 using (exists (
-  select 1 from public.proposals 
+  select 1 from public.proposals
   where project_id = id and artisan_id = auth.uid()
 ))
 ```
 
 Ta polityka może powodować infinite recursion gdy:
+
 1. Zapytanie do `projects` próbuje sprawdzić politykę
 2. Polityka wykonuje subquery do `proposals`
 3. `proposals` ma foreign key do `projects`
@@ -89,10 +92,8 @@ Ta polityka może powodować infinite recursion gdy:
 ```typescript
 // ❌ PRZED (powodowało infinite recursion):
 if (params.unused_only) {
-  const { data: usedImages } = await this.supabase
-    .from("projects")
-    .select("generated_image_id");
-  usedImageIds = usedImages?.map(p => p.generated_image_id) || [];
+  const { data: usedImages } = await this.supabase.from("projects").select("generated_image_id");
+  usedImageIds = usedImages?.map((p) => p.generated_image_id) || [];
 }
 
 // ✅ PO (tymczasowe rozwiązanie):
@@ -138,8 +139,8 @@ CREATE OR REPLACE FUNCTION user_has_proposal_for_project(project_uuid UUID)
 RETURNS BOOLEAN AS $$
 BEGIN
   RETURN EXISTS (
-    SELECT 1 FROM public.proposals 
-    WHERE project_id = project_uuid 
+    SELECT 1 FROM public.proposals
+    WHERE project_id = project_uuid
     AND artisan_id = auth.uid()
   );
 END;
@@ -169,7 +170,7 @@ CREATE POLICY "allow involved artisans to view projects" ON public.projects FOR 
 
 ```sql
 -- Migracja
-ALTER TABLE public.generated_images 
+ALTER TABLE public.generated_images
 ADD COLUMN is_used BOOLEAN NOT NULL DEFAULT FALSE;
 
 -- Trigger aktualizuj ący flagę
@@ -177,12 +178,12 @@ CREATE OR REPLACE FUNCTION update_generated_image_used_status()
 RETURNS TRIGGER AS $$
 BEGIN
   IF TG_OP = 'INSERT' THEN
-    UPDATE public.generated_images 
-    SET is_used = TRUE 
+    UPDATE public.generated_images
+    SET is_used = TRUE
     WHERE id = NEW.generated_image_id;
   ELSIF TG_OP = 'DELETE' THEN
-    UPDATE public.generated_images 
-    SET is_used = FALSE 
+    UPDATE public.generated_images
+    SET is_used = FALSE
     WHERE id = OLD.generated_image_id;
   END IF;
   RETURN NEW;
@@ -196,11 +197,13 @@ EXECUTE FUNCTION update_generated_image_used_status();
 ```
 
 **Zalety:**
+
 - ✅ Szybsze zapytania (brak JOIN'ów)
 - ✅ Brak problemów z RLS
 - ✅ Prostsza logika w aplikacji
 
 **Wady:**
+
 - ❌ Denormalizacja danych
 - ❌ Wymaga synchronizacji przez trigger
 
@@ -210,7 +213,7 @@ EXECUTE FUNCTION update_generated_image_used_status();
 
 ```typescript
 // Utworzenie oddzielnego klienta Supabase z service role
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 
 const supabaseAdmin = createClient(
   process.env.SUPABASE_URL!,
@@ -219,17 +222,16 @@ const supabaseAdmin = createClient(
 );
 
 // Użycie w serwisie
-const { data: projects } = await supabaseAdmin
-  .from("projects")
-  .select("generated_image_id")
-  .eq("client_id", userId); // Bezpieczne - sprawdzamy tylko projekty danego usera
+const { data: projects } = await supabaseAdmin.from("projects").select("generated_image_id").eq("client_id", userId); // Bezpieczne - sprawdzamy tylko projekty danego usera
 ```
 
 **Zalety:**
+
 - ✅ Szybkie wdrożenie
 - ✅ Brak zmian w schemacie DB
 
 **Wady:**
+
 - ❌ Wymaga dodatkowego klucza API
 - ❌ Omija security layer (wymaga ostrożności)
 
@@ -256,17 +258,20 @@ const { data: projects } = await supabaseAdmin
 ## 📝 Checklist do wdrożenia rozwiązania
 
 ### Przed wdrożeniem:
+
 - [ ] Backup bazy danych
 - [ ] Przegląd wszystkich polityk RLS
 - [ ] Testy na środowisku dev
 
 ### Wdrożenie:
+
 - [ ] Utworzenie migracji
 - [ ] Wdrożenie na staging
 - [ ] Testy E2E
 - [ ] Wdrożenie na production
 
 ### Po wdrożeniu:
+
 - [ ] Przywrócenie filtra w UI
 - [ ] Aktualizacja dokumentacji
 - [ ] Usunięcie workaround'ów z kodu

@@ -1,9 +1,11 @@
 # Plan implementacji widoku: Formularz Tworzenia Projektu
 
 ## 1. Przegląd
+
 Widok "Formularz Tworzenia Projektu" umożliwia klientom przekształcenie wygenerowanego przez AI obrazu mebla w konkretne ogłoszenie (projekt) na platformie. Użytkownik, na podstawie wybranego obrazu, wypełnia formularz zawierający kluczowe informacje o projekcie, takie jak kategoria, materiał, wymiary i budżet. Po pomyślnym przesłaniu formularza, projekt staje się publicznie dostępny dla rzemieślników.
 
 ## 2. Routing widoku
+
 Widok będzie dostępny pod dynamiczną ścieżką, która zawiera identyfikator obrazu jako parametr.
 
 - **Ścieżka:** `/projects/new/[imageId]`
@@ -12,6 +14,7 @@ Widok będzie dostępny pod dynamiczną ścieżką, która zawiera identyfikator
 Taka struktura zapewnia, że formularz jest zawsze powiązany z konkretnym obrazem. Strona będzie renderowana po stronie serwera (SSR), aby wstępnie pobrać dane obrazu i słowniki.
 
 ## 3. Struktura komponentów
+
 Hierarchia komponentów dla tego widoku będzie zorganizowana w sposób modułowy, aby oddzielić logikę od prezentacji.
 
 ```
@@ -29,6 +32,7 @@ Hierarchia komponentów dla tego widoku będzie zorganizowana w sposób modułow
 ## 4. Szczegóły komponentów
 
 ### `ProjectNewPage.astro`
+
 - **Opis:** Główny plik strony Astro, odpowiedzialny za renderowanie po stronie serwera (SSR), pobieranie początkowych danych (obraz, kategorie, materiały) i przekazywanie ich do komponentu React.
 - **Główne elementy:** Komponent `Layout.astro`, kontener `ProjectFormContainer.tsx`.
 - **Propsy (przekazywane do `ProjectFormContainer`):**
@@ -38,6 +42,7 @@ Hierarchia komponentów dla tego widoku będzie zorganizowana w sposób modułow
   - `materials: MaterialDTO[]`
 
 ### `ProjectFormContainer.tsx`
+
 - **Opis:** Główny komponent React, który zarządza stanem całego formularza, obsługuje interakcje użytkownika, walidację danych oraz komunikację z API.
 - **Główne elementy:** `SelectedImageView`, `FormField`, `Button`.
 - **Obsługiwane interakcje:**
@@ -51,6 +56,7 @@ Hierarchia komponentów dla tego widoku będzie zorganizowana w sposób modułow
   - `materials: MaterialDTO[]`
 
 ### `SelectedImageView.tsx`
+
 - **Opis:** Prosty komponent prezentacyjny, który wyświetla obraz wybrany przez użytkownika jako podstawa projektu.
 - **Główne elementy:** Znacznik `<img>` opakowany w kontener.
 - **Propsy:**
@@ -58,6 +64,7 @@ Hierarchia komponentów dla tego widoku będzie zorganizowana w sposób modułow
   - `prompt: string | null` (opcjonalnie, do wyświetlenia jako `alt` lub `title`)
 
 ### `FormField.tsx`
+
 - **Opis:** Generyczny komponent do renderowania pola formularza z etykietą, kontrolką (input, select) i komunikatem o błędzie.
 - **Główne elementy:** `Label`, `Input`/`Select`, `ErrorMessage`.
 - **Obsługiwane interakcje:** Przekazuje zdarzenia `onChange` i `onBlur` do komponentu rodzica.
@@ -72,15 +79,17 @@ Hierarchia komponentów dla tego widoku będzie zorganizowana w sposób modułow
   - `options?: { id: string; name: string }[]` (dla `type='select'`)
 
 ## 5. Typy
+
 Do implementacji widoku wymagane są następujące struktury danych:
 
-- **`CategoryDTO`**: ` { id: string; name: string; } `
+- **`CategoryDTO`**: `{ id: string; name: string; }`
   - Typ danych dla kategorii, pobierany z `GET /api/categories`.
 
-- **`MaterialDTO`**: ` { id: string; name: string; } `
+- **`MaterialDTO`**: `{ id: string; name: string; }`
   - Typ danych dla materiałów, pobierany z `GET /api/materials`.
 
 - **`ProjectFormViewModel`**:
+
   ```typescript
   interface ProjectFormViewModel {
     category_id: string;
@@ -89,9 +98,11 @@ Do implementacji widoku wymagane są następujące struktury danych:
     budget_range: string;
   }
   ```
+
   - Model widoku reprezentujący stan formularza po stronie klienta. Wszystkie pola są typu `string`, aby bezpośrednio powiązać je z wartościami kontrolek formularza.
 
 - **`CreateProjectCommand`**:
+
   ```typescript
   interface CreateProjectCommand {
     generated_image_id: string;
@@ -101,9 +112,11 @@ Do implementacji widoku wymagane są następujące struktury danych:
     budget_range?: string;
   }
   ```
+
   - Obiekt transferu danych (DTO) wysyłany w ciele żądania `POST /api/projects`. Pola opcjonalne są zgodne ze schematem Zod na backendzie.
 
 ## 6. Zarządzanie stanem
+
 Zarządzanie stanem zostanie zrealizowane wewnątrz komponentu `ProjectFormContainer.tsx` przy użyciu standardowych hooków React. Nie ma potrzeby tworzenia globalnego stanu ani złożonych bibliotek.
 
 - **`useState`**: Do przechowywania danych formularza (`ProjectFormViewModel`), błędów walidacji, stanu ładowania i błędów API.
@@ -115,6 +128,7 @@ Zarządzanie stanem zostanie zrealizowane wewnątrz komponentu `ProjectFormConta
 - **Niestandardowy hook (`useProjectForm`)**: Można rozważyć stworzenie hooka `useProjectForm`, który hermetyzuje całą logikę formularza (obsługa zmian, walidacja, wysyłanie danych), aby utrzymać komponent `ProjectFormContainer` w czystości.
 
 ## 7. Integracja API
+
 Integracja z API będzie obejmować trzy endpointy, z czego dwa będą wywoływane po stronie serwera, a jeden po stronie klienta.
 
 - **Pobieranie danych (SSR w `ProjectNewPage.astro`):**
@@ -130,6 +144,7 @@ Integracja z API będzie obejmować trzy endpointy, z czego dwa będą wywoływa
   - **Obsługa sukcesu:** Przekierowanie użytkownika na stronę nowo utworzonego projektu (np. `/projects/{projectId}`).
 
 ## 8. Interakcje użytkownika
+
 - **Wypełnianie formularza:** Użytkownik wprowadza dane w polach tekstowych (`dimensions`, `budget_range`) i wybiera opcje z list rozwijanych (`category_id`, `material_id`). Każda zmiana aktualizuje stan `formData`.
 - **Walidacja "on blur":** Po opuszczeniu pola (zdarzenie `onBlur`), uruchamiana jest walidacja dla tego konkretnego pola, a ewentualny błąd jest natychmiast wyświetlany.
 - **Wysyłanie formularza:** Użytkownik klika przycisk "Utwórz projekt".
@@ -139,6 +154,7 @@ Integracja z API będzie obejmować trzy endpointy, z czego dwa będą wywoływa
   - W trakcie wysyłania, na przycisku wyświetlany jest wskaźnik ładowania (np. spinner).
 
 ## 9. Warunki i walidacja
+
 Walidacja po stronie klienta jest kluczowa dla dobrego UX i odzwierciedla wymagania API.
 
 - **`category_id`**:
@@ -157,6 +173,7 @@ Walidacja po stronie klienta jest kluczowa dla dobrego UX i odzwierciedla wymaga
   - **Komponent:** `FormField` z `Input`.
 
 ## 10. Obsługa błędów
+
 - **Błędy walidacji:** Wyświetlane indywidualnie pod każdym polem formularza, którego dotyczą.
 - **Błędy API (4xx):**
   - `400 (Validation Error)`: Błędy walidacji z backendu są mapowane na odpowiednie pola formularza i wyświetlane.
@@ -166,6 +183,7 @@ Walidacja po stronie klienta jest kluczowa dla dobrego UX i odzwierciedla wymaga
 - **Błędy sieciowe:** Obsługa błędów związanych z brakiem połączenia internetowego, np. poprzez wyświetlenie globalnego komunikatu.
 
 ## 11. Kroki implementacji
+
 1.  **Utworzenie pliku strony:** Stworzyć plik `src/pages/projects/new/[imageId].astro`.
 2.  **Implementacja SSR:** W pliku Astro dodać logikę `Astro.props` do pobrania `imageId` i wywołania API w celu uzyskania danych obrazu, kategorii i materiałów.
 3.  **Struktura komponentu kontenera:** Stworzyć komponent `ProjectFormContainer.tsx` i przekazać do niego dane pobrane w Astro jako propsy.

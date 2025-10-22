@@ -98,10 +98,10 @@ Spójność wizualna zostanie osiągnięta dzięki wykorzystaniu biblioteki **Sh
 - **Ścieżka widoku:** `/projects/{projectId}`
 - **Główny cel:** Centralny punkt interakcji z projektem, dynamicznie zmieniający się w zależności od statusu i roli użytkownika.
 - **Kluczowe informacje do wyświetlenia:**
-    - **Dla Klienta (status 'open'):** Szczegóły projektu, lista złożonych ofert.
-    - **Dla Rzemieślnika (status 'open'):** Szczegóły projektu, formularz składania oferty.
-    - **Dla obu (status 'in_progress'):** Szczegóły projektu, zaakceptowana oferta, okno czatu.
-    - **Dla obu (status 'completed'):** Podsumowanie projektu, formularz oceny.
+  - **Dla Klienta (status 'open'):** Szczegóły projektu, lista złożonych ofert.
+  - **Dla Rzemieślnika (status 'open'):** Szczegóły projektu, formularz składania oferty.
+  - **Dla obu (status 'in_progress'):** Szczegóły projektu, zaakceptowana oferta, okno czatu.
+  - **Dla obu (status 'completed'):** Podsumowanie projektu, formularz oceny.
 - **Kluczowe komponenty widoku:** `ProjectDetails`, `ProposalList`, `ProposalForm`, `ChatWidget`, `ReviewForm`.
 - **UX, dostępność i względy bezpieczeństwa:** Widok chroniony. Renderowanie warunkowe komponentów na podstawie danych z `GET /projects/{projectId}` i `GET /users/me`.
 

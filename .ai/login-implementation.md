@@ -26,15 +26,14 @@ Zawiera schematy walidacji dla wszystkich operacji uwierzytelniania:
 - `PasswordResetSchema` - walidacja resetowania hasła
 
 **Przykład walidacji:**
+
 ```typescript
 export const LoginSchema = z.object({
   email: z
     .string({ required_error: "Adres e-mail jest wymagany" })
     .email("Nieprawidłowy format adresu e-mail")
     .min(1, "Adres e-mail jest wymagany"),
-  password: z
-    .string({ required_error: "Hasło jest wymagane" })
-    .min(1, "Hasło jest wymagane"),
+  password: z.string({ required_error: "Hasło jest wymagane" }).min(1, "Hasło jest wymagane"),
 });
 ```
 
@@ -56,18 +55,21 @@ Pomocnicze funkcje dla spójnej obsługi API:
 **Plik:** `src/pages/api/auth/login.ts`
 
 **Odpowiedzialności:**
+
 1. Walidacja danych wejściowych (email, password)
 2. Autentykacja przez Supabase Auth
 3. Ustawienie cookies sesji (access_token, refresh_token)
 4. Zwrócenie informacji o użytkowniku
 
 **Kody odpowiedzi:**
+
 - `200` - Sukces logowania
 - `401` - Nieprawidłowe dane logowania
 - `422` - Błąd walidacji danych
 - `500` - Błąd serwera
 
 **Przykład odpowiedzi sukcesu:**
+
 ```json
 {
   "success": true,
@@ -79,6 +81,7 @@ Pomocnicze funkcje dla spójnej obsługi API:
 ```
 
 **Przykład odpowiedzi błędu walidacji:**
+
 ```json
 {
   "error": {
@@ -97,11 +100,13 @@ Pomocnicze funkcje dla spójnej obsługi API:
 **Plik:** `src/pages/api/auth/logout.ts`
 
 **Odpowiedzialności:**
+
 1. Wylogowanie z Supabase Auth
 2. Usunięcie cookies sesji
 3. Przekierowanie na stronę główną
 
 **Kod odpowiedzi:**
+
 - `302` - Przekierowanie na `/`
 
 ### 4. Middleware
@@ -109,6 +114,7 @@ Pomocnicze funkcje dla spójnej obsługi API:
 **Plik:** `src/middleware/index.ts`
 
 **Odpowiedzialności:**
+
 1. Inicjalizacja klienta Supabase w `context.locals`
 2. Sprawdzanie ważności tokenu dostępowego z cookies
 3. Automatyczne odświeżanie wygasłych sesji
@@ -117,25 +123,31 @@ Pomocnicze funkcje dla spójnej obsługi API:
 6. Przekierowania dla stron uwierzytelniania
 
 **Chronione trasy:**
+
 - `/dashboard` - wymaga zalogowania
 
 **Trasy uwierzytelniania (przekierują zalogowanych):**
+
 - `/login`
 - `/register`
 - `/password-recovery`
 - `/password-reset`
 
 **Mechanizm odświeżania sesji:**
+
 ```typescript
 // 1. Sprawdza access token
-const { data: { user }, error } = await supabase.auth.getUser(accessToken);
+const {
+  data: { user },
+  error,
+} = await supabase.auth.getUser(accessToken);
 
 // 2. Jeśli token wygasł, używa refresh token
 if (error && refreshToken) {
   const { data } = await supabase.auth.refreshSession({
     refresh_token: refreshToken,
   });
-  
+
   // 3. Aktualizuje cookies z nowymi tokenami
   if (data.session) {
     setSessionCookies(context, data.session.access_token, data.session.refresh_token);
@@ -151,12 +163,14 @@ if (error && refreshToken) {
 **Plik:** `src/components/auth/LoginForm.tsx`
 
 **Aktualizacje:**
+
 1. Obsługa szczegółowych błędów walidacji z API (status 422)
 2. Wyświetlanie błędów pól formularza otrzymanych z backendu
 3. Przekierowanie na `/` zamiast `/dashboard` po zalogowaniu
 4. Lepsza obsługa różnych kodów błędów HTTP
 
 **Przepływ:**
+
 ```typescript
 // 1. Podstawowa walidacja po stronie klienta
 if (!email || !password) {
@@ -191,12 +205,13 @@ window.location.href = "/";
 **Plik:** `src/env.d.ts`
 
 **Aktualizacje:**
+
 ```typescript
 declare global {
   namespace App {
     interface Locals {
       supabase: SupabaseClient;
-      user: User | null;  // ← Dodano
+      user: User | null; // ← Dodano
     }
   }
 }
@@ -213,6 +228,7 @@ Wykorzystuje middleware do automatycznego przekierowania zalogowanych użytkowni
 #### `src/pages/index.astro`
 
 **Aktualizacje:**
+
 - Wyświetla informację o zalogowanym użytkowniku
 - Przycisk wylogowania (formularz POST do `/api/auth/logout`)
 
@@ -221,12 +237,14 @@ Wykorzystuje middleware do automatycznego przekierowania zalogowanych użytkowni
 ### Cookies
 
 **Access Token:**
+
 - `httpOnly: true` - JavaScript nie ma dostępu (ochrona przed XSS)
 - `secure: true` (w produkcji) - tylko przez HTTPS
 - `sameSite: 'lax'` - ochrona przed CSRF
 - `maxAge: 7 dni` - wygasa po tygodniu
 
 **Refresh Token:**
+
 - `httpOnly: true`
 - `secure: true` (w produkcji)
 - `sameSite: 'lax'`
@@ -249,6 +267,7 @@ Wykorzystuje middleware do automatycznego przekierowania zalogowanych użytkowni
 ### Manualne Testy
 
 1. **Pomyślne logowanie:**
+
    ```bash
    curl -X POST http://localhost:3000/api/auth/login \
      -H "Content-Type: application/json" \
@@ -256,6 +275,7 @@ Wykorzystuje middleware do automatycznego przekierowania zalogowanych użytkowni
    ```
 
 2. **Błąd walidacji:**
+
    ```bash
    curl -X POST http://localhost:3000/api/auth/login \
      -H "Content-Type: application/json" \
@@ -296,6 +316,7 @@ Wykorzystuje middleware do automatycznego przekierowania zalogowanych użytkowni
 > Jako zarejestrowany użytkownik (Klient lub Rzemieślnik), chcę móc zalogować się na swoje konto, używając adresu e-mail i hasła.
 
 **Spełnione kryteria:**
+
 - ✅ Strona logowania zawiera pola "E-mail" i "Hasło" oraz przycisk "Zaloguj"
 - ✅ Po wprowadzeniu poprawnych danych, użytkownik zostaje zalogowany i przekierowany
 - ✅ W przypadku nieprawidłowych danych, wyświetlany jest komunikat błędu
@@ -306,6 +327,7 @@ Wykorzystuje middleware do automatycznego przekierowania zalogowanych użytkowni
 > Jako zalogowany użytkownik, chcę mieć możliwość bezpiecznego wylogowania się z mojego konta.
 
 **Spełnione kryteria:**
+
 - ✅ Dostępny przycisk "Wyloguj"
 - ✅ Po kliknięciu przycisku sesja zostaje zakończona
 - ✅ Użytkownik zostaje przekierowany na stronę główną

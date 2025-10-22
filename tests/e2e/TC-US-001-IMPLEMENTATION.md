@@ -7,18 +7,22 @@ Zaimplementowano pełny zestaw testów E2E dla scenariusza **TC-US-001: Rejestra
 ## Zaimplementowane testy
 
 ### 1. Happy Path
+
 - ✅ **Pomyślna rejestracja nowego klienta** - Główny scenariusz z test-plan.md
 
 ### 2. Testy walidacji
+
 - ✅ **Rejestracja z nieprawidłowym emailem** - Weryfikacja walidacji formatu email
 - ✅ **Rejestracja z niezgodnymi hasłami** - Weryfikacja zgodności haseł
 - ✅ **Rejestracja bez wybrania typu konta** - Weryfikacja wymaganego pola
 - ✅ **Rejestracja z istniejącym emailem** - Weryfikacja unikalności konta
 
 ### 3. Testy UI/UX
+
 - ✅ **Weryfikacja responsywności formularza** - Test na różnych rozdzielczościach (Mobile, Tablet, Desktop)
 
 ### 4. Testy dostępności
+
 - ✅ **Weryfikacja dostępności formularza** - Test ARIA labels, nawigacji klawiaturą, ról elementów
 
 ## Zastosowane technologie
@@ -30,6 +34,7 @@ Zaimplementowano pełny zestaw testów E2E dla scenariusza **TC-US-001: Rejestra
 ## Strategia testowania
 
 Testy stosują best practices Playwright:
+
 1. **Selektory ARIA** - Używanie `getByRole()`, `getByLabel()` zamiast selektorów CSS
 2. **Auto-waiting** - Playwright automatycznie czeka na elementy
 3. **Izolacja** - Każdy test jest niezależny, używa unikalnych danych
@@ -37,12 +42,12 @@ Testy stosują best practices Playwright:
 
 ## Pokrycie testowe
 
-| Kategoria | Status |
-|-----------|--------|
-| Happy Path | ✅ 100% |
+| Kategoria            | Status  |
+| -------------------- | ------- |
+| Happy Path           | ✅ 100% |
 | Walidacja formularza | ✅ 100% |
-| Responsywność | ✅ 100% |
-| Accessibility | ✅ 100% |
+| Responsywność        | ✅ 100% |
+| Accessibility        | ✅ 100% |
 
 ## Uruchamianie
 
@@ -72,6 +77,7 @@ tests/e2e/
 ## Zgodność z wytycznymi
 
 Implementacja zgodna z:
+
 - ✅ `test-plan.md` - Plan testów aplikacji ChairAI
 - ✅ `copilot-instructions.md` - Wytyczne projektu (Astro 5, TypeScript, React)
 - ✅ `tech-stack.md` - Stack technologiczny projektu
@@ -80,6 +86,7 @@ Implementacja zgodna z:
 ## Dalsze kroki
 
 Następne scenariusze do implementacji (zgodnie z test-plan.md):
+
 - TC-US-002: Logowanie użytkownika
 - TC-US-003: Wylogowywanie użytkownika
 - TC-US-004: Generowanie obrazu mebla

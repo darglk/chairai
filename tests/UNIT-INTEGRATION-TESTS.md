@@ -63,6 +63,7 @@ npm test -- -t "LoginForm"
 ### Testy Jednostkowe (Unit Tests)
 
 #### 1. **utils.test.ts** - Funkcje pomocnicze
+
 - ✅ Podstawowa funkcjonalność `cn()`
 - ✅ Łączenie wielu klas
 - ✅ Ignorowanie wartości falsy
@@ -74,6 +75,7 @@ npm test -- -t "LoginForm"
 **Pokrycie:** 100%
 
 #### 2. **schemas.test.ts** - Schematy walidacji Zod
+
 - ✅ LoginSchema - walidacja email i hasła
 - ✅ RegisterSchema - walidacja rejestracji
   - Długość hasła (min 8 znaków)
@@ -87,6 +89,7 @@ npm test -- -t "LoginForm"
 **Pokrycie:** 100%
 
 #### 3. **api-utils.test.ts** - Funkcje API
+
 - ✅ `createErrorResponse()` - tworzenie odpowiedzi błędu
 - ✅ `createSuccessResponse()` - tworzenie odpowiedzi sukcesu
 - ✅ Różne kody statusu
@@ -99,6 +102,7 @@ npm test -- -t "LoginForm"
 ### Testy Integracyjne (Integration Tests)
 
 #### 1. **LoginForm.test.tsx** - Komponent logowania
+
 - ✅ Renderowanie formularza
 - ✅ Walidacja po stronie klienta
 - ✅ Integracja z API
@@ -118,6 +122,7 @@ npm test -- -t "LoginForm"
 **Pokrycie:** ~95%
 
 #### 2. **RegisterForm.test.tsx** - Komponent rejestracji
+
 - ✅ Renderowanie formularza
 - ✅ Opcje typu konta
 - ✅ Walidacja hasła
@@ -230,6 +235,7 @@ npm run test:coverage
 ```
 
 Raport będzie dostępny w:
+
 - Terminal: podsumowanie w konsoli
 - HTML: `coverage/index.html`
 

@@ -8,6 +8,7 @@
 ## Cel Testu
 
 Weryfikacja poprawności funkcjonalności logowania użytkownika, obejmująca:
+
 - Pomyślne logowanie z poprawnymi danymi
 - Walidację danych wejściowych
 - Obsługę błędów autoryzacji
@@ -24,24 +25,27 @@ Weryfikacja poprawności funkcjonalności logowania użytkownika, obejmująca:
 #### 1.1. Scenariusz Główny: Pomyślne Logowanie
 
 **Kroki testowe:**
+
 1. Przejdź na stronę `/login`
 2. Wprowadź e-mail i hasło istniejącego użytkownika
 3. Kliknij przycisk "Zaloguj"
 
 **Oczekiwany rezultat:**
+
 - Użytkownik zostaje zalogowany
 - Przekierowanie na stronę główną (`/`)
 - W nagłówku widoczna jest ikona profilu lub menu użytkownika
 
 **Implementacja:**
+
 ```typescript
 test("Pomyślne logowanie na istniejące konto klienta", async ({ page }) => {
   await fillLoginForm(page, TEST_USER.email, TEST_USER.password);
-  
+
   const submitButton = page.getByRole("button", { name: /zaloguj/i });
   await expect(submitButton).toBeVisible();
   await submitButton.click();
-  
+
   await waitForRedirect(page, "/");
   await expectUserToBeLoggedIn(page);
 });
@@ -50,30 +54,35 @@ test("Pomyślne logowanie na istniejące konto klienta", async ({ page }) => {
 #### 1.2. Scenariusze Walidacji
 
 **Test 1: Pusty email**
+
 - Pozostaw pole email puste
 - Wypełnij pole hasła
 - Kliknij "Zaloguj"
 - **Oczekiwany rezultat:** Komunikat błędu walidacji
 
 **Test 2: Puste hasło**
+
 - Wypełnij pole email
 - Pozostaw pole hasła puste
 - Kliknij "Zaloguj"
 - **Oczekiwany rezultat:** Komunikat błędu walidacji
 
 **Test 3: Nieprawidłowy format email**
+
 - Wprowadź email w nieprawidłowym formacie (np. "nieprawidlowy-email")
 - Wypełnij hasło
 - Kliknij "Zaloguj"
 - **Oczekiwany rezultat:** Komunikat błędu walidacji
 
 **Test 4: Nieprawidłowe hasło**
+
 - Wprowadź poprawny email
 - Wprowadź nieprawidłowe hasło
 - Kliknij "Zaloguj"
 - **Oczekiwany rezultat:** Komunikat "Nieprawidłowy e-mail lub hasło"
 
 **Test 5: Nieistniejące konto**
+
 - Wprowadź email, który nie istnieje w systemie
 - Wprowadź dowolne hasło
 - Kliknij "Zaloguj"
@@ -82,6 +91,7 @@ test("Pomyślne logowanie na istniejące konto klienta", async ({ page }) => {
 #### 1.3. Testy UI/UX
 
 **Test 1: Stan ładowania**
+
 - Wypełnij formularz poprawnymi danymi
 - Kliknij "Zaloguj"
 - **Oczekiwany rezultat:**
@@ -89,6 +99,7 @@ test("Pomyślne logowanie na istniejące konto klienta", async ({ page }) => {
   - Tekst przycisku zmienia się na "Logowanie..."
 
 **Test 2: Wysyłanie formularza klawiszem Enter**
+
 - Wypełnij formularz
 - Naciśnij Enter w polu hasła
 - **Oczekiwany rezultat:** Formularz zostaje wysłany
@@ -96,12 +107,14 @@ test("Pomyślne logowanie na istniejące konto klienta", async ({ page }) => {
 #### 1.4. Testy Accessibility
 
 **Test 1: Atrybuty pól formularza**
+
 - Pole email ma `type="email"`
 - Pole email ma `autocomplete="email"`
 - Pole hasła ma `type="password"`
 - Pole hasła ma `autocomplete="current-password"`
 
 **Test 2: Oznaczanie błędów**
+
 - Wyślij formularz bez danych
 - **Oczekiwany rezultat:**
   - Pole z błędem ma `aria-invalid="true"`
@@ -110,10 +123,12 @@ test("Pomyślne logowanie na istniejące konto klienta", async ({ page }) => {
 #### 1.5. Testy Integracji
 
 **Test 1: Link do odzyskiwania hasła**
+
 - Sprawdź czy link jest widoczny
 - Sprawdź czy prowadzi do `/password-recovery`
 
 **Test 2: Link do rejestracji**
+
 - Sprawdź czy link jest widoczny
 - Sprawdź czy prowadzi do `/register`
 
@@ -124,16 +139,19 @@ test("Pomyślne logowanie na istniejące konto klienta", async ({ page }) => {
 Już zaimplementowane 33 testy integracyjne obejmujące:
 
 #### 2.1. Renderowanie Formularza (3 testy)
+
 - Wszystkie pola są renderowane
 - Pola są początkowo puste
 - Przycisk submit jest dostępny
 
 #### 2.2. Walidacja po Stronie Klienta (3 testy)
+
 - Błąd dla pustego emaila
 - Błąd dla pustego hasła
 - Czyszczenie błędów po ponownym submit
 
 #### 2.3. Integracja z API (6 testów)
+
 - Wysyłanie poprawnych danych do API
 - Stan loading podczas wysyłania
 - Obsługa błędu walidacji z serwera (422)
@@ -142,11 +160,13 @@ Już zaimplementowane 33 testy integracyjne obejmujące:
 - Przekierowanie po pomyślnym logowaniu
 
 #### 2.4. Interakcje Użytkownika (3 testy)
+
 - Aktualizacja wartości email podczas wpisywania
 - Aktualizacja wartości hasła podczas wpisywania
 - Wysłanie formularza klawiszem Enter
 
 #### 2.5. Accessibility (4 testy)
+
 - Pole email ma odpowiedni typ
 - Pole hasła ma odpowiedni typ
 - Formularz ma odpowiednie aria-labels
@@ -159,6 +179,7 @@ Już zaimplementowane 33 testy integracyjne obejmujące:
 #### 3.1. Pomyślne Logowanie (2 testy)
 
 **Test 1: Logowanie z poprawnymi danymi**
+
 ```typescript
 it("powinien zalogować użytkownika z poprawnymi danymi", async () => {
   mockSupabaseAuth.signInWithPassword.mockResolvedValueOnce({
@@ -179,6 +200,7 @@ it("powinien zalogować użytkownika z poprawnymi danymi", async () => {
 ```
 
 **Test 2: Ustawianie ciasteczek sesji**
+
 - Sprawdź czy `sb-access-token` jest ustawiony
 - Sprawdź czy `sb-refresh-token` jest ustawiony
 - Sprawdź opcje ciasteczek (httpOnly, sameSite, secure, maxAge)
@@ -186,40 +208,49 @@ it("powinien zalogować użytkownika z poprawnymi danymi", async () => {
 #### 3.2. Walidacja Danych Wejściowych (6 testów)
 
 **Test 1-2: Puste pola**
+
 - Odrzucenie żądania z pustym emailem → 422
 - Odrzucenie żądania z pustym hasłem → 422
 
 **Test 3-4: Brakujące pola**
+
 - Odrzucenie żądania bez pola email → 422
 - Odrzucenie żądania bez pola password → 422
 
 **Test 5: Nieprawidłowy format**
+
 - Odrzucenie nieprawidłowego formatu email → 422
 
 **Test 6: Dodatkowe pola**
+
 - Ignorowanie dodatkowych pól (Zod .parse() default behavior)
 
 #### 3.3. Błędy Autoryzacji (3 testy)
 
 **Test 1: Nieprawidłowe dane logowania**
+
 - Supabase zwraca błąd "Invalid login credentials"
 - **Oczekiwany rezultat:** 401, kod "INVALID_CREDENTIALS"
 
 **Test 2: Inne błędy autoryzacji**
+
 - Supabase zwraca inny błąd (np. "User account is disabled")
 - **Oczekiwany rezultat:** 400, kod "AUTH_ERROR"
 
 **Test 3: Brak sesji**
+
 - Supabase zwraca użytkownika, ale bez sesji
 - **Oczekiwany rezultat:** 500, kod "NO_SESSION"
 
 #### 3.4. Obsługa Błędów (2 testy)
 
 **Test 1: Błąd parsowania JSON**
+
 - `request.json()` rzuca błąd
 - **Oczekiwany rezultat:** 500, kod "INTERNAL_ERROR"
 
 **Test 2: Nieoczekiwane błędy z Supabase**
+
 - `signInWithPassword` rzuca wyjątek
 - **Oczekiwany rezultat:** 500, kod "INTERNAL_ERROR"
 - Szczegóły błędu nie są ujawnione
@@ -227,10 +258,12 @@ it("powinien zalogować użytkownika z poprawnymi danymi", async () => {
 #### 3.5. Bezpieczeństwo (3 testy)
 
 **Test 1: Ukrywanie szczegółów błędów**
+
 - Błędy wewnętrzne nie ujawniają szczegółów
 - Komunikat ogólny: "Wystąpił błąd serwera"
 
 **Test 2-3: Opcje ciasteczek**
+
 - `httpOnly: true` dla obu ciasteczek
 - `sameSite: "lax"` dla obu ciasteczek
 - `secure` w produkcji
@@ -238,6 +271,7 @@ it("powinien zalogować użytkownika z poprawnymi danymi", async () => {
 #### 3.6. Integracja z Supabase (1 test)
 
 **Test: Wywołanie z poprawnymi parametrami**
+
 ```typescript
 expect(mockSupabaseAuth.signInWithPassword).toHaveBeenCalledWith({
   email: "test@example.com",
@@ -252,6 +286,7 @@ expect(mockSupabaseAuth.signInWithPassword).toHaveBeenCalledWith({
 #### 4.1. LoginSchema (5 testów)
 
 **Test 1: Prawidłowe dane**
+
 ```typescript
 const validData = {
   email: "test@example.com",
@@ -262,24 +297,29 @@ expect(result.success).toBe(true);
 ```
 
 **Test 2: Nieprawidłowy format email**
+
 - Input: `{ email: "nieprawidlowy-email", password: "password123" }`
 - **Oczekiwany rezultat:** `success: false`, komunikat o nieprawidłowym formacie
 
 **Test 3: Pusty email**
+
 - Input: `{ email: "", password: "password123" }`
 - **Oczekiwany rezultat:** `success: false`
 
 **Test 4: Brak emaila**
+
 - Input: `{ password: "password123" }`
 - **Oczekiwany rezultat:** `success: false`, "Adres e-mail jest wymagany"
 
 **Test 5: Puste hasło**
+
 - Input: `{ email: "test@example.com", password: "" }`
 - **Oczekiwany rezultat:** `success: false`, "Hasło jest wymagane"
 
 ## Dane Testowe
 
 ### Konto Testowe (E2E)
+
 ```typescript
 const TEST_USER = {
   email: "test.client@example.com",
@@ -290,6 +330,7 @@ const TEST_USER = {
 **Uwaga:** Konto musi istnieć w bazie testowej przed uruchomieniem testów E2E.
 
 ### Mock Data (Unit/Integration)
+
 Testy jednostkowe i integracyjne używają mock data i nie wymagają rzeczywistych kont.
 
 ## Helpery i Utilities
@@ -297,34 +338,33 @@ Testy jednostkowe i integracyjne używają mock data i nie wymagają rzeczywisty
 ### Funkcje Helper (tests/e2e/helpers.ts)
 
 #### fillLoginForm
+
 ```typescript
-export async function fillLoginForm(
-  page: Page, 
-  email: string, 
-  password: string
-): Promise<void>
+export async function fillLoginForm(page: Page, email: string, password: string): Promise<void>;
 ```
+
 Wypełnia formularz logowania danymi testowymi.
 
 #### expectUserToBeLoggedIn
+
 ```typescript
-export async function expectUserToBeLoggedIn(page: Page): Promise<void>
+export async function expectUserToBeLoggedIn(page: Page): Promise<void>;
 ```
+
 Weryfikuje czy użytkownik jest zalogowany (menu profilu jest widoczne).
 
 #### waitForRedirect
+
 ```typescript
-export async function waitForRedirect(
-  page: Page, 
-  expectedPattern: RegExp | string, 
-  timeout = 10000
-): Promise<void>
+export async function waitForRedirect(page: Page, expectedPattern: RegExp | string, timeout = 10000): Promise<void>;
 ```
+
 Czeka na przekierowanie do określonego URL.
 
 ## Uruchomienie Testów
 
 ### Wszystkie Poziomy
+
 ```bash
 # E2E
 npm run test:e2e tests/e2e/TC-US-002-login-client.spec.ts
@@ -338,6 +378,7 @@ npm run test:unit tests/unit/lib/schemas.test.ts
 ```
 
 ### Tryb Interaktywny
+
 ```bash
 # E2E z UI
 npm run test:e2e -- --ui tests/e2e/TC-US-002-login-client.spec.ts
@@ -347,6 +388,7 @@ npm run test:unit -- --watch tests/unit/api/auth/login.test.ts
 ```
 
 ### Z Pokryciem Kodu
+
 ```bash
 npm run test:unit -- --coverage
 ```
@@ -354,6 +396,7 @@ npm run test:unit -- --coverage
 ## Kryteria Akceptacji
 
 ### ✅ Funkcjonalność
+
 - [x] Pomyślne logowanie z poprawnymi danymi
 - [x] Przekierowanie po logowaniu
 - [x] Ustawienie sesji użytkownika
@@ -361,6 +404,7 @@ npm run test:unit -- --coverage
 - [x] Obsługa błędów autoryzacji
 
 ### ✅ Bezpieczeństwo
+
 - [x] httpOnly ciasteczka sesji
 - [x] sameSite: lax
 - [x] secure w produkcji
@@ -368,6 +412,7 @@ npm run test:unit -- --coverage
 - [x] Walidacja po stronie serwera (Zod)
 
 ### ✅ Accessibility (WCAG 2.1)
+
 - [x] Semantyczne typy input
 - [x] Odpowiednie atrybuty autocomplete
 - [x] aria-invalid dla błędnych pól
@@ -375,6 +420,7 @@ npm run test:unit -- --coverage
 - [x] Obsługa klawiatury (Enter)
 
 ### ✅ UX
+
 - [x] Stan loading podczas logowania
 - [x] Wyłączenie przycisku podczas wysyłania
 - [x] Komunikaty błędów w kontekście pól
@@ -384,12 +430,14 @@ npm run test:unit -- --coverage
 ## Pokrycie Kodu
 
 ### Statystyki
+
 - **Łącznie testów:** 67
   - E2E: 12 (18%)
   - Integracyjne: 33 (49%)
   - Jednostkowe: 22 (33%)
 
 ### Pokrycie Komponentów
+
 - ✅ `LoginForm.tsx` - 100% (testy integracyjne)
 - ✅ `/api/auth/login.ts` - 100% (testy jednostkowe)
 - ✅ `LoginSchema` - 100% (testy jednostkowe)
@@ -398,27 +446,32 @@ npm run test:unit -- --coverage
 ## Znane Problemy i Ograniczenia
 
 ### 1. Testy E2E
+
 - Wymagają działającej instancji aplikacji
 - Wymagają bazy danych Supabase z danymi testowymi
 - Testowe konto musi być wcześniej utworzone
 
 ### 2. Izolacja Testów
+
 - Testy E2E nie czyszczą sesji po wykonaniu
 - Może wpływać na inne testy jeśli uruchamiane sekwencyjnie
 
 ### 3. Timeout
+
 - Niektóre testy mogą wymagać dłuższego timeout w wolnych środowiskach
 - Domyślny timeout: 10 sekund dla operacji network
 
 ## Następne Kroki
 
 ### Do Zrobienia
+
 1. ✅ Implementacja testów TC-US-002
 2. ⬜ Konfiguracja CI/CD pipeline
 3. ⬜ Utworzenie danych testowych w bazie
 4. ⬜ Dodanie performance tests
 
 ### Rekomendacje
+
 1. Rozważyć dodanie **visual regression tests** dla formularza
 2. Dodać **load tests** dla endpointu `/api/auth/login`
 3. Rozważyć **security tests** (rate limiting, brute force)
@@ -427,23 +480,26 @@ npm run test:unit -- --coverage
 ## Zgodność z Wymaganiami
 
 ### Tech Stack
+
 ✅ **Playwright** - testy E2E  
 ✅ **Vitest** - testy jednostkowe  
 ✅ **React Testing Library** - testy komponentów  
 ✅ **TypeScript** - type safety  
-✅ **Zod** - walidacja schematów  
+✅ **Zod** - walidacja schematów
 
 ### Best Practices
+
 ✅ **AAA Pattern** - Arrange, Act, Assert  
 ✅ **User-centric testing** - z perspektywy użytkownika  
 ✅ **Accessibility-first** - priorytet dla a11y  
-✅ **Comprehensive coverage** - wszystkie edge cases  
+✅ **Comprehensive coverage** - wszystkie edge cases
 
 ### Dokumentacja
+
 ✅ **Czytelne nazwy testów** - w języku polskim  
 ✅ **Komentarze** - jasne wyjaśnienie intencji  
 ✅ **Strukturalna organizacja** - logiczne grupy testów  
-✅ **Raportowanie** - szczegółowe raporty wyników  
+✅ **Raportowanie** - szczegółowe raporty wyników
 
 ## Podsumowanie
 

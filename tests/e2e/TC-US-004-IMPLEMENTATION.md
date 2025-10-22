@@ -5,9 +5,11 @@
 Tests for the Image Generator feature are organized in three levels:
 
 ### 1. Unit Tests
+
 **Location:** `tests/unit/components/useImageGenerator.test.ts`
 
 Tests for the custom hook `useImageGenerator`:
+
 - Initial state validation
 - Error handling for invalid prompts (empty, too short, too long)
 - Generation state management
@@ -15,14 +17,17 @@ Tests for the custom hook `useImageGenerator`:
 - State clearing and reset functionality
 
 **Run:**
+
 ```bash
 npm run test:unit -- useImageGenerator.test.ts
 ```
 
 ### 2. Integration Tests
+
 **Location:** `tests/integration/components/ImageGeneratorContainer.test.tsx`
 
 Tests for the complete `ImageGeneratorContainer` component:
+
 - Component rendering with all sections
 - Prompt input field functionality
 - Generate button state management (disabled/enabled)
@@ -31,14 +36,17 @@ Tests for the complete `ImageGeneratorContainer` component:
 - Interaction between sub-components
 
 **Run:**
+
 ```bash
 npm run test:integration -- ImageGeneratorContainer.test.tsx
 ```
 
 ### 3. E2E Tests
+
 **Location:** `tests/e2e/TC-US-004-image-generator.spec.ts`
 
 Full end-to-end workflow tests using Playwright:
+
 - Page loads correctly for authenticated clients
 - Prompt validation and input handling
 - Image generation workflow
@@ -51,6 +59,7 @@ Full end-to-end workflow tests using Playwright:
 - Role-based access control
 
 **Run:**
+
 ```bash
 npm run test:e2e -- TC-US-004-image-generator.spec.ts
 ```
@@ -58,18 +67,21 @@ npm run test:e2e -- TC-US-004-image-generator.spec.ts
 ## Test Cases Coverage
 
 ### Prompt Validation
+
 - ✅ Empty prompt rejected
 - ✅ Prompt < 10 characters rejected
 - ✅ Prompt > 500 characters rejected
 - ✅ Valid prompt (10-500 characters) accepted
 
 ### Generation Flow
+
 - ✅ Loading state displayed during generation
 - ✅ Button disabled during generation
 - ✅ Success response updates state with image data
 - ✅ Quota decrements after successful generation
 
 ### Error Handling
+
 - ✅ 400 Bad Request → VALIDATION_ERROR
 - ✅ 401 Unauthorized → UNAUTHORIZED
 - ✅ 403 Forbidden → FORBIDDEN
@@ -78,6 +90,7 @@ npm run test:e2e -- TC-US-004-image-generator.spec.ts
 - ✅ Network timeout handled gracefully
 
 ### UI States
+
 - ✅ Form displayed when no image generated
 - ✅ Image display section shown after generation
 - ✅ Error messages displayed with close button
@@ -85,11 +98,13 @@ npm run test:e2e -- TC-US-004-image-generator.spec.ts
 - ✅ Regenerate button clears state
 
 ### Access Control
+
 - ✅ Unauthenticated users redirected to /login
 - ✅ Non-client users redirected away from /generate
 - ✅ Clients can access /generate page
 
 ### Integration Points
+
 - ✅ localStorage.setItem("selectedGeneratedImageId") on project navigation
 - ✅ Redirect to /project/create with image ID
 - ✅ API integration with /api/images/generate
@@ -114,11 +129,13 @@ npm run test
 ## Test Data
 
 ### Mock User (Integration/E2E)
+
 - Email: `client@example.com`
 - Role: `client`
 - ID: `user-123`
 
 ### Test Prompts
+
 - Short (valid): "A modern oak dining table with metal legs" (44 chars)
 - Very short (invalid): "abc" (3 chars)
 - Very long (invalid): Generated with `"a".repeat(501)`
@@ -127,6 +144,7 @@ npm run test
 ## Expected API Responses
 
 ### Success (201 Created)
+
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -140,6 +158,7 @@ npm run test
 ```
 
 ### Error (429 Quota Exceeded)
+
 ```json
 {
   "error": {
@@ -152,16 +171,19 @@ npm run test
 ## Debugging Tests
 
 ### View Playwright UI
+
 ```bash
 npm run test:e2e -- --ui
 ```
 
 ### Debug E2E Tests
+
 ```bash
 npm run test:e2e -- --debug
 ```
 
 ### Generate Report
+
 ```bash
 npm run test:e2e -- --reporter=html
 open playwright-report/index.html

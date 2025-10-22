@@ -8,6 +8,7 @@
 ## 1. Podsumowanie
 
 Zaimplementowano kompletny zestaw testów dla funkcjonalności logowania użytkownika na wszystkich trzech poziomach:
+
 - **Testy E2E** (End-to-End)
 - **Testy integracyjne** (istniejące, rozbudowane)
 - **Testy jednostkowe** (nowe, dla endpointu API)
@@ -15,9 +16,11 @@ Zaimplementowano kompletny zestaw testów dla funkcjonalności logowania użytko
 ## 2. Zaimplementowane Pliki Testowe
 
 ### 2.1. Testy E2E
+
 **Plik:** `tests/e2e/TC-US-002-login-client.spec.ts`
 
 **Scenariusze testowe:**
+
 1. ✅ **Pomyślne logowanie na istniejące konto klienta** - główny scenariusz sukcesu
 2. ✅ **Walidacja: Logowanie z pustym emailem** - walidacja wymagalności pola
 3. ✅ **Walidacja: Logowanie z pustym hasłem** - walidacja wymagalności pola
@@ -32,6 +35,7 @@ Zaimplementowano kompletny zestaw testów dla funkcjonalności logowania użytko
 12. ✅ **Funkcjonalność: Wysłanie formularza klawiszem Enter** - keyboard navigation
 
 **Pokrycie:** 12 scenariuszy testowych obejmujących:
+
 - Happy path (pomyślne logowanie)
 - Walidację po stronie klienta i serwera
 - Obsługę błędów autoryzacji
@@ -40,11 +44,13 @@ Zaimplementowano kompletny zestaw testów dla funkcjonalności logowania użytko
 - Integrację z innymi częściami systemu
 
 ### 2.2. Testy Integracyjne
+
 **Plik:** `tests/integration/components/LoginForm.test.tsx` (istniejący)
 
 **Status:** ✅ Już zaimplementowane
 
 **Scenariusze (33 testy):**
+
 - Renderowanie formularza (3 testy)
 - Walidacja po stronie klienta (3 testy)
 - Integracja z API (6 testów)
@@ -54,9 +60,11 @@ Zaimplementowano kompletny zestaw testów dla funkcjonalności logowania użytko
 **Dodatkowe uwagi:** Ten plik zawiera kompletne testy integracyjne komponentu `LoginForm`, które już pokrywają wymagania TC-US-002 z perspektywy integracji React-API.
 
 ### 2.3. Testy Jednostkowe API
+
 **Plik:** `tests/unit/api/auth/login.test.ts` (nowy)
 
 **Scenariusze testowe:**
+
 1. ✅ **Pomyślne logowanie** (2 testy)
    - Logowanie z poprawnymi danymi
    - Ustawianie ciasteczek sesji z odpowiednimi opcjami
@@ -89,11 +97,13 @@ Zaimplementowano kompletny zestaw testów dla funkcjonalności logowania użytko
 **Pokrycie:** 17 testów jednostkowych dla endpointu `/api/auth/login`
 
 ### 2.4. Testy Jednostkowe Schematów
+
 **Plik:** `tests/unit/lib/schemas.test.ts` (istniejący)
 
 **Status:** ✅ Już zaimplementowane
 
 **Scenariusze dla LoginSchema (5 testów):**
+
 - Akceptacja prawidłowych danych
 - Odrzucenie nieprawidłowego formatu email
 - Odrzucenie pustego emaila
@@ -103,7 +113,9 @@ Zaimplementowano kompletny zestaw testów dla funkcjonalności logowania użytko
 ## 3. Zgodność z Wymaganiami PRD
 
 ### 3.1. Funkcjonalność Podstawowa
+
 ✅ **Logowanie użytkownika**
+
 - Formularz z polami email i hasło
 - Walidacja danych wejściowych
 - Integracja z Supabase Auth
@@ -111,55 +123,69 @@ Zaimplementowano kompletny zestaw testów dla funkcjonalności logowania użytko
 - Przekierowanie na stronę główną
 
 ### 3.2. Obsługa Błędów
+
 ✅ **Walidacja po stronie klienta**
+
 - Wymagalność pól
 - Format email
 - Komunikaty błędów w języku polskim
 
 ✅ **Walidacja po stronie serwera**
+
 - Zod schemas dla bezpieczeństwa
 - Spójne komunikaty błędów
 - Odpowiednie kody HTTP
 
 ✅ **Błędy autoryzacji**
+
 - 401 dla nieprawidłowych danych logowania
 - 400 dla innych błędów autoryzacji
 - 500 dla błędów serwera
 
 ### 3.3. Bezpieczeństwo
+
 ✅ **Ciasteczka sesji**
+
 - httpOnly flag
 - sameSite: lax
 - secure flag (w produkcji)
 - Odpowiednie maxAge
 
 ✅ **Ochrona danych**
+
 - Brak ujawniania szczegółów błędów wewnętrznych
 - Hashowanie haseł przez Supabase
 - HTTPS w produkcji
 
 ### 3.4. Accessibility (WCAG 2.1)
+
 ✅ **Atrybuty ARIA**
+
 - aria-invalid dla błędnych pól
 - aria-describedby dla komunikatów błędów
 - role="alert" dla komunikatów systemowych
 
 ✅ **Semantyczny HTML**
+
 - Odpowiednie typy input (email, password)
 - Atrybuty autocomplete
 - Labels powiązane z polami
 
 ✅ **Keyboard Navigation**
+
 - Obsługa klawisza Enter
 - Prawidłowa kolejność focusu
 
 ### 3.5. User Experience
+
 ✅ **Feedback wizualny**
+
 - Loading state podczas logowania
 - Wyłączenie przycisku podczas wysyłania
 - Komunikaty błędów w kontekście pól
 
 ✅ **Nawigacja**
+
 - Link do odzyskiwania hasła
 - Link do rejestracji
 - Przekierowanie po pomyślnym logowaniu
@@ -167,6 +193,7 @@ Zaimplementowano kompletny zestaw testów dla funkcjonalności logowania użytko
 ## 4. Struktura Testów
 
 ### 4.1. Hierarchia
+
 ```
 tests/
 ├── e2e/
@@ -193,6 +220,7 @@ tests/
 ## 5. Uruchomienie Testów
 
 ### 5.1. Wszystkie Testy
+
 ```bash
 # E2E
 npm run test:e2e tests/e2e/TC-US-002-login-client.spec.ts
@@ -206,11 +234,13 @@ npm run test:unit tests/unit/lib/schemas.test.ts
 ```
 
 ### 5.2. Testy w Trybie Watch
+
 ```bash
 npm run test:unit -- --watch
 ```
 
 ### 5.3. Testy z Pokryciem Kodu
+
 ```bash
 npm run test:unit -- --coverage
 ```
@@ -218,6 +248,7 @@ npm run test:unit -- --coverage
 ## 6. Wymagane Dane Testowe
 
 ### 6.1. Konto Testowe (E2E)
+
 Dla testów E2E wymagane jest istniejące konto testowe:
 
 ```
@@ -229,16 +260,19 @@ Type: client
 **Uwaga:** Konto należy utworzyć ręcznie lub przez setup script przed uruchomieniem testów E2E.
 
 ### 6.2. Mock Data (Unit/Integration)
+
 Testy jednostkowe i integracyjne używają mock data i nie wymagają rzeczywistych kont.
 
 ## 7. Znane Ograniczenia i Założenia
 
 ### 7.1. Ograniczenia
+
 1. **Testy E2E** wymagają działającej instancji aplikacji i bazy danych Supabase
 2. **Środowisko testowe** musi być skonfigurowane z odpowiednimi zmiennymi środowiskowymi
 3. **Izolacja testów** - testy E2E zakładają, że testowe konto już istnieje
 
 ### 7.2. Założenia
+
 1. **Supabase Auth** jest poprawnie skonfigurowany
 2. **Email confirmation** jest wyłączony dla kont testowych lub ręcznie potwierdzony
 3. **Rate limiting** nie wpływa na testy
@@ -246,32 +280,37 @@ Testy jednostkowe i integracyjne używają mock data i nie wymagają rzeczywisty
 ## 8. Zgodność z Best Practices
 
 ### 8.1. Struktura Testów
+
 ✅ **AAA Pattern** (Arrange-Act-Assert) we wszystkich testach  
 ✅ **Opisowe nazwy** testów w języku polskim  
 ✅ **Izolacja testów** - każdy test jest niezależny  
-✅ **Cleanup** - testy nie pozostawiają śmieci  
+✅ **Cleanup** - testy nie pozostawiają śmieci
 
 ### 8.2. Testing Library Guidelines
+
 ✅ **Testing Library queries** - priorytetyzacja dostępności  
 ✅ **User-centric approach** - testy z perspektywy użytkownika  
 ✅ **Async utilities** - prawidłowe użycie waitFor  
-✅ **Accessibility** - testowanie z użyciem ról i labels  
+✅ **Accessibility** - testowanie z użyciem ról i labels
 
 ### 8.3. Playwright Best Practices
+
 ✅ **Auto-waiting** - wykorzystanie wbudowanego oczekiwania  
 ✅ **Selektory semantyczne** - getByRole, getByLabel  
 ✅ **Timeout handling** - odpowiednie timeout dla operacji  
-✅ **Page Object Pattern** - wykorzystanie helpers.ts  
+✅ **Page Object Pattern** - wykorzystanie helpers.ts
 
 ## 9. Następne Kroki
 
 ### 9.1. Przed Uruchomieniem
+
 1. Skonfigurować zmienne środowiskowe testowe
 2. Utworzyć dedykowaną bazę danych Supabase dla testów
 3. Utworzyć konta testowe
 4. Uruchomić migracje bazy danych
 
 ### 9.2. Rekomendacje
+
 1. Dodać **CI/CD pipeline** do automatycznego uruchamiania testów
 2. Rozważyć dodanie **visual regression tests** dla formularza logowania
 3. Dodać **performance tests** dla endpointu logowania
@@ -280,28 +319,33 @@ Testy jednostkowe i integracyjne używają mock data i nie wymagają rzeczywisty
 ## 10. Zgodność z Tech Stack
 
 ### 10.1. Wykorzystane Technologie
+
 ✅ **Playwright** - testy E2E  
 ✅ **Vitest** - testy jednostkowe i integracyjne  
 ✅ **React Testing Library** - testy komponentów React  
 ✅ **Zod** - walidacja schematów  
-✅ **TypeScript** - type safety we wszystkich testach  
+✅ **TypeScript** - type safety we wszystkich testach
 
 ### 10.2. Zgodność z Astro 5
+
 ✅ **API Routes** - testy endpointów Astro  
 ✅ **Middleware** - integracja z context.locals  
-✅ **Cookies** - bezpieczne zarządzanie sesją  
+✅ **Cookies** - bezpieczne zarządzanie sesją
 
 ### 10.3. Zgodność z Supabase
+
 ✅ **Supabase Auth** - mockowanie i integracja  
 ✅ **Session Management** - testy ciasteczek sesji  
-✅ **Error Handling** - obsługa błędów Supabase  
+✅ **Error Handling** - obsługa błędów Supabase
 
 ## 11. Podsumowanie i Rekomendacje
 
 ### 11.1. Status Implementacji
+
 🟢 **Kompletne** - wszystkie wymagane testy zostały zaimplementowane
 
 ### 11.2. Poziom Pokrycia
+
 - **Funkcjonalność:** 100%
 - **Walidacja:** 100%
 - **Bezpieczeństwo:** 100%
@@ -309,13 +353,16 @@ Testy jednostkowe i integracyjne używają mock data i nie wymagają rzeczywisty
 - **UX:** 100%
 
 ### 11.3. Gotowość do Produkcji
+
 ✅ Testy TC-US-002 są gotowe do integracji z CI/CD pipeline  
 ✅ Pokrycie kodu spełnia wymagania (>70%)  
 ✅ Wszystkie krytyczne ścieżki są przetestowane  
-✅ Testy zgodne z WCAG 2.1 Level AA  
+✅ Testy zgodne z WCAG 2.1 Level AA
 
 ### 11.4. Następne Test Cases
+
 Po pomyślnym uruchomieniu TC-US-002, zalecane jest przejście do:
+
 - **TC-US-003:** Wylogowywanie użytkownika
 - **TC-US-004:** Generowanie obrazu mebla
 - **TC-US-005:** Tworzenie projektu na podstawie obrazu

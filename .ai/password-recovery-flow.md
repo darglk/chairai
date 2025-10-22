@@ -310,17 +310,17 @@ PRZED resetem:
   Browser: (brak cookies)
 
 PO callback (krok 2):
-  Browser: 
+  Browser:
     ├─ sb-access-token: "eyJ..." (7 dni, HttpOnly)
     └─ sb-refresh-token: "v1..." (30 dni, HttpOnly)
-  
+
   Typ sesji: TYMCZASOWA (do resetu hasła)
 
 PO reset hasła (krok 3):
   Browser:
     ├─ sb-access-token: "eyJ..." (NOWY token, 7 dni)
     └─ sb-refresh-token: "v1..." (NOWY token, 30 dni)
-  
+
   Typ sesji: PEŁNA (normalnie zalogowany user)
 
 OPCJA A: Auto-login po resecie
@@ -332,6 +332,6 @@ OPCJA B: Manual login po resecie
   → Cookies czyszczone po resecie
   → User przekierowany do /login
   → Musi zalogować się nowym hasłem
-  
+
   (Obecna implementacja: OPCJA A)
 ```

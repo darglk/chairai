@@ -6,7 +6,7 @@
  */
 
 import type { SupabaseClient } from "../../db/supabase.client";
-import type { CreateProjectCommand, ProjectDTO } from "../../types";
+import type { CreateProjectCommand, ProjectDTO, UpdateProjectStatusResponseDTO, ProjectStatus } from "../../types";
 import type { Database } from "../../db/database.types";
 
 /**
@@ -574,5 +574,197 @@ export class ProjectService {
     };
 
     return projectDTO;
+  }
+
+  /**
+   * Accepts a proposal for a project
+   *
+   * Business rules:
+   * - Only project owner (client) can accept proposals
+   * - Project must be in 'open' status
+   * - Proposal must belong to the project
+   * - Once accepted, project status changes to 'in_progress'
+   * - Accepted proposal ID and price are stored in project
+   *
+   * @param projectId - ID of the project
+   * @param proposalId - ID of the proposal to accept
+   * @param userId - ID of the user performing the action (must be project owner)
+   * @returns Promise containing the updated project with partial details
+   * @throws ProjectError if validation fails or unauthorized
+   *
+   * @example
+   * const updatedProject = await projectService.acceptProposal(
+   *   "project-uuid",
+   *   "proposal-uuid",
+   *   clientId
+   * );
+   */
+  async acceptProposal(
+    projectId: string,
+    proposalId: string,
+    userId: string
+  ): Promise<Pick<ProjectDTO, "id" | "status" | "accepted_proposal_id" | "accepted_price" | "updated_at">> {
+    // Step 1: Fetch project
+    const { data: project, error: projectError } = await this.supabase
+      .from("projects")
+      .select("id, client_id, status")
+      .eq("id", projectId)
+      .single();
+
+    if (projectError || !project) {
+      throw new ProjectError("Nie znaleziono projektu", "PROJECT_NOT_FOUND", 404);
+    }
+
+    // Step 2: Authorization - check if user is project owner
+    if (project.client_id !== userId) {
+      throw new ProjectError("Nie masz uprawnień do akceptacji propozycji dla tego projektu", "PROJECT_FORBIDDEN", 403);
+    }
+
+    // Step 3: Validate project status is 'open'
+    if (project.status !== "open") {
+      throw new ProjectError("Nie można zaakceptować propozycji. Projekt nie jest otwarty", "PROJECT_NOT_OPEN", 400);
+    }
+
+    // Step 4: Fetch proposal and validate it belongs to project
+    const { data: proposal, error: proposalError } = await this.supabase
+      .from("proposals")
+      .select("id, project_id, price")
+      .eq("id", proposalId)
+      .single();
+
+    if (proposalError || !proposal) {
+      throw new ProjectError("Nie znaleziono propozycji", "PROPOSAL_NOT_FOUND", 404);
+    }
+
+    if (proposal.project_id !== projectId) {
+      throw new ProjectError("Propozycja nie należy do tego projektu", "PROPOSAL_PROJECT_MISMATCH", 400);
+    }
+
+    // Step 5: Update project - accept proposal
+    const { data: updatedProject, error: updateError } = await this.supabase
+      .from("projects")
+      .update({
+        status: "in_progress",
+        accepted_proposal_id: proposalId,
+        accepted_price: proposal.price,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", projectId)
+      .select("id, status, accepted_proposal_id, accepted_price, updated_at")
+      .single();
+
+    if (updateError || !updatedProject) {
+      // eslint-disable-next-line no-console
+      console.error("[ProjectService] Failed to accept proposal:", updateError);
+      throw new ProjectError("Nie udało się zaakceptować propozycji", "PROPOSAL_ACCEPT_FAILED", 500);
+    }
+
+    return {
+      id: updatedProject.id,
+      status: updatedProject.status,
+      accepted_proposal_id: updatedProject.accepted_proposal_id,
+      accepted_price: updatedProject.accepted_price,
+      updated_at: updatedProject.updated_at,
+    };
+  }
+
+  /**
+   * Updates the status of a project
+   *
+   * Business rules:
+   * - Only the project owner (client) can update the status
+   * - Valid status transitions:
+   *   - open -> in_progress (via acceptProposal only, not directly)
+   *   - open -> closed
+   *   - in_progress -> completed
+   *   - in_progress -> closed
+   *   - completed -> closed
+   *
+   * @param projectId - ID of the project to update
+   * @param newStatus - New status to set
+   * @param userId - ID of the user making the request
+   * @returns Promise containing updated project data
+   * @throws ProjectError if validation fails or transition is invalid
+   *
+   * @example
+   * const result = await projectService.updateProjectStatus(
+   *   "project-uuid",
+   *   "completed",
+   *   "user-uuid"
+   * );
+   */
+  async updateProjectStatus(
+    projectId: string,
+    newStatus: ProjectStatus,
+    userId: string
+  ): Promise<UpdateProjectStatusResponseDTO> {
+    // Step 1: Fetch project with current status
+    const { data: project, error: projectError } = await this.supabase
+      .from("projects")
+      .select("id, client_id, status")
+      .eq("id", projectId)
+      .single();
+
+    if (projectError || !project) {
+      throw new ProjectError("Nie znaleziono projektu", "PROJECT_NOT_FOUND", 404);
+    }
+
+    // Step 2: Authorization - check if user is project owner
+    if (project.client_id !== userId) {
+      throw new ProjectError("Nie masz uprawnień do aktualizacji statusu tego projektu", "PROJECT_FORBIDDEN", 403);
+    }
+
+    // Step 3: Validate status transition
+    const currentStatus = project.status;
+
+    // If status is the same, no need to update
+    if (currentStatus === newStatus) {
+      return {
+        id: project.id,
+        status: currentStatus,
+        updated_at: new Date().toISOString(),
+      };
+    }
+
+    // Define valid transitions
+    const validTransitions: Record<ProjectStatus, ProjectStatus[]> = {
+      open: ["closed"], // open -> in_progress only via acceptProposal
+      in_progress: ["completed", "closed"],
+      completed: ["closed"],
+      closed: [], // No transitions from closed
+    };
+
+    const allowedStatuses = validTransitions[currentStatus];
+
+    if (!allowedStatuses.includes(newStatus)) {
+      throw new ProjectError(
+        `Niedozwolona zmiana statusu z '${currentStatus}' na '${newStatus}'`,
+        "INVALID_STATUS_TRANSITION",
+        400
+      );
+    }
+
+    // Step 4: Update project status
+    const { data: updatedProject, error: updateError } = await this.supabase
+      .from("projects")
+      .update({
+        status: newStatus,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", projectId)
+      .select("id, status, updated_at")
+      .single();
+
+    if (updateError || !updatedProject) {
+      // eslint-disable-next-line no-console
+      console.error("[ProjectService] Failed to update project status:", updateError);
+      throw new ProjectError("Nie udało się zaktualizować statusu projektu", "STATUS_UPDATE_FAILED", 500);
+    }
+
+    return {
+      id: updatedProject.id,
+      status: updatedProject.status,
+      updated_at: updatedProject.updated_at,
+    };
   }
 }

@@ -10,123 +10,134 @@ CREATE TYPE project_status AS ENUM ('open', 'in_progress', 'completed', 'closed'
 ```
 
 ### Tabela: `users`
+
 Przechowuje podstawowe informacje o użytkownikach, zintegrowane z `auth.users` z Supabase.
 
-| Nazwa kolumny | Typ danych | Ograniczenia                               | Opis                               |
-| :------------ | :--------- | :----------------------------------------- | :--------------------------------- |
-| `id`          | `uuid`     | `PRIMARY KEY`, `DEFAULT auth.uid()`        | Klucz główny, referencja do `auth.users.id`. |
-| `role`        | `user_role`| `NOT NULL`                                 | Rola użytkownika ('client' lub 'artisan'). |
-| `created_at`  | `timestamptz`| `DEFAULT now()`                            | Czas utworzenia konta.             |
+| Nazwa kolumny | Typ danych    | Ograniczenia                        | Opis                                         |
+| :------------ | :------------ | :---------------------------------- | :------------------------------------------- |
+| `id`          | `uuid`        | `PRIMARY KEY`, `DEFAULT auth.uid()` | Klucz główny, referencja do `auth.users.id`. |
+| `role`        | `user_role`   | `NOT NULL`                          | Rola użytkownika ('client' lub 'artisan').   |
+| `created_at`  | `timestamptz` | `DEFAULT now()`                     | Czas utworzenia konta.                       |
 
 ### Tabela: `artisan_profiles`
+
 Rozszerzenie profilu dla użytkowników z rolą 'artisan'.
 
-| Nazwa kolumny   | Typ danych  | Ograniczenia                               | Opis                               |
-| :-------------- | :---------- | :----------------------------------------- | :--------------------------------- |
-| `user_id`       | `uuid`      | `PRIMARY KEY`, `REFERENCES users(id)`      | Klucz główny i obcy do tabeli `users`. |
-| `company_name`  | `text`      | `NOT NULL`                                 | Nazwa firmy rzemieślnika.          |
-| `nip`           | `varchar(10)`| `NOT NULL`, `UNIQUE`                       | Numer Identyfikacji Podatkowej.    |
-| `is_public`     | `boolean`   | `NOT NULL`, `DEFAULT false`                | Czy profil jest publicznie widoczny. |
-| `updated_at`    | `timestamptz`| `DEFAULT now()`                            | Czas ostatniej aktualizacji profilu. |
+| Nazwa kolumny  | Typ danych    | Ograniczenia                          | Opis                                   |
+| :------------- | :------------ | :------------------------------------ | :------------------------------------- |
+| `user_id`      | `uuid`        | `PRIMARY KEY`, `REFERENCES users(id)` | Klucz główny i obcy do tabeli `users`. |
+| `company_name` | `text`        | `NOT NULL`                            | Nazwa firmy rzemieślnika.              |
+| `nip`          | `varchar(10)` | `NOT NULL`, `UNIQUE`                  | Numer Identyfikacji Podatkowej.        |
+| `is_public`    | `boolean`     | `NOT NULL`, `DEFAULT false`           | Czy profil jest publicznie widoczny.   |
+| `updated_at`   | `timestamptz` | `DEFAULT now()`                       | Czas ostatniej aktualizacji profilu.   |
 
 ### Tabela: `specializations`
+
 Tabela słownikowa dla specjalizacji rzemieślników.
 
-| Nazwa kolumny | Typ danych | Ograniczenia     | Opis                       |
-| :------------ | :--------- | :--------------- | :------------------------- |
-| `id`          | `uuid`     | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Klucz główny.              |
-| `name`        | `text`     | `NOT NULL`, `UNIQUE` | Nazwa specjalizacji (np. "Stoły", "Szafy"). |
+| Nazwa kolumny | Typ danych | Ograniczenia                               | Opis                                        |
+| :------------ | :--------- | :----------------------------------------- | :------------------------------------------ |
+| `id`          | `uuid`     | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Klucz główny.                               |
+| `name`        | `text`     | `NOT NULL`, `UNIQUE`                       | Nazwa specjalizacji (np. "Stoły", "Szafy"). |
 
 ### Tabela: `artisan_specializations`
+
 Tabela łącząca rzemieślników ze specjalizacjami (relacja N:N).
 
-| Nazwa kolumny      | Typ danych | Ograniczenia                               | Opis                               |
-| :----------------- | :--------- | :----------------------------------------- | :--------------------------------- |
-| `artisan_id`       | `uuid`     | `REFERENCES artisan_profiles(user_id)`     | Klucz obcy do `artisan_profiles`.  |
-| `specialization_id`| `uuid`     | `REFERENCES specializations(id)`           | Klucz obcy do `specializations`.   |
-|                    |            | `PRIMARY KEY (artisan_id, specialization_id)` | Klucz główny złożony.              |
+| Nazwa kolumny       | Typ danych | Ograniczenia                                  | Opis                              |
+| :------------------ | :--------- | :-------------------------------------------- | :-------------------------------- |
+| `artisan_id`        | `uuid`     | `REFERENCES artisan_profiles(user_id)`        | Klucz obcy do `artisan_profiles`. |
+| `specialization_id` | `uuid`     | `REFERENCES specializations(id)`              | Klucz obcy do `specializations`.  |
+|                     |            | `PRIMARY KEY (artisan_id, specialization_id)` | Klucz główny złożony.             |
 
 ### Tabela: `portfolio_images`
+
 Przechowuje URL-e do zdjęć w portfolio rzemieślnika.
 
-| Nazwa kolumny | Typ danych | Ograniczenia                               | Opis                               |
-| :------------ | :--------- | :----------------------------------------- | :--------------------------------- |
-| `id`          | `uuid`     | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Klucz główny.                      |
-| `artisan_id`  | `uuid`     | `NOT NULL`, `REFERENCES artisan_profiles(user_id)` | Rzemieślnik, do którego należy zdjęcie. |
-| `image_url`   | `text`     | `NOT NULL`                                 | URL do obrazu w Supabase Storage.  |
-| `created_at`  | `timestamptz`| `DEFAULT now()`                            | Czas dodania zdjęcia.              |
+| Nazwa kolumny | Typ danych    | Ograniczenia                                       | Opis                                    |
+| :------------ | :------------ | :------------------------------------------------- | :-------------------------------------- |
+| `id`          | `uuid`        | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`         | Klucz główny.                           |
+| `artisan_id`  | `uuid`        | `NOT NULL`, `REFERENCES artisan_profiles(user_id)` | Rzemieślnik, do którego należy zdjęcie. |
+| `image_url`   | `text`        | `NOT NULL`                                         | URL do obrazu w Supabase Storage.       |
+| `created_at`  | `timestamptz` | `DEFAULT now()`                                    | Czas dodania zdjęcia.                   |
 
 ### Tabela: `generated_images`
+
 Przechowuje obrazy wygenerowane przez AI dla klientów.
 
-| Nazwa kolumny | Typ danych | Ograniczenia                               | Opis                               |
-| :------------ | :--------- | :----------------------------------------- | :--------------------------------- |
-| `id`          | `uuid`     | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Klucz główny.                      |
-| `user_id`     | `uuid`     | `NOT NULL`, `REFERENCES users(id)`         | Klient, który wygenerował obraz.   |
-| `prompt`      | `text`     |                                            | Prompt użyty do generacji.         |
-| `image_url`   | `text`     | `NOT NULL`                                 | URL do obrazu w Supabase Storage.  |
-| `created_at`  | `timestamptz`| `DEFAULT now()`                            | Czas generacji.                    |
+| Nazwa kolumny | Typ danych    | Ograniczenia                               | Opis                              |
+| :------------ | :------------ | :----------------------------------------- | :-------------------------------- |
+| `id`          | `uuid`        | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Klucz główny.                     |
+| `user_id`     | `uuid`        | `NOT NULL`, `REFERENCES users(id)`         | Klient, który wygenerował obraz.  |
+| `prompt`      | `text`        |                                            | Prompt użyty do generacji.        |
+| `image_url`   | `text`        | `NOT NULL`                                 | URL do obrazu w Supabase Storage. |
+| `created_at`  | `timestamptz` | `DEFAULT now()`                            | Czas generacji.                   |
 
 ### Tabela: `categories`
+
 Tabela słownikowa dla kategorii mebli.
 
-| Nazwa kolumny | Typ danych | Ograniczenia     | Opis                       |
-| :------------ | :--------- | :--------------- | :------------------------- |
-| `id`          | `uuid`     | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Klucz główny.              |
-| `name`        | `text`     | `NOT NULL`, `UNIQUE` | Nazwa kategorii (np. "Krzesło", "Biurko"). |
+| Nazwa kolumny | Typ danych | Ograniczenia                               | Opis                                       |
+| :------------ | :--------- | :----------------------------------------- | :----------------------------------------- |
+| `id`          | `uuid`     | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Klucz główny.                              |
+| `name`        | `text`     | `NOT NULL`, `UNIQUE`                       | Nazwa kategorii (np. "Krzesło", "Biurko"). |
 
 ### Tabela: `materials`
+
 Tabela słownikowa dla materiałów.
 
-| Nazwa kolumny | Typ danych | Ograniczenia     | Opis                       |
-| :------------ | :--------- | :--------------- | :------------------------- |
-| `id`          | `uuid`     | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Klucz główny.              |
-| `name`        | `text`     | `NOT NULL`, `UNIQUE` | Nazwa materiału (np. "Dąb", "MDF"). |
+| Nazwa kolumny | Typ danych | Ograniczenia                               | Opis                                |
+| :------------ | :--------- | :----------------------------------------- | :---------------------------------- |
+| `id`          | `uuid`     | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Klucz główny.                       |
+| `name`        | `text`     | `NOT NULL`, `UNIQUE`                       | Nazwa materiału (np. "Dąb", "MDF"). |
 
 ### Tabela: `projects`
+
 Centralna tabela dla projektów/ogłoszeń tworzonych przez klientów.
 
-| Nazwa kolumny        | Typ danych       | Ograniczenia                               | Opis                               |
-| :------------------- | :--------------- | :----------------------------------------- | :--------------------------------- |
-| `id`                 | `uuid`           | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Klucz główny.                      |
-| `client_id`          | `uuid`           | `NOT NULL`, `REFERENCES users(id)`         | Klient, który stworzył projekt.    |
-| `generated_image_id` | `uuid`           | `NOT NULL`, `REFERENCES generated_images(id)`, `UNIQUE` | Obraz AI, na którym bazuje projekt. |
-| `category_id`        | `uuid`           | `NOT NULL`, `REFERENCES categories(id)`    | Kategoria mebla.                   |
-| `material_id`        | `uuid`           | `NOT NULL`, `REFERENCES materials(id)`     | Główny materiał.                   |
-| `status`             | `project_status` | `NOT NULL`, `DEFAULT 'open'`               | Status projektu.                   |
-| `dimensions`         | `text`           |                                            | Orientacyjne wymiary.              |
-| `budget_range`       | `text`           |                                            | Oczekiwany budżet (zakres).        |
-| `accepted_proposal_id`| `uuid`          | `REFERENCES proposals(id)`                 | Zaakceptowana propozycja.          |
-| `accepted_price`     | `numeric(10, 2)` |                                            | Kwota z zaakceptowanej propozycji. |
-| `created_at`         | `timestamptz`    | `DEFAULT now()`                            | Czas utworzenia projektu.          |
-| `updated_at`         | `timestamptz`    | `DEFAULT now()`                            | Czas ostatniej aktualizacji.       |
+| Nazwa kolumny          | Typ danych       | Ograniczenia                                            | Opis                                |
+| :--------------------- | :--------------- | :------------------------------------------------------ | :---------------------------------- |
+| `id`                   | `uuid`           | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`              | Klucz główny.                       |
+| `client_id`            | `uuid`           | `NOT NULL`, `REFERENCES users(id)`                      | Klient, który stworzył projekt.     |
+| `generated_image_id`   | `uuid`           | `NOT NULL`, `REFERENCES generated_images(id)`, `UNIQUE` | Obraz AI, na którym bazuje projekt. |
+| `category_id`          | `uuid`           | `NOT NULL`, `REFERENCES categories(id)`                 | Kategoria mebla.                    |
+| `material_id`          | `uuid`           | `NOT NULL`, `REFERENCES materials(id)`                  | Główny materiał.                    |
+| `status`               | `project_status` | `NOT NULL`, `DEFAULT 'open'`                            | Status projektu.                    |
+| `dimensions`           | `text`           |                                                         | Orientacyjne wymiary.               |
+| `budget_range`         | `text`           |                                                         | Oczekiwany budżet (zakres).         |
+| `accepted_proposal_id` | `uuid`           | `REFERENCES proposals(id)`                              | Zaakceptowana propozycja.           |
+| `accepted_price`       | `numeric(10, 2)` |                                                         | Kwota z zaakceptowanej propozycji.  |
+| `created_at`           | `timestamptz`    | `DEFAULT now()`                                         | Czas utworzenia projektu.           |
+| `updated_at`           | `timestamptz`    | `DEFAULT now()`                                         | Czas ostatniej aktualizacji.        |
 
 ### Tabela: `proposals`
+
 Propozycje składane przez rzemieślników do projektów.
 
-| Nazwa kolumny      | Typ danych       | Ograniczenia                               | Opis                               |
-| :----------------- | :--------------- | :----------------------------------------- | :--------------------------------- |
-| `id`               | `uuid`           | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Klucz główny.                      |
-| `project_id`       | `uuid`           | `NOT NULL`, `REFERENCES projects(id)`      | Projekt, którego dotyczy propozycja. |
-| `artisan_id`       | `uuid`           | `NOT NULL`, `REFERENCES users(id)`         | Rzemieślnik składający propozycję. |
-| `price`            | `numeric(10, 2)` | `NOT NULL`                                 | Proponowana cena.                  |
-| `attachment_url`   | `text`           | `NOT NULL`                                 | URL do załącznika w Supabase Storage. |
-| `created_at`       | `timestamptz`    | `DEFAULT now()`                            | Czas złożenia propozycji.          |
-|                    |                  | `UNIQUE (project_id, artisan_id)`          | Jeden rzemieślnik może złożyć jedną propozycję do projektu. |
+| Nazwa kolumny    | Typ danych       | Ograniczenia                               | Opis                                                        |
+| :--------------- | :--------------- | :----------------------------------------- | :---------------------------------------------------------- |
+| `id`             | `uuid`           | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Klucz główny.                                               |
+| `project_id`     | `uuid`           | `NOT NULL`, `REFERENCES projects(id)`      | Projekt, którego dotyczy propozycja.                        |
+| `artisan_id`     | `uuid`           | `NOT NULL`, `REFERENCES users(id)`         | Rzemieślnik składający propozycję.                          |
+| `price`          | `numeric(10, 2)` | `NOT NULL`                                 | Proponowana cena.                                           |
+| `attachment_url` | `text`           | `NOT NULL`                                 | URL do załącznika w Supabase Storage.                       |
+| `created_at`     | `timestamptz`    | `DEFAULT now()`                            | Czas złożenia propozycji.                                   |
+|                  |                  | `UNIQUE (project_id, artisan_id)`          | Jeden rzemieślnik może złożyć jedną propozycję do projektu. |
 
 ### Tabela: `reviews`
+
 Oceny i recenzje po zakończonym projekcie.
 
-| Nazwa kolumny   | Typ danych | Ograniczenia                               | Opis                               |
-| :-------------- | :--------- | :----------------------------------------- | :--------------------------------- |
-| `id`            | `uuid`     | `PRIMARY KEY`, `DEFAULT gen_random_uuid()` | Klucz główny.                      |
-| `project_id`    | `uuid`     | `NOT NULL`, `REFERENCES projects(id)`      | Oceniany projekt.                  |
-| `reviewer_id`   | `uuid`     | `NOT NULL`, `REFERENCES users(id)`         | Użytkownik wystawiający ocenę.     |
-| `reviewee_id`   | `uuid`     | `NOT NULL`, `REFERENCES users(id)`         | Użytkownik, który jest oceniany.   |
-| `rating`        | `integer`  | `NOT NULL`, `CHECK (rating >= 1 AND rating <= 5)` | Ocena w skali 1-5.                 |
-| `comment`       | `text`     |                                            | Komentarz do oceny.                |
-| `created_at`    | `timestamptz`| `DEFAULT now()`                            | Czas wystawienia oceny.            |
-|                 |            | `UNIQUE (project_id, reviewer_id)`         | Użytkownik może ocenić projekt tylko raz. |
+| Nazwa kolumny | Typ danych    | Ograniczenia                                      | Opis                                      |
+| :------------ | :------------ | :------------------------------------------------ | :---------------------------------------- |
+| `id`          | `uuid`        | `PRIMARY KEY`, `DEFAULT gen_random_uuid()`        | Klucz główny.                             |
+| `project_id`  | `uuid`        | `NOT NULL`, `REFERENCES projects(id)`             | Oceniany projekt.                         |
+| `reviewer_id` | `uuid`        | `NOT NULL`, `REFERENCES users(id)`                | Użytkownik wystawiający ocenę.            |
+| `reviewee_id` | `uuid`        | `NOT NULL`, `REFERENCES users(id)`                | Użytkownik, który jest oceniany.          |
+| `rating`      | `integer`     | `NOT NULL`, `CHECK (rating >= 1 AND rating <= 5)` | Ocena w skali 1-5.                        |
+| `comment`     | `text`        |                                                   | Komentarz do oceny.                       |
+| `created_at`  | `timestamptz` | `DEFAULT now()`                                   | Czas wystawienia oceny.                   |
+|               |               | `UNIQUE (project_id, reviewer_id)`                | Użytkownik może ocenić projekt tylko raz. |
 
 ## 2. Relacje Między Tabelami
 
@@ -226,7 +237,8 @@ CREATE POLICY "Involved parties can create reviews for completed projects."
     (auth.uid() = (SELECT client_id FROM projects WHERE id = project_id) OR auth.uid() = (SELECT artisan_id FROM proposals WHERE id = (SELECT accepted_proposal_id FROM projects WHERE id = project_id)))
   );
 ```
-*Uwaga: Powyższe zasady RLS wymagają pomocniczej funkcji `get_my_claim` do odczytywania ról z tokena JWT, co jest standardem w Supabase.*
+
+_Uwaga: Powyższe zasady RLS wymagają pomocniczej funkcji `get_my_claim` do odczytywania ról z tokena JWT, co jest standardem w Supabase._
 
 ## 5. Dodatkowe Uwagi
 

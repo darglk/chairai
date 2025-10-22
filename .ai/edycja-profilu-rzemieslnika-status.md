@@ -3,6 +3,7 @@
 ## ✅ Zakończone (Kroki 1-6)
 
 ### Krok 1: Stworzenie pliku strony ✅
+
 - **Plik:** `src/pages/profile/edit.astro`
 - **Funkcjonalność:**
   - Zabezpieczenie dostępu tylko dla użytkowników z rolą "artisan"
@@ -11,6 +12,7 @@
   - Dodano ochronę ścieżki `/profile` w middleware
 
 ### Krok 2: Implementacja hooka `useArtisanProfileForm` ✅
+
 - **Plik:** `src/components/hooks/useArtisanProfileForm.ts`
 - **Funkcjonalność:**
   - Zarządzanie stanem formularza wieloetapowego
@@ -25,6 +27,7 @@
   - Pełna obsługa błędów i stanów ładowania
 
 ### Krok 3: Implementacja głównego kontenera `ArtisanProfileEditView` ✅
+
 - **Plik:** `src/components/profile/ArtisanProfileEditView.tsx`
 - **Funkcjonalność:**
   - Stepper navigation pokazujący postęp (3 kroki)
@@ -34,6 +37,7 @@
   - Integracja z hookiem `useArtisanProfileForm`
 
 ### Krok 4: Implementacja `CompanyDataForm` ✅
+
 - **Plik:** `src/components/profile/CompanyDataForm.tsx`
 - **Funkcjonalność:**
   - Formularz z polami: `company_name`, `nip`
@@ -45,6 +49,7 @@
   - Stylizacja zgodna z Shadcn/ui
 
 ### Krok 5: Implementacja `SpecializationsForm` ✅
+
 - **Plik:** `src/components/profile/SpecializationsForm.tsx`
 - **Funkcjonalność:**
   - Dynamiczne pobieranie specjalizacji z API `/api/specializations`
@@ -56,6 +61,7 @@
   - Przyciski nawigacji (Wstecz, Dalej)
 
 ### Krok 6: Implementacja `PortfolioManager` ✅
+
 - **Plik:** `src/components/profile/PortfolioManager.tsx`
 - **Funkcjonalność:**
   - Upload zdjęć z drag & drop i kliknięciem
@@ -69,16 +75,20 @@
   - Hover effect z przyciskiem usuwania
 
 ### Dodatkowo utworzone komponenty UI:
+
 - **`src/components/ui/alert.tsx`** - Komponent Alert (Shadcn/ui)
 - **`src/components/ui/checkbox.tsx`** - Komponent Checkbox (Shadcn/ui)
 
 ### Dodane zależności:
+
 - `@radix-ui/react-checkbox` - dla komponentu Checkbox
 
 ## 🎯 Zgodność z planem implementacji
 
 ### Struktura komponentów
+
 ✅ Wszystkie komponenty zaimplementowane zgodnie z hierarchią z planu:
+
 ```
 ArtisanProfileEditView (kontener)
 ├── StepperNavigation (nawigacja kroków)
@@ -90,7 +100,9 @@ ArtisanProfileEditView (kontener)
 ```
 
 ### Typy
+
 ✅ Wszystkie typy zgodne z `types.ts`:
+
 - `ArtisanProfileViewModel`
 - `CompanyDataViewModel`
 - `SpecializationDTO`
@@ -98,7 +110,9 @@ ArtisanProfileEditView (kontener)
 - `ApiErrorDTO`
 
 ### Zarządzanie stanem
+
 ✅ Custom hook `useArtisanProfileForm` zarządzający całym stanem:
+
 - `currentStep` - aktualny krok
 - `profileData` - dane profilu
 - `isLoading` - ładowanie danych
@@ -106,7 +120,9 @@ ArtisanProfileEditView (kontener)
 - `error` - błędy API
 
 ### Integracja API
+
 ✅ Wszystkie endpointy zintegrowane:
+
 - GET `/api/artisans/me`
 - PUT `/api/artisans/me`
 - POST `/api/artisans/me/specializations`
@@ -115,14 +131,18 @@ ArtisanProfileEditView (kontener)
 - GET `/api/specializations`
 
 ### Walidacja
+
 ✅ Pełna walidacja zgodnie z planem:
+
 - Nazwa firmy: min 2 znaki
 - NIP: dokładnie 10 cyfr
 - Specjalizacje: minimum 1
 - Portfolio: minimum 5 zdjęć, max 5MB, tylko JPG/PNG/WEBP
 
 ### Obsługa błędów
+
 ✅ Kompleksowa obsługa błędów:
+
 - Błędy walidacji formularza pod polami
 - Błędy API w komponencie Alert
 - Błędy sieciowe
@@ -131,6 +151,7 @@ ArtisanProfileEditView (kontener)
 ## 🚀 Gotowe do testowania
 
 Widok jest w pełni funkcjonalny i gotowy do testowania:
+
 1. Uruchom serwer: `npm run dev`
 2. Zaloguj się jako użytkownik z rolą "artisan"
 3. Przejdź do `/profile/edit`
@@ -139,6 +160,7 @@ Widok jest w pełni funkcjonalny i gotowy do testowania:
 ## 📝 Następne kroki (opcjonalne)
 
 ### Możliwe ulepszenia:
+
 1. **Testy jednostkowe** - dla komponentów formularzy
 2. **Testy E2E** - Playwright dla całego przepływu
 3. **Optymalizacja obrazów** - kompresja przed uploadem
@@ -149,6 +171,7 @@ Widok jest w pełni funkcjonalny i gotowy do testowania:
 8. **Responsywność** - optymalizacja dla urządzeń mobilnych
 
 ### Potencjalne problemy do rozwiązania:
+
 1. Brak strony `/profile` - redirect po zakończeniu formularza
 2. Endpoint `/api/specializations` - może wymagać autoryzacji
 3. Portfolio upload - może wymagać konfiguracji Supabase Storage

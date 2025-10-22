@@ -1,19 +1,23 @@
 # API Documentation - Generated Images Endpoints
 
 ## Overview
+
 Endpoints for managing AI-generated furniture images. Part of US-004 implementation.
 
 ## Endpoints
 
 ### 1. Generate Image
+
 **POST** `/api/images/generate`
 
 Generates a furniture image using AI based on a text prompt.
 
 #### Authentication
+
 Required: Yes (Client role only)
 
 #### Request Body
+
 ```json
 {
   "prompt": "A modern oak dining table with metal legs"
@@ -21,9 +25,11 @@ Required: Yes (Client role only)
 ```
 
 #### Validation
+
 - `prompt`: Required, 10-500 characters
 
 #### Success Response (201 Created)
+
 ```json
 {
   "id": "uuid",
@@ -37,6 +43,7 @@ Required: Yes (Client role only)
 ```
 
 #### Error Responses
+
 - `401 Unauthorized` - User not authenticated
 - `403 Forbidden` - User is not a client
 - `404 Not Found` - User not found
@@ -48,19 +55,23 @@ Required: Yes (Client role only)
 ---
 
 ### 2. List Generated Images
+
 **GET** `/api/images/generated`
 
 Returns paginated list of user's generated images.
 
 #### Authentication
+
 Required: Yes (Client role only)
 
 #### Query Parameters
+
 - `page` (optional, default: 1): Page number
 - `limit` (optional, default: 20, max: 100): Items per page
 - `unused_only` (optional, default: false): Show only images not used in projects
 
 #### Success Response (200 OK)
+
 ```json
 {
   "data": [
@@ -84,6 +95,7 @@ Required: Yes (Client role only)
 ```
 
 #### Error Responses
+
 - `401 Unauthorized` - User not authenticated
 - `403 Forbidden` - User is not a client
 - `404 Not Found` - User not found
@@ -93,17 +105,21 @@ Required: Yes (Client role only)
 ---
 
 ### 3. Get Image Details
+
 **GET** `/api/images/generated/{imageId}`
 
 Returns details of a specific generated image.
 
 #### Authentication
+
 Required: Yes (Client role only, must be image owner)
 
 #### URL Parameters
+
 - `imageId`: UUID of the image
 
 #### Success Response (200 OK)
+
 ```json
 {
   "id": "uuid",
@@ -116,6 +132,7 @@ Required: Yes (Client role only, must be image owner)
 ```
 
 #### Error Responses
+
 - `400 Bad Request` - Missing imageId
 - `401 Unauthorized` - User not authenticated
 - `403 Forbidden` - User is not a client
@@ -125,20 +142,25 @@ Required: Yes (Client role only, must be image owner)
 ---
 
 ### 4. Delete Image
+
 **DELETE** `/api/images/generated/{imageId}`
 
 Deletes a generated image. Only allowed if image is not used in any project.
 
 #### Authentication
+
 Required: Yes (Client role only, must be image owner)
 
 #### URL Parameters
+
 - `imageId`: UUID of the image
 
 #### Success Response (204 No Content)
+
 No response body.
 
 #### Error Responses
+
 - `400 Bad Request` - Missing imageId OR image is used in a project
 - `401 Unauthorized` - User not authenticated
 - `403 Forbidden` - User is not a client
@@ -150,7 +172,9 @@ No response body.
 ## Implementation Notes
 
 ### AI Service
+
 Currently uses a mock implementation with Unsplash images. Production implementation should integrate with:
+
 - DALL-E API
 - Stable Diffusion
 - Midjourney API
@@ -159,11 +183,14 @@ Currently uses a mock implementation with Unsplash images. Production implementa
 Location: `src/lib/services/ai-image.service.ts`
 
 ### Generation Limit
+
 - Maximum free generations: 10 per client
 - Configured in: `AI_IMAGE_CONFIG.MAX_FREE_GENERATIONS`
 
 ### Database Schema
+
 Table: `generated_images`
+
 ```sql
 - id: uuid (primary key)
 - user_id: uuid (foreign key to users)
@@ -173,6 +200,7 @@ Table: `generated_images`
 ```
 
 ### Security
+
 - All endpoints require authentication
 - Only clients can access these endpoints
 - Users can only access/modify their own images
@@ -180,6 +208,7 @@ Table: `generated_images`
 - Row Level Security (RLS) enabled on database table
 
 ### Performance Considerations
+
 - Image listings use pagination
 - `unused_only` filter uses subquery (may be slow with many images)
 - Consider adding database index on `generated_image_id` in `projects` table
@@ -210,6 +239,7 @@ curl -X DELETE http://localhost:4321/api/images/generated/IMAGE_ID \
 ```
 
 ### Test Scenarios
+
 1. ✅ Generate image with valid prompt
 2. ✅ Generate image with too short prompt (< 10 chars)
 3. ✅ Generate image after reaching 10 generation limit
@@ -222,6 +252,7 @@ curl -X DELETE http://localhost:4321/api/images/generated/IMAGE_ID \
 10. ✅ Try to access endpoints as artisan user
 
 ## Next Steps
+
 - [ ] Integrate real AI image generation service
 - [ ] Add image storage service (S3, Cloudinary, etc.)
 - [ ] Implement image optimization and resizing

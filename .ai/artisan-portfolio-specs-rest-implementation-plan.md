@@ -1,11 +1,13 @@
 # Plan Implementacji API: Zarządzanie Portfolio Rzemieślnika
 
 ## 1. Przegląd Punktów Końcowych
+
 Ten dokument opisuje plan wdrożenia czterech punktów końcowych REST API przeznaczonych do zarządzania specjalizacjami i portfolio rzemieślnika. Umożliwiają one dodawanie i usuwanie specjalizacji oraz przesyłanie i usuwanie zdjęć z portfolio. Wszystkie operacje wymagają uwierzytelnienia i autoryzacji na poziomie roli 'artisan'.
 
 ## 2. Szczegóły Żądań i Odpowiedzi
 
 ### 2.1. Dodawanie Specjalizacji Rzemieślnika
+
 - **Opis**: Dodaje jedną lub więcej specjalizacji do profilu zalogowanego rzemieślnika.
 - **Metoda HTTP**: `POST`
 - **Struktura URL**: `/api/artisans/me/specializations`
@@ -26,6 +28,7 @@ Ten dokument opisuje plan wdrożenia czterech punktów końcowych REST API przez
   ```
 
 ### 2.2. Usuwanie Specjalizacji Rzemieślnika
+
 - **Opis**: Usuwa pojedynczą specjalizację z profilu zalogowanego rzemieślnika.
 - **Metoda HTTP**: `DELETE`
 - **Struktura URL**: `/api/artisans/me/specializations/{specializationId}`
@@ -34,6 +37,7 @@ Ten dokument opisuje plan wdrożenia czterech punktów końcowych REST API przez
 - **Odpowiedź sukcesu**: `204 No Content`
 
 ### 2.3. Przesyłanie Obrazu do Portfolio
+
 - **Opis**: Przesyła nowy obraz do portfolio zalogowanego rzemieślnika.
 - **Metoda HTTP**: `POST`
 - **Struktura URL**: `/api/artisans/me/portfolio`
@@ -49,6 +53,7 @@ Ten dokument opisuje plan wdrożenia czterech punktów końcowych REST API przez
   ```
 
 ### 2.4. Usuwanie Obrazu z Portfolio
+
 - **Opis**: Usuwa obraz z portfolio zalogowanego rzemieślnika.
 - **Metoda HTTP**: `DELETE`
 - **Struktura URL**: `/api/artisans/me/portfolio/{imageId}`
@@ -62,21 +67,26 @@ Ten dokument opisuje plan wdrożenia czterech punktów końcowych REST API przez
   ```typescript
   // src/lib/schemas.ts
   export const AddArtisanSpecializationsSchema = z.object({
-    specialization_ids: z.array(z.string().uuid({ message: "Invalid UUID format." })).min(1, "At least one specialization ID is required."),
+    specialization_ids: z
+      .array(z.string().uuid({ message: "Invalid UUID format." }))
+      .min(1, "At least one specialization ID is required."),
   });
   ```
 - **`PortfolioImageUploadSchema` (Zod)**: Do walidacji przesyłanego pliku.
+
   ```typescript
   // src/lib/schemas.ts
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
   const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
   export const PortfolioImageUploadSchema = z.object({
-    image: z.instanceof(File)
+    image: z
+      .instanceof(File)
       .refine((file) => file.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
       .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), "Only .jpg, .png and .webp formats are supported."),
   });
   ```
+
 - **DTOs**: `ArtisanSpecializationDto`, `PortfolioImageDto` (zdefiniowane w `src/types.ts`).
 
 ## 4. Przepływ Danych
@@ -106,26 +116,29 @@ Ten dokument opisuje plan wdrożenia czterech punktów końcowych REST API przez
     - Zwraca obiekt `Result` z danymi lub błędem.
 
 ## 5. Względy Bezpieczeństwa
+
 - **Autoryzacja**: Middleware globalnie weryfikuje rolę `artisan` dla wszystkich endpointów w tej grupie.
 - **Walidacja**: Wszystkie dane wejściowe są rygorystycznie walidowane za pomocą Zod, aby zapobiec atakom takim jak SQL Injection czy XSS.
 - **IDOR**: Każda operacja w serwisie musi zawierać warunek `where('user_id', 'eq', userId)`, aby upewnić się, że rzemieślnik modyfikuje tylko własne zasoby.
 - **Zarządzanie Plikami**:
-    - Typ i rozmiar pliku są walidowane po stronie serwera.
-    - Pliki są przechowywane w Supabase Storage z włączonymi politykami RLS, aby zapewnić dostęp tylko właścicielowi lub publicznie (w zależności od polityki).
+  - Typ i rozmiar pliku są walidowane po stronie serwera.
+  - Pliki są przechowywane w Supabase Storage z włączonymi politykami RLS, aby zapewnić dostęp tylko właścicielowi lub publicznie (w zależności od polityki).
 - **Rate Limiting**: Należy zaimplementować mechanizm rate limiting (np. w `src/lib/rate-limit.ts`) dla endpointów przesyłających pliki, aby zapobiec nadużyciom.
 
 ## 6. Obsługa Błędów
+
 Błędy będą kategoryzowane i zwracane w ustandaryzowanym formacie. Serwis będzie zwracał typowane błędy, np. `ValidationError`, `NotFoundError`, `ForbiddenError`.
 
-| Kod HTTP | Opis Błędu | Przykładowe Scenariusze |
-|----------|------------|-------------------------|
-| `400 Bad Request` | Błąd walidacji danych wejściowych. | Nieprawidłowy format UUID, brak wymaganego pola, plik za duży, próba usunięcia ostatniego zdjęcia z publicznego profilu. |
-| `401 Unauthorized` | Brak lub nieważny token uwierzytelniający. | Obsługiwane przez Supabase i middleware. |
-| `403 Forbidden` | Brak uprawnień do wykonania operacji. | Użytkownik nie ma roli 'artisan', próba modyfikacji cudzych zasobów. |
-| `404 Not Found` | Zasób nie został znaleziony. | Próba usunięcia nieistniejącej specjalizacji lub obrazu. |
-| `500 Internal Server Error` | Wewnętrzny błąd serwera. | Błąd połączenia z bazą danych, nieobsłużony wyjątek w logice biznesowej. |
+| Kod HTTP                    | Opis Błędu                                 | Przykładowe Scenariusze                                                                                                  |
+| --------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| `400 Bad Request`           | Błąd walidacji danych wejściowych.         | Nieprawidłowy format UUID, brak wymaganego pola, plik za duży, próba usunięcia ostatniego zdjęcia z publicznego profilu. |
+| `401 Unauthorized`          | Brak lub nieważny token uwierzytelniający. | Obsługiwane przez Supabase i middleware.                                                                                 |
+| `403 Forbidden`             | Brak uprawnień do wykonania operacji.      | Użytkownik nie ma roli 'artisan', próba modyfikacji cudzych zasobów.                                                     |
+| `404 Not Found`             | Zasób nie został znaleziony.               | Próba usunięcia nieistniejącej specjalizacji lub obrazu.                                                                 |
+| `500 Internal Server Error` | Wewnętrzny błąd serwera.                   | Błąd połączenia z bazą danych, nieobsłużony wyjątek w logice biznesowej.                                                 |
 
 ## 7. Rozważania dotyczące Wydajności
+
 - **Operacje na Bazie Danych**: Należy upewnić się, że wszystkie zapytania wykorzystują indeksy, zwłaszcza na kluczach obcych (`artisan_id`, `specialization_id`) i kolumnach używanych w klauzulach `WHERE`.
 - **Przesyłanie Plików**: Operacje na plikach są kosztowne. Należy zoptymalizować proces, np. poprzez bezpośrednie przesyłanie z klienta do Supabase Storage, jeśli to możliwe, z uprzednim uzyskaniem podpisanego URL od naszego backendu. W obecnym podejściu (przesyłanie przez nasz serwer) kluczowa jest walidacja rozmiaru pliku.
 - **Zapytania**: Unikać zapytań typu N+1, zwłaszcza przy pobieraniu danych powiązanych.

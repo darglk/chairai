@@ -137,11 +137,13 @@
 ## Stany komponentów
 
 ### 1. Loading State
+
 - **Kiedy:** Pobieranie danych z GET /api/artisans/me
 - **UI:** Spinner z tekstem "Ładowanie danych profilu..."
 - **Czas trwania:** Do momentu otrzymania odpowiedzi
 
 ### 2. Error State
+
 - **Kiedy:** Błąd API lub sieciowy
 - **UI:** Alert (czerwony) z ikoną i komunikatem
 - **Przykłady:**
@@ -150,13 +152,15 @@
   - "Nie udało się przesłać zdjęć"
 
 ### 3. Submitting State
+
 - **Kiedy:** Podczas wysyłania danych (upload, delete, finalizacja)
-- **UI:** 
+- **UI:**
   - Przyciski dezaktywowane
   - Tekst zmienia się na "Przetwarzanie..." / "Zapisywanie..."
   - Opcjonalnie: spinner na przycisku
 
 ### 4. Validation State
+
 - **Kiedy:** Po blur pola lub submit formularza
 - **UI:** Czerwony tekst błędu pod polem
 - **Przykłady:**
@@ -168,6 +172,7 @@
 ## Interakcje użytkownika
 
 ### Nawigacja między krokami
+
 ```
 Krok 1 → Krok 2 → Krok 3
   ↑        ↓  ↑      ↓
@@ -175,12 +180,14 @@ Krok 1 → Krok 2 → Krok 3
 ```
 
 ### Klawisze dostępności
+
 - **Tab** - Nawigacja między polami
 - **Enter** - Submit formularza (gdy aktywny)
 - **Space** - Toggle checkbox / kliknięcie przycisku
 - **Enter/Space** - Otwarcie file picker w PortfolioManager
 
 ### Wskaźniki postępu
+
 ```
 Step 1    Step 2    Step 3
 ───●──────○────────○───  (Aktywny: Krok 1)
@@ -191,14 +198,17 @@ Step 1    Step 2    Step 3
 ## Responsywność
 
 ### Desktop (≥1024px)
+
 - Obrazy portfolio: 4 kolumny
 - Szerokość formularza: max 1024px (centered)
 
 ### Tablet (768-1023px)
+
 - Obrazy portfolio: 3 kolumny
 - Pełna szerokość z marginesami
 
 ### Mobile (<768px)
+
 - Obrazy portfolio: 2 kolumny
 - Stepper: pionowy lub kompaktowy
 - Full-width inputs i przyciski

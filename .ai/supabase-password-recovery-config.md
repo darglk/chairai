@@ -20,26 +20,26 @@ Supabase ma wbudowany template, ale możesz go dostosować:
 <p>Kliknij poniższy link, aby ustawić nowe hasło:</p>
 
 <p>
-  <a href="{{ .ConfirmationURL }}" style="display: inline-block; padding: 12px 24px; background-color: #4F46E5; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">
+  <a
+    href="{{ .ConfirmationURL }}"
+    style="display: inline-block; padding: 12px 24px; background-color: #4F46E5; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;"
+  >
     Zresetuj hasło
   </a>
 </p>
 
 <p style="color: #6B7280; font-size: 14px;">
-  Lub skopiuj i wklej ten link w przeglądarce:<br>
+  Lub skopiuj i wklej ten link w przeglądarce:<br />
   {{ .ConfirmationURL }}
 </p>
 
-<p style="color: #EF4444; font-weight: 600;">
-  ⚠️ Link wygasa za 1 godzinę.
-</p>
+<p style="color: #EF4444; font-weight: 600;">⚠️ Link wygasa za 1 godzinę.</p>
 
 <p style="color: #6B7280; font-size: 14px; margin-top: 24px;">
-  Jeśli nie prosiłeś o reset hasła, możesz zignorować tę wiadomość.
-  Twoje hasło nie zostanie zmienione.
+  Jeśli nie prosiłeś o reset hasła, możesz zignorować tę wiadomość. Twoje hasło nie zostanie zmienione.
 </p>
 
-<hr style="margin: 24px 0; border: none; border-top: 1px solid #E5E7EB;">
+<hr style="margin: 24px 0; border: none; border-top: 1px solid #E5E7EB;" />
 
 <p style="color: #9CA3AF; font-size: 12px;">
   ChairAI - Platforma łącząca kreatywne pomysły z rzemieślniczym wykonaniem
@@ -61,11 +61,13 @@ Przejdź do: **Authentication → URL Configuration**
 #### Site URL
 
 **Development:**
+
 ```
 http://localhost:3000
 ```
 
 **Production:**
+
 ```
 https://chairai.com
 ```
@@ -75,12 +77,14 @@ https://chairai.com
 Dodaj następujące URLe:
 
 **Development:**
+
 ```
 http://localhost:3000/api/auth/callback
 http://localhost:3000/*
 ```
 
 **Production:**
+
 ```
 https://chairai.com/api/auth/callback
 https://chairai.com/*
@@ -117,6 +121,7 @@ Password: [App Password - nie zwykłe hasło!]
 Najlepsze dla produkcji:
 
 **SendGrid:**
+
 ```
 Host: smtp.sendgrid.net
 Port: 587
@@ -125,6 +130,7 @@ Password: [Your SendGrid API Key]
 ```
 
 **Mailgun:**
+
 ```
 Host: smtp.mailgun.org
 Port: 587
@@ -137,11 +143,13 @@ Password: [Your Mailgun Password]
 Przejdź do: **Authentication → Policies**
 
 **Minimum Password Length:**
+
 ```
 8 characters
 ```
 
 **Additional Requirements (opcjonalne):**
+
 - ✓ Require uppercase and lowercase letters
 - ✓ Require numbers
 - ✗ Require special characters (opcjonalne)
@@ -153,11 +161,13 @@ Przejdź do: **Authentication → Policies**
 Przejdź do: **Authentication → Settings**
 
 **Password Reset Token Expiry:**
+
 ```
 1 hour (3600 seconds) - Default
 ```
 
 Można zmienić na:
+
 - 30 minut (bezpieczniejsze)
 - 2 godziny (wygodniejsze)
 - 24 godziny (nie zalecane)
@@ -167,6 +177,7 @@ Można zmienić na:
 Przejdź do: **Authentication → Rate Limits**
 
 **Password Reset Rate Limit:**
+
 ```
 10 requests per hour per IP
 ```
@@ -185,6 +196,7 @@ curl -X POST http://localhost:3000/api/auth/password-recovery \
 ```
 
 **Sprawdź:**
+
 1. Log w konsoli Supabase (Auth → Logs)
 2. Skrzynka odbiorczą
 3. Czy link zawiera `code` i `type=recovery`
@@ -216,6 +228,7 @@ Kliknij link z emaila i sprawdź:
    - Szukaj błędów SMTP
 
 2. **Email w bazie:**
+
    ```sql
    SELECT * FROM auth.users WHERE email = 'test@example.com';
    ```
@@ -235,9 +248,11 @@ Kliknij link z emaila i sprawdź:
 **Sprawdź:**
 
 1. **URL w emailu:**
+
    ```
    http://localhost:3000/api/auth/callback?code=XXX&type=recovery
    ```
+
    - Czy zawiera `code`?
    - Czy zawiera `type=recovery`?
    - Czy domena się zgadza?
@@ -257,6 +272,7 @@ Kliknij link z emaila i sprawdź:
 **Możliwe przyczyny:**
 
 1. **Nieprawidłowa konfiguracja Site URL:**
+
    ```
    Site URL: http://localhost:3000 ✓
    NIE: http://localhost:3000/ ✗ (trailing slash)
@@ -299,7 +315,7 @@ Jeśli nie prosiłeś o reset hasła, możesz zignorować tę wiadomość.
 Twoje hasło nie zostanie zmienione.
 
 ─────────────────────────────────────────────────────
-ChairAI - Platforma łącząca kreatywne pomysły 
+ChairAI - Platforma łącząca kreatywne pomysły
 z rzemieślniczym wykonaniem
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```

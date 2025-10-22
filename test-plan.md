@@ -114,12 +114,14 @@ Poniżej znajdują się przykładowe scenariusze E2E dla każdej historyjki uży
 **Historyjka:** US-001 - Rejestracja konta klienta
 **Tytuł:** Pomyślna rejestracja nowego klienta
 **Kroki:**
+
 1. Przejdź na stronę `/register`.
 2. Wypełnij pole "E-mail" poprawnym adresem email (np. `test.klient@example.com`).
 3. Wypełnij pole "Hasło" i "Powtórz hasło" tym samym, silnym hasłem.
 4. Zaznacz, że typ konta to "Klient".
 5. Kliknij przycisk "Zarejestruj się".
-**Oczekiwany rezultat:**
+   **Oczekiwany rezultat:**
+
 - Użytkownik zostaje przekierowany na stronę z prośbą o potwierdzenie adresu e-mail. Po potwierdzeniu i zalogowaniu, jest przekierowany na stronę główną (`/`) i widzi interfejs zalogowanego użytkownika.
 
 ---
@@ -128,10 +130,12 @@ Poniżej znajdują się przykładowe scenariusze E2E dla każdej historyjki uży
 **Historyjka:** US-002 - Logowanie użytkownika
 **Tytuł:** Logowanie na istniejące konto klienta
 **Kroki:**
+
 1. Przejdź na stronę `/login`.
 2. Wprowadź e-mail i hasło istniejącego użytkownika.
 3. Kliknij przycisk "Zaloguj".
-**Oczekiwany rezultat:**
+   **Oczekiwany rezultat:**
+
 - Użytkownik zostaje zalogowany i przekierowany na stronę główną. W nagłówku widoczna jest ikona profilu lub menu użytkownika.
 
 ---
@@ -140,10 +144,12 @@ Poniżej znajdują się przykładowe scenariusze E2E dla każdej historyjki uży
 **Historyjka:** US-003 - Wylogowywanie użytkownika
 **Tytuł:** Pomyślne wylogowanie z systemu
 **Kroki:**
+
 1. Zaloguj się na konto użytkownika.
 2. Otwórz menu profilowe.
 3. Kliknij przycisk "Wyloguj".
-**Oczekiwany rezultat:**
+   **Oczekiwany rezultat:**
+
 - Sesja użytkownika zostaje zakończona. Użytkownik jest przekierowany na stronę główną i widzi opcje "Zaloguj" i "Zarejestruj". Dostęp do stron chronionych jest niemożliwy.
 
 ---
@@ -152,12 +158,14 @@ Poniżej znajdują się przykładowe scenariusze E2E dla każdej historyjki uży
 **Historyjka:** US-004 - Generowanie obrazu mebla
 **Tytuł:** Wygenerowanie i zapisanie obrazu przez klienta
 **Kroki:**
+
 1. Zaloguj się jako Klient.
 2. Na stronie głównej znajdź pole do wprowadzania promptu AI.
 3. Wpisz opis mebla, np. "Nowoczesne dębowe krzesło w stylu skandynawskim".
 4. Kliknij "Generuj".
 5. Po pojawieniu się obrazu, kliknij przycisk "Zapisz w galerii".
-**Oczekiwany rezultat:**
+   **Oczekiwany rezultat:**
+
 - Obraz zostaje wygenerowany i wyświetlony. Po zapisaniu, jest widoczny w prywatnej galerii użytkownika. Licznik generacji zmniejsza się o 1.
 
 ---
@@ -166,11 +174,13 @@ Poniżej znajdują się przykładowe scenariusze E2E dla każdej historyjki uży
 **Historyjka:** US-005 - Tworzenie projektu na podstawie obrazu
 **Tytuł:** Pomyślne utworzenie nowego projektu
 **Kroki:**
+
 1. Zaloguj się jako Klient i przejdź do swojej galerii.
 2. Wybierz jeden z zapisanych obrazów i kliknij "Stwórz projekt".
 3. Wypełnij formularz: wybierz kategorię, materiał, rozmiar i budżet.
 4. Kliknij "Opublikuj projekt".
-**Oczekiwany rezultat:**
+   **Oczekiwany rezultat:**
+
 - Projekt zostaje utworzony i otrzymuje status "Otwarty". Jest widoczny na liście projektów w marketplace dla rzemieślników.
 
 ---
@@ -179,11 +189,13 @@ Poniżej znajdują się przykładowe scenariusze E2E dla każdej historyjki uży
 **Historyjka:** US-006 - Przeglądanie i akceptacja propozycji
 **Tytuł:** Akceptacja oferty rzemieślnika
 **Kroki:**
+
 1. Zaloguj się jako Klient, który ma otwarty projekt z co najmniej jedną ofertą.
 2. Przejdź do strony szczegółów projektu.
 3. Przejrzyj listę otrzymanych propozycji.
 4. Kliknij "Akceptuj Propozycję" przy wybranej ofercie.
-**Oczekiwany rezultat:**
+   **Oczekiwany rezultat:**
+
 - Status projektu zmienia się na "W realizacji". Pozostałe oferty stają się nieaktywne. Na stronie projektu pojawia się dostęp do czatu z wybranym rzemieślnikiem.
 
 ---
@@ -192,10 +204,12 @@ Poniżej znajdują się przykładowe scenariusze E2E dla każdej historyjki uży
 **Historyjka:** US-007 - Komunikacja z rzemieślnikiem
 **Tytuł:** Wysłanie wiadomości na czacie
 **Kroki:**
+
 1. Zaloguj się jako Klient, który zaakceptował ofertę.
 2. Przejdź do strony projektu "W realizacji".
 3. Wpisz wiadomość w oknie czatu i kliknij "Wyślij".
-**Oczekiwany rezultat:**
+   **Oczekiwany rezultat:**
+
 - Wiadomość pojawia się w historii czatu. Rzemieślnik może ją odczytać.
 
 ---
@@ -204,11 +218,13 @@ Poniżej znajdują się przykładowe scenariusze E2E dla każdej historyjki uży
 **Historyjka:** US-008 - Zakończenie i ocena projektu
 **Tytuł:** Oznaczenie projektu jako zakończony i wystawienie oceny
 **Kroki:**
+
 1. Zaloguj się jako Klient. Projekt jest w statusie "W realizacji" i został również oznaczony jako zakończony przez rzemieślnika.
 2. Na stronie projektu kliknij "Oznacz jako zakończony".
 3. Wypełnij formularz oceny: wybierz liczbę gwiazdek (1-5) i dodaj komentarz.
 4. Kliknij "Wystaw ocenę".
-**Oczekiwany rezultat:**
+   **Oczekiwany rezultat:**
+
 - Status projektu zmienia się na "Zakończony". Ocena jest widoczna na publicznym profilu rzemieślnika.
 
 ### Rola: Rzemieślnik
@@ -219,12 +235,14 @@ Poniżej znajdują się przykładowe scenariusze E2E dla każdej historyjki uży
 **Historyjka:** US-009 - Rejestracja i uzupełnienie profilu rzemieślnika
 **Tytuł:** Pomyślna rejestracja i aktywacja profilu rzemieślnika
 **Kroki:**
+
 1. Zarejestruj konto typu "Rzemieślnik", podając m.in. NIP.
 2. Po zalogowaniu, przejdź do edycji profilu.
 3. Dodaj specjalizacje.
 4. Wgraj co najmniej 5 zdjęć do portfolio.
 5. Zapisz zmiany.
-**Oczekiwany rezultat:**
+   **Oczekiwany rezultat:**
+
 - Wszystkie dane zostają zapisane. Profil rzemieślnika staje się publiczny i widoczny dla klientów.
 
 ---
@@ -233,10 +251,12 @@ Poniżej znajdują się przykładowe scenariusze E2E dla każdej historyjki uży
 **Historyjka:** US-010 - Przeglądanie rynku projektów
 **Tytuł:** Filtrowanie projektów na marketplace
 **Kroki:**
+
 1. Zaloguj się jako Rzemieślnik.
 2. Przejdź do strony "Marketplace".
 3. Użyj filtra "Kategoria" i wybierz np. "Stoły".
-**Oczekiwany rezultat:**
+   **Oczekiwany rezultat:**
+
 - Lista projektów zostaje przefiltrowana i wyświetla tylko te, które pasują do wybranego kryterium.
 
 ---
@@ -245,12 +265,14 @@ Poniżej znajdują się przykładowe scenariusze E2E dla każdej historyjki uży
 **Historyjka:** US-011 - Składanie propozycji do projektu
 **Tytuł:** Pomyślne złożenie oferty do projektu
 **Kroki:**
+
 1. Zaloguj się jako Rzemieślnik i wybierz otwarty projekt z marketplace.
 2. Kliknij "Złóż propozycję".
 3. Wpisz kwotę wyceny.
 4. Załącz wymagany plik (np. PDF ze szkicem).
 5. Kliknij "Wyślij propozycję".
-**Oczekiwany rezultat:**
+   **Oczekiwany rezultat:**
+
 - Propozycja zostaje wysłana i jest widoczna dla klienta na stronie projektu. Klient otrzymuje powiadomienie.
 
 ---
@@ -259,10 +281,12 @@ Poniżej znajdują się przykładowe scenariusze E2E dla każdej historyjki uży
 **Historyjka:** US-012 - Oczekiwanie na akceptację i realizacja
 **Tytuł:** Otrzymanie powiadomienia o akceptacji oferty
 **Kroki:**
+
 1. Zaloguj się jako Rzemieślnik, który złożył ofertę.
 2. Sprawdź powiadomienia (lub poczekaj na e-mail) po tym, jak klient zaakceptuje ofertę.
 3. Przejdź do strony zaakceptowanego projektu.
-**Oczekiwany rezultat:**
+   **Oczekiwany rezultat:**
+
 - Rzemieślnik widzi, że jego oferta została zaakceptowana. Na stronie projektu dostępny jest czat do komunikacji z klientem.
 
 ---
@@ -271,7 +295,9 @@ Poniżej znajdują się przykładowe scenariusze E2E dla każdej historyjki uży
 **Historyjka:** US-013 - Otrzymanie oceny
 **Tytuł:** Sprawdzenie otrzymanej oceny po zakończonym projekcie
 **Kroki:**
+
 1. Zaloguj się jako Rzemieślnik. Projekt został obustronnie zakończony i oceniony przez klienta.
 2. Przejdź do swojego publicznego profilu.
-**Oczekiwany rezultat:**
+   **Oczekiwany rezultat:**
+
 - Nowa ocena i komentarz od klienta są widoczne na profilu. Średnia ocen jest poprawnie zaktualizowana.

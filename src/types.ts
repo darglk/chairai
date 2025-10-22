@@ -265,6 +265,16 @@ export interface UpdateProjectStatusCommand {
 }
 
 /**
+ * Update Project Status Response DTO
+ * Used in: PATCH /api/projects/{id}/status (response)
+ */
+export interface UpdateProjectStatusResponseDTO {
+  id: string;
+  status: ProjectStatus;
+  updated_at: string;
+}
+
+/**
  * Accept Proposal Command
  * Used in: POST /api/projects/{id}/accept-proposal
  */
@@ -359,7 +369,7 @@ export interface ReviewProjectDTO {
  */
 export interface ReviewerDTO {
   id: string;
-  email: string;
+  name: string;
 }
 
 /**
@@ -399,6 +409,16 @@ export interface ReviewSummaryDTO {
 export interface CreateReviewCommand {
   rating: number;
   comment?: string;
+}
+
+/**
+ * Artisan Reviews Response DTO
+ * Complete response for GET /api/artisans/{id}/reviews
+ */
+export interface ArtisanReviewsResponseDTO {
+  data: ReviewDTO[];
+  pagination: PaginationMetaDTO;
+  summary: ReviewSummaryDTO;
 }
 
 // ============================================================================

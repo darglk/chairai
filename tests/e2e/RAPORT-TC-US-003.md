@@ -12,6 +12,7 @@ Zaimplementowano pełny zestaw testów dla TC-US-003 (Wylogowywanie użytkownika
 ## 2. Zakres Implementacji
 
 ### 2.1. Testy End-to-End (E2E)
+
 **Plik:** `tests/e2e/TC-US-003-logout-user.spec.ts`
 
 Zaimplementowano **6 scenariuszy testowych E2E**:
@@ -44,33 +45,40 @@ Zaimplementowano **6 scenariuszy testowych E2E**:
    - Weryfikacja pomyślnego wylogowania
 
 ### 2.2. Testy Jednostkowe (Unit Tests)
+
 **Plik:** `tests/unit/api/auth/logout.test.ts`
 
 Zaimplementowano **9 testów jednostkowych** dla endpointu `/api/auth/logout`:
 
 #### Pomyślne wylogowanie (3 testy):
+
 - ✅ Wylogowanie użytkownika i przekierowanie na stronę główną
 - ✅ Usunięcie obu ciasteczek sesji
 - ✅ Przekierowanie na stronę główną po wylogowaniu
 
 #### Obsługa błędów (3 testy):
+
 - ✅ Usunięcie ciasteczek i przekierowanie nawet gdy `signOut` rzuci błąd
 - ✅ Obsługa błędu od Supabase i kontynuowanie wylogowania
 - ✅ Usunięcie ciasteczek nawet gdy użytkownik nie jest zalogowany
 
 #### Bezpieczeństwo (2 testy):
+
 - ✅ Zawsze usuwanie ciasteczek niezależnie od wyniku operacji
 - ✅ Używanie prawidłowej ścieżki przy usuwaniu ciasteczek
 
 #### Wielokrotne wylogowanie (1 test):
+
 - ✅ Obsługa wielokrotnego wywołania wylogowania bez błędów
 
 ### 2.3. Testy Jednostkowe dla Funkcji Pomocniczych
+
 **Plik:** `tests/unit/lib/api-utils-cookies.test.ts`
 
 Zaimplementowano **12 testów** dla funkcji zarządzania ciasteczkami:
 
 #### `clearSessionCookies` (7 testów):
+
 - ✅ Usunięcie ciasteczka `sb-access-token`
 - ✅ Usunięcie ciasteczka `sb-refresh-token`
 - ✅ Usunięcie obu ciasteczek jednocześnie
@@ -80,20 +88,24 @@ Zaimplementowano **12 testów** dla funkcji zarządzania ciasteczkami:
 - ✅ Działanie niezależnie od istnienia ciasteczek
 
 #### `setSessionCookies` (3 testy):
+
 - ✅ Ustawienie ciasteczka `sb-access-token` z odpowiednimi opcjami
 - ✅ Ustawienie ciasteczka `sb-refresh-token` z odpowiednimi opcjami
 - ✅ Ustawienie obu ciasteczek jednocześnie
 
 #### Integracja (2 testy):
+
 - ✅ `clearSessionCookies` usuwa ciasteczka ustawione przez `setSessionCookies`
 - ✅ Używanie tej samej ścieżki przy ustawianiu i usuwaniu
 
 ### 2.4. Testy Integracyjne (Integration Tests)
+
 **Plik:** `tests/integration/components/LogoutButton.test.tsx`
 
 Zaimplementowano **21 testów integracyjnych** dla komponentu `LogoutButton`:
 
 #### Renderowanie (6 testów):
+
 - ✅ Renderowanie przycisku z domyślnym tekstem "Wyloguj"
 - ✅ Renderowanie z niestandardowym tekstem
 - ✅ Odpowiedni `aria-label`
@@ -102,6 +114,7 @@ Zaimplementowano **21 testów integracyjnych** dla komponentu `LogoutButton`:
 - ✅ Akceptowanie różnych wariantów przycisków
 
 #### Funkcjonalność wylogowania (7 testów):
+
 - ✅ Wywołanie fetch z prawidłowym URL i metodą POST
 - ✅ Przekierowanie na stronę główną po pomyślnym wylogowaniu
 - ✅ Wywołanie callbacka `onLogoutSuccess`
@@ -111,23 +124,27 @@ Zaimplementowano **21 testów integracyjnych** dla komponentu `LogoutButton`:
 - ✅ Używanie credentials: "same-origin"
 
 #### Obsługa błędów (4 testy):
+
 - ✅ Przekierowanie nawet w przypadku błędu fetch
 - ✅ Wywołanie callbacka `onLogoutError`
 - ✅ Obsługa odpowiedzi z kodem błędu
 - ✅ Przekierowanie nawet gdy callback rzuci błąd
 
 #### Accessibility (3 testy):
+
 - ✅ Odpowiedni `aria-label`
 - ✅ Dostępność za pomocą klawiatury
 - ✅ Komunikowanie stanu ładowania dla screen readers
 
 #### Różne scenariusze użycia (2 testy):
+
 - ✅ Działanie z wariantem destructive
 - ✅ Działanie z niestandardowymi klasami CSS
 
 ### 2.5. Nowe Komponenty
 
 Utworzono komponent **`LogoutButton.tsx`**:
+
 - **Lokalizacja:** `src/components/auth/LogoutButton.tsx`
 - **Funkcjonalność:**
   - Wysyłanie żądania POST do `/api/auth/logout`
@@ -141,6 +158,7 @@ Utworzono komponent **`LogoutButton.tsx`**:
 ## 3. Wyniki Testów
 
 ### 3.1. Testy Jednostkowe i Integracyjne
+
 ```bash
 ✓ tests/unit/lib/api-utils-cookies.test.ts (12 tests) 6ms
 ✓ tests/unit/api/auth/logout.test.ts (9 tests) 8ms
@@ -154,11 +172,13 @@ Duration  1.37s
 **Status:** ✅ **WSZYSTKIE TESTY PRZESZŁY POMYŚLNIE**
 
 ### 3.2. Testy E2E
+
 **Status:** ⏳ **GOTOWE DO URUCHOMIENIA**
 
 Testy E2E zostały zaimplementowane i są gotowe do uruchomienia po uruchomieniu serwera deweloperskiego.
 
 **Polecenie do uruchomienia:**
+
 ```bash
 npm run dev # W osobnym terminalu
 npm run test:e2e tests/e2e/TC-US-003-logout-user.spec.ts
@@ -167,7 +187,9 @@ npm run test:e2e tests/e2e/TC-US-003-logout-user.spec.ts
 ## 4. Zgodność z Wymaganiami
 
 ### 4.1. Test Plan (test-plan.md)
+
 ✅ Wszystkie kroki z TC-US-003 zostały zaimplementowane:
+
 1. ✅ Zalogowanie użytkownika (beforeEach)
 2. ✅ Otwarcie menu profilowego
 3. ✅ Kliknięcie przycisku "Wyloguj"
@@ -177,7 +199,9 @@ npm run test:e2e tests/e2e/TC-US-003-logout-user.spec.ts
 7. ✅ Weryfikacja braku dostępu do stron chronionych
 
 ### 4.2. Tech Stack (tech-stack.md)
+
 ✅ Wykorzystane technologie:
+
 - **Playwright** - testy E2E
 - **Vitest** - testy jednostkowe
 - **React Testing Library** - testy komponentów
@@ -186,7 +210,9 @@ npm run test:e2e tests/e2e/TC-US-003-logout-user.spec.ts
 - **Supabase Auth** - autoryzacja
 
 ### 4.3. Copilot Instructions (copilot-instructions.md)
+
 ✅ Zgodność z wytycznymi:
+
 - Użycie helpera `clearSessionCookies` z `src/lib/api-utils.ts`
 - Obsługa błędów na początku funkcji (early returns)
 - Testy accessibility (ARIA, nawigacja klawiaturą)
@@ -196,6 +222,7 @@ npm run test:e2e tests/e2e/TC-US-003-logout-user.spec.ts
 ## 5. Pokrycie Testowe
 
 ### 5.1. Poziomy testowania
+
 - ✅ **Unit Tests:** 21 testów (endpoint + funkcje pomocnicze)
 - ✅ **Integration Tests:** 21 testów (komponent LogoutButton)
 - ✅ **E2E Tests:** 6 scenariuszy (pełne ścieżki użytkownika)
@@ -203,6 +230,7 @@ npm run test:e2e tests/e2e/TC-US-003-logout-user.spec.ts
 **Łącznie:** 48 testów
 
 ### 5.2. Obszary pokrycia
+
 - ✅ Funkcjonalność podstawowa (wylogowanie)
 - ✅ Obsługa błędów (sieć, Supabase, wielokrotne wywołania)
 - ✅ Bezpieczeństwo (czyszczenie ciasteczek)
@@ -242,12 +270,14 @@ src/
 ## 7. Dalsze Kroki
 
 ### 7.1. Do wykonania
+
 1. ⏳ Uruchomienie testów E2E na serwerze deweloperskim
 2. ⏳ Integracja komponentu `LogoutButton` w layoutach/stronach
 3. ⏳ Utworzenie menu użytkownika z przyciskiem wylogowania
 4. ⏳ Dodanie testów regresji do CI/CD
 
 ### 7.2. Opcjonalne usprawnienia
+
 - 🔄 Dodanie animacji wylogowania
 - 🔄 Toast/notyfikacja o pomyślnym wylogowaniu
 - 🔄 Zapisanie URL przed wylogowaniem (redirect po ponownym logowaniu)
@@ -255,15 +285,18 @@ src/
 ## 8. Notatki
 
 ### 8.1. Odkryte problemy
+
 - ❌ Brak - wszystkie testy przechodzą
 
 ### 8.2. Uwagi techniczne
+
 - Komponent `LogoutButton` obsługuje błędy w callbackach bez przerywania procesu wylogowania
 - Endpoint `/api/auth/logout` jest idempotentny - można wywołać wielokrotnie
 - Ciasteczka są zawsze usuwane, nawet w przypadku błędów Supabase
 - Testy E2E używają helperów z `tests/e2e/helpers.ts` dla spójności
 
 ### 8.3. Accessibility
+
 - Komponent ma odpowiedni `aria-label`
 - Obsługa klawiatury (Tab + Enter)
 - Stan ładowania jest komunikowany dla screen readers
@@ -274,6 +307,7 @@ src/
 ✅ **TC-US-003 został w pełni zaimplementowany zgodnie z wymaganiami test planu.**
 
 **Statystyki:**
+
 - 48 testów (21 unit, 21 integration, 6 E2E)
 - 42/42 testy jednostkowe i integracyjne przeszły pomyślnie (100%)
 - 1 nowy komponent React (`LogoutButton.tsx`)

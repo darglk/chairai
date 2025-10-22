@@ -10,6 +10,7 @@ Ten projekt wykorzystuje kompleksową strategię testowania obejmującą testy j
 **Biblioteka:** React Testing Library
 
 #### Co testujemy?
+
 - Funkcje pomocnicze (`src/lib/utils.ts`)
 - Schematy walidacji Zod (`src/lib/schemas.ts`)
 - API utilities (`src/lib/api-utils.ts`)
@@ -53,7 +54,7 @@ npm test -- -t "Login"
 
 #### Uruchamianie
 
-```bash
+````bash
 # Wszystkie testy E2E
 
 **Framework:** Playwright
@@ -67,24 +68,28 @@ npm test -- -t "Login"
 #### Uruchamianie
 ```bash
 npm run test:e2e
-```
+````
 
 ### Tryb interaktywny (UI)
+
 ```bash
 npm run test:e2e:ui
 ```
 
 ### Tryb debug (krok po kroku)
+
 ```bash
 npm run test:e2e:debug
 ```
 
 ### Z widocznymi przeglądarkami
+
 ```bash
 npm run test:e2e:headed
 ```
 
 ### Raport z testów
+
 ```bash
 npm run test:e2e:report
 ```
@@ -98,11 +103,13 @@ npm run test:e2e:report
 ### Development Workflow
 
 1. **Rozpocznij development**
+
    ```bash
    npm run dev
    ```
 
 2. **Uruchom testy jednostkowe w watch mode** (w drugim terminalu)
+
    ```bash
    npm test
    ```
@@ -133,16 +140,19 @@ npm run test:coverage
 ## Statystyki Testów
 
 ### Testy Jednostkowe i Integracyjne
+
 - **55 testów** w 5 plikach
 - **Pokrycie:** ~98% dla testowanych modułów
 - **Czas wykonania:** <1s
 
 ### Testy E2E
+
 - **35 przypadków testowych** (7 testów × 5 przeglądarek)
 - **Przeglądarki:** Chromium, Firefox, WebKit, Mobile Chrome, Mobile Safari
 - **Czas wykonania:** ~2-5 min
 
 ### Razem
+
 - **90+ testów**
 - **Pełne pokrycie** kluczowych funkcjonalności
 
@@ -184,16 +194,19 @@ tests/
 Testy są automatycznie uruchamiane w GitHub Actions:
 
 ### Workflow: Unit & Integration Tests
+
 - Uruchamia się przy każdym push/PR
 - Generuje raport pokrycia kodu
 - Upload do Codecov
 
 ### Workflow: Playwright Tests
+
 - Uruchamia się przy każdym push/PR do main/master/develop
 - Testuje na Chromium, Firefox i WebKit
 - Upload raportów jako artifacts
 
 ---
+
 ```
 
 ## Struktura testów
@@ -216,3 +229,4 @@ Zobacz pełną dokumentację w [tests/e2e/README.md](tests/e2e/README.md)
   - Walidacja istniejącego emaila
   - Test responsywności
   - Test dostępności (accessibility)
+```

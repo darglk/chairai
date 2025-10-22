@@ -21,11 +21,11 @@ Główny komponent kontenera zarządzający formularzem tworzenia projektu.
 
 ```typescript
 interface ProjectFormContainerProps {
-  imageId: string;              // UUID wybranego obrazu
-  imageUrl: string;             // URL obrazu do wyświetlenia
-  imagePrompt: string | null;   // Prompt użyty do generacji obrazu
-  categories: CategoryDTO[];    // Lista dostępnych kategorii
-  materials: MaterialDTO[];     // Lista dostępnych materiałów
+  imageId: string; // UUID wybranego obrazu
+  imageUrl: string; // URL obrazu do wyświetlenia
+  imagePrompt: string | null; // Prompt użyty do generacji obrazu
+  categories: CategoryDTO[]; // Lista dostępnych kategorii
+  materials: MaterialDTO[]; // Lista dostępnych materiałów
 }
 ```
 
@@ -61,18 +61,15 @@ Komponent prezentacyjny wyświetlający wybrany obraz.
 
 ```typescript
 interface SelectedImageViewProps {
-  imageUrl: string;           // URL obrazu
-  prompt: string | null;      // Opcjonalny prompt
+  imageUrl: string; // URL obrazu
+  prompt: string | null; // Opcjonalny prompt
 }
 ```
 
 ### Użycie
 
 ```tsx
-<SelectedImageView 
-  imageUrl="https://example.com/image.jpg" 
-  prompt="Modern wooden chair with armrests" 
-/>
+<SelectedImageView imageUrl="https://example.com/image.jpg" prompt="Modern wooden chair with armrests" />
 ```
 
 ### Cechy
@@ -92,16 +89,16 @@ Uniwersalny komponent pola formularza obsługujący input i select.
 
 ```typescript
 interface FormFieldProps {
-  label: string;                      // Etykieta pola
-  name: string;                       // ID/name pola
-  value: string;                      // Wartość pola
-  error?: string;                     // Komunikat błędu
-  onChange: (value: string) => void;  // Handler zmiany wartości
-  onBlur: () => void;                 // Handler blur
-  type: "text" | "select";            // Typ pola
-  options?: FormFieldOption[];        // Opcje dla select
-  placeholder?: string;               // Placeholder dla input
-  required?: boolean;                 // Czy pole wymagane
+  label: string; // Etykieta pola
+  name: string; // ID/name pola
+  value: string; // Wartość pola
+  error?: string; // Komunikat błędu
+  onChange: (value: string) => void; // Handler zmiany wartości
+  onBlur: () => void; // Handler blur
+  type: "text" | "select"; // Typ pola
+  options?: FormFieldOption[]; // Opcje dla select
+  placeholder?: string; // Placeholder dla input
+  required?: boolean; // Czy pole wymagane
 }
 
 interface FormFieldOption {
@@ -136,7 +133,7 @@ interface FormFieldOption {
   onChange={(value) => handleChange("category_id", value)}
   onBlur={() => handleBlur("category_id")}
   type="select"
-  options={categories.map(cat => ({ id: cat.id, name: cat.name }))}
+  options={categories.map((cat) => ({ id: cat.id, name: cat.name }))}
   required
 />
 ```
@@ -195,43 +192,38 @@ interface UseProjectFormOptions {
 ### Użycie
 
 ```typescript
-const { 
-  formData, 
-  errors, 
-  isLoading, 
-  handleChange, 
-  handleBlur, 
-  handleSubmit, 
-  handleCancel 
-} = useProjectForm({
+const { formData, errors, isLoading, handleChange, handleBlur, handleSubmit, handleCancel } = useProjectForm({
   imageId: "abc-123",
   onSuccess: (projectId) => {
     console.log("Project created:", projectId);
-  }
+  },
 });
 ```
 
 ### Walidacja
 
 #### Pola wymagane:
+
 - `category_id`: "Kategoria jest wymagana"
 - `material_id`: "Materiał jest wymagany"
 
 #### Pola opcjonalne z walidacją:
+
 - `dimensions`: Min. 5 znaków (jeśli wypełnione)
 
 #### Pola opcjonalne bez walidacji:
+
 - `budget_range`
 
 ### Obsługa błędów API
 
-| Status | Akcja |
-|--------|-------|
-| 400 | Wyświetlenie błędów walidacji z backendu |
-| 401/403 | Przekierowanie na `/login` |
-| 409 | "Ten obraz został już wykorzystany" |
-| 5xx | "Wystąpił nieoczekiwany błąd" |
-| Network Error | "Wystąpił błąd połączenia" |
+| Status        | Akcja                                    |
+| ------------- | ---------------------------------------- |
+| 400           | Wyświetlenie błędów walidacji z backendu |
+| 401/403       | Przekierowanie na `/login`               |
+| 409           | "Ten obraz został już wykorzystany"      |
+| 5xx           | "Wystąpił nieoczekiwany błąd"            |
+| Network Error | "Wystąpił błąd połączenia"               |
 
 ---
 
@@ -240,6 +232,7 @@ const {
 ### Tailwind Classes
 
 Komponenty używają:
+
 - `space-y-*` - Vertical spacing
 - `md:*` - Responsive breakpoints
 - `animate-in`, `fade-in`, `slide-in-from-*` - Animations
@@ -249,6 +242,7 @@ Komponenty używają:
 ### Dark Mode
 
 Wszystkie komponenty wspierają dark mode poprzez:
+
 - `text-muted-foreground`
 - `bg-card`
 - `border`
@@ -259,17 +253,20 @@ Wszystkie komponenty wspierają dark mode poprzez:
 ## ♿ Dostępność
 
 ### ARIA Attributes
+
 - `aria-invalid`: Oznaczenie pól z błędami
 - `aria-describedby`: Powiązanie błędów z polami
 - `aria-live="assertive"`: Ogłaszanie błędów globalnych
 - `aria-label`: Oznaczenie gwiazdek wymaganych pól
 
 ### Keyboard Navigation
+
 - Tab/Shift+Tab: Nawigacja między polami
 - Enter: Wysyłanie formularza
 - Escape: Zamykanie select dropdown
 
 ### Screen Readers
+
 - Wszystkie pola mają etykiety
 - Błędy są odczytywane przy blur
 - Stan ładowania jest komunikowany
@@ -279,11 +276,13 @@ Wszystkie komponenty wspierają dark mode poprzez:
 ## 📱 Responsywność
 
 ### Breakpoints
+
 - **Mobile** (< 640px): Pełna szerokość, przyciski w kolumnie
 - **Tablet** (≥ 640px): Przyciski obok siebie
 - **Desktop** (≥ 768px): Większe fonty i padding
 
 ### Layout
+
 ```
 Mobile:          Desktop:
 [Content]        [Content]
@@ -299,6 +298,7 @@ Mobile:          Desktop:
 Zobacz: `/tests/manual/TC-PROJECT-FORM-MANUAL-TESTS.md`
 
 ### Scenariusze testowe:
+
 1. ✅ Pomyślne utworzenie projektu
 2. ✅ Walidacja pól wymaganych
 3. ✅ Walidacja minimalnej długości
@@ -360,6 +360,7 @@ Content-Type: application/json
 ## 🚀 Następne kroki
 
 ### Potencjalne ulepszenia:
+
 - [ ] Zapisywanie draft w localStorage
 - [ ] Podpowiedzi AI dla wymiarów/budżetu
 - [ ] Podgląd jak projekt będzie wyglądał

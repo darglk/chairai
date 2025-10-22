@@ -13,10 +13,12 @@ This document provides comprehensive documentation for the **Create Proposal** A
 ## Authentication & Authorization
 
 ### Required Authentication
+
 - ✅ **Authentication:** Required - Valid Supabase JWT token in `Authorization` header or cookie
 - ✅ **User Session:** Must be authenticated via middleware (`locals.user`)
 
 ### Authorization Rules
+
 - ✅ **Role Requirement:** Only users with role `artisan` can create proposals
 - ✅ **Project Status:** Can only submit proposals to projects with status `open`
 - ✅ **Uniqueness:** Each artisan can submit only one proposal per project
@@ -27,18 +29,18 @@ This document provides comprehensive documentation for the **Create Proposal** A
 
 ### Path Parameters
 
-| Parameter | Type | Required | Description | Validation |
-|-----------|------|----------|-------------|------------|
-| `projectId` | string | ✅ Yes | UUID of the project | Must be valid UUID format |
+| Parameter   | Type   | Required | Description         | Validation                |
+| ----------- | ------ | -------- | ------------------- | ------------------------- |
+| `projectId` | string | ✅ Yes   | UUID of the project | Must be valid UUID format |
 
 ### Request Body
 
 **Content-Type:** `multipart/form-data`
 
-| Field | Type | Required | Description | Validation |
-|-------|------|----------|-------------|------------|
-| `price` | number | ✅ Yes | Proposed price for the project (PLN) | Positive number, max 1,000,000 |
-| `attachment` | File | ✅ Yes | Proposal attachment (specification, sketches, etc.) | PDF, JPG, PNG; max 5MB |
+| Field        | Type   | Required | Description                                         | Validation                     |
+| ------------ | ------ | -------- | --------------------------------------------------- | ------------------------------ |
+| `price`      | number | ✅ Yes   | Proposed price for the project (PLN)                | Positive number, max 1,000,000 |
+| `attachment` | File   | ✅ Yes   | Proposal attachment (specification, sketches, etc.) | PDF, JPG, PNG; max 5MB         |
 
 ### Example Request
 
@@ -61,17 +63,17 @@ Returns the created proposal with artisan details and review statistics.
 
 ```typescript
 {
-  id: string;                    // UUID of the created proposal
-  project_id: string;            // UUID of the project
+  id: string; // UUID of the created proposal
+  project_id: string; // UUID of the project
   artisan: {
-    user_id: string;             // UUID of the artisan
-    company_name: string;        // Artisan's company name
+    user_id: string; // UUID of the artisan
+    company_name: string; // Artisan's company name
     average_rating: number | null; // Average rating (1-5) or null if no reviews
-    total_reviews: number;       // Total number of reviews received
-  };
-  price: number;                 // Proposed price in PLN
-  attachment_url: string;        // Public URL of the uploaded attachment
-  created_at: string;            // ISO 8601 timestamp
+    total_reviews: number; // Total number of reviews received
+  }
+  price: number; // Proposed price in PLN
+  attachment_url: string; // Public URL of the uploaded attachment
+  created_at: string; // ISO 8601 timestamp
 }
 ```
 
@@ -109,6 +111,7 @@ Invalid input data (projectId, price, or attachment).
 ```
 
 **Common Validation Errors:**
+
 - Invalid `projectId` format (not a valid UUID)
 - `price` is not a positive number or exceeds 1,000,000
 - `attachment` file is missing, too large (>5MB), or has invalid type
@@ -244,6 +247,7 @@ Unexpected server error (e.g., database connection failure, storage upload failu
 **Bucket Name:** `proposal-attachments`
 
 **Configuration:**
+
 - **Public Access:** No (authenticated access only)
 - **Max File Size:** 5MB
 - **Allowed Types:** PDF, JPG, PNG
@@ -267,13 +271,13 @@ proposal-attachments/
 
 ### RLS (Row Level Security) Policies
 
-| Operation | Who Can Access | Condition |
-|-----------|----------------|-----------|
-| **INSERT** | Artisans | Can upload to their own folder (`artisan_id`) |
-| **SELECT** | Artisans | Can view their own files |
+| Operation  | Who Can Access | Condition                                            |
+| ---------- | -------------- | ---------------------------------------------------- |
+| **INSERT** | Artisans       | Can upload to their own folder (`artisan_id`)        |
+| **SELECT** | Artisans       | Can view their own files                             |
 | **SELECT** | Project Owners | Can view attachments for proposals in their projects |
-| **UPDATE** | Artisans | Can update their own files |
-| **DELETE** | Artisans | Can delete their own files |
+| **UPDATE** | Artisans       | Can update their own files                           |
+| **DELETE** | Artisans       | Can delete their own files                           |
 
 ---
 
@@ -304,6 +308,7 @@ proposal-attachments/
 ### Type Definitions
 
 All types are defined in `/src/types.ts`:
+
 - `ProposalDTO` - Response structure
 - `CreateProposalCommand` - Request structure (for frontend)
 - `ProposalArtisanDTO` - Artisan data in proposal context
@@ -347,15 +352,18 @@ npm test proposal.service.test.ts
 ## Security Considerations
 
 ### Authentication
+
 - JWT token validation via Supabase Auth
 - Session management through middleware
 
 ### Authorization
+
 - Role-based access control (artisans only)
 - Project status verification (open projects only)
 - One proposal per artisan per project
 
 ### File Security
+
 - File type validation (whitelist: PDF, JPG, PNG)
 - File size limit (5MB)
 - Filename sanitization to prevent path traversal
@@ -363,6 +371,7 @@ npm test proposal.service.test.ts
 - Access control: artisan + project owner only
 
 ### Input Validation
+
 - Strict Zod schema validation
 - UUID format validation for projectId
 - Numeric range validation for price
@@ -402,15 +411,16 @@ Potential improvements for future iterations:
 
 ## Changelog
 
-| Date | Version | Changes |
-|------|---------|---------|
-| 2025-10-21 | 1.0.0 | Initial implementation of Create Proposal endpoint |
+| Date       | Version | Changes                                            |
+| ---------- | ------- | -------------------------------------------------- |
+| 2025-10-21 | 1.0.0   | Initial implementation of Create Proposal endpoint |
 
 ---
 
 ## Support & Contact
 
 For questions or issues with this endpoint, please:
+
 1. Check the error response for specific error codes
 2. Review the validation requirements in this documentation
 3. Contact the development team if issues persist

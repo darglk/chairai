@@ -11,6 +11,7 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
 **Struktura URL**: `/api/images/generate`
 
 **Parametry**:
+
 - **Wymagane**:
   - `prompt` (string) - tekstowy opis mebla do wygenerowania
     - Min. 10 znaków
@@ -19,10 +20,12 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
 - **Opcjonalne**: Brak
 
 **Headers**:
+
 - `Authorization: Bearer {access_token}` (WYMAGANY) - JWT token z sesji użytkownika
 - `Content-Type: application/json` (WYMAGANY)
 
 **Request Body**:
+
 ```json
 {
   "prompt": "A modern oak dining table with metal legs, minimalist design"
@@ -32,18 +35,21 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
 ## 3. Wykorzystywane typy
 
 **DTOs i Command Modele**:
+
 - `GenerateImageCommand` - model zawierający `prompt: string`
 - `GeneratedImageDTO` - podstawowe dane wygenerowanego obrazu
 - `GenerateImageResponseDTO` - rozszerzony DTO z polem `remaining_generations: number`
 - `ApiErrorDTO` - standardowa struktura błędu API
 
 **Typy pomocnicze**:
+
 - `UserDTO` - dane autentykowanego użytkownika
 - `UserRole` - enum z wartościami "client" lub "artisan"
 
 ## 4. Szczegóły odpowiedzi
 
 **Sukces (201 Created)**:
+
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -57,14 +63,14 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
 
 **Błędy**:
 
-| Status | Scenariusz | Odpowiedź |
-|--------|-----------|----------|
-| 400 | Prompt jest pusty, null, lub poniżej minimum znaków | `{ "error": { "code": "INVALID_PROMPT", "message": "Prompt must be between 10 and 500 characters", "details": { "min_length": 10, "max_length": 500, "provided_length": 5 } } }` |
-| 400 | Prompt przekracza maksymalną długość | `{ "error": { "code": "PROMPT_TOO_LONG", "message": "Prompt must be between 10 and 500 characters" } }` |
-| 401 | Brak tokenu, token invalid lub wygasły | `{ "error": { "code": "UNAUTHORIZED", "message": "Invalid or expired access token" } }` |
-| 403 | Użytkownik nie ma roli "client" | `{ "error": { "code": "FORBIDDEN_ROLE", "message": "Only client users can generate images" } }` |
-| 403 | Użytkownik przekroczył limit generacji | `{ "error": { "code": "GENERATION_LIMIT_EXCEEDED", "message": "You have reached your monthly generation limit. Remaining: 0" } }` |
-| 503 | Usługa AI (OpenRouter) niedostępna | `{ "error": { "code": "AI_SERVICE_UNAVAILABLE", "message": "AI service is temporarily unavailable. Please try again later" } }` |
+| Status | Scenariusz                                          | Odpowiedź                                                                                                                                                                        |
+| ------ | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 400    | Prompt jest pusty, null, lub poniżej minimum znaków | `{ "error": { "code": "INVALID_PROMPT", "message": "Prompt must be between 10 and 500 characters", "details": { "min_length": 10, "max_length": 500, "provided_length": 5 } } }` |
+| 400    | Prompt przekracza maksymalną długość                | `{ "error": { "code": "PROMPT_TOO_LONG", "message": "Prompt must be between 10 and 500 characters" } }`                                                                          |
+| 401    | Brak tokenu, token invalid lub wygasły              | `{ "error": { "code": "UNAUTHORIZED", "message": "Invalid or expired access token" } }`                                                                                          |
+| 403    | Użytkownik nie ma roli "client"                     | `{ "error": { "code": "FORBIDDEN_ROLE", "message": "Only client users can generate images" } }`                                                                                  |
+| 403    | Użytkownik przekroczył limit generacji              | `{ "error": { "code": "GENERATION_LIMIT_EXCEEDED", "message": "You have reached your monthly generation limit. Remaining: 0" } }`                                                |
+| 503    | Usługa AI (OpenRouter) niedostępna                  | `{ "error": { "code": "AI_SERVICE_UNAVAILABLE", "message": "AI service is temporarily unavailable. Please try again later" } }`                                                  |
 
 ## 5. Przepływ danych
 
@@ -139,16 +145,19 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
 ## 6. Względy bezpieczeństwa
 
 ### Autentykacja
+
 - **JWT Validation**: Token musi być poprawnie podpisany i nie wygasły
 - **Token Extraction**: Wygąg token z headera `Authorization: Bearer {token}`
 - **User Verification**: Potwierdzenie, że użytkownik istnieje w bazie danych
 
 ### Autoryzacja
+
 - **Role-based access**: Tylko użytkownicy z rolą "client" mogą generować obrazy
 - **Resource ownership**: Obrazy powiązane z konkretnym user_id
 - **Rate limiting**: Limit generacji chronionego przez system sesji
 
 ### Walidacja danych
+
 - **Prompt validation**:
   - Długość: 10-500 znaków
   - Nie może być null, undefined, lub pustym stringiem
@@ -157,17 +166,20 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
 - **Sanitization**: Brak bezpośredniego wstrzykiwania - prompt wysyłany do API jako string
 
 ### Bezpieczeństwo API
+
 - **Supabase RLS**: Wiersze mogą być widoczne tylko dla właściciela
 - **Storage permissions**: Bucket dostępny tylko dla autentykowanych użytkowników
 - **Environment variables**: Klucze API OpenRouter przechowywane w `.env`
 
 ### Zarządzanie limitami
+
 - **Generation quota**: Limit przechowywany w sesji lub wyliczany na locie z bazy
 - **Abuse prevention**: Sprawdzenie limitu przed wysłaniem do AI service
 
 ## 7. Obsługa błędów
 
 ### Walidacja żądania (400 Bad Request)
+
 ```typescript
 // Prompt validation
 - Pusty lub null prompt
@@ -178,6 +190,7 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
 ```
 
 ### Błędy autentykacji (401 Unauthorized)
+
 ```typescript
 - Brak Authorization header
 - Token w niepoprawnym formacie (nie "Bearer {token}")
@@ -187,6 +200,7 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
 ```
 
 ### Błędy autoryzacji (403 Forbidden)
+
 ```typescript
 - Użytkownik ma rolę "artisan" zamiast "client"
 - Użytkownik nie ma profilu (nie zalogowany poprawnie)
@@ -195,6 +209,7 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
 ```
 
 ### Błędy serwera (500 Internal Server Error)
+
 ```typescript
 - Błąd przy zapisie do Supabase Database
 - Błąd przy wysyłaniu do Supabase Storage
@@ -202,6 +217,7 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
 ```
 
 ### Błędy usługi AI (503 Service Unavailable)
+
 ```typescript
 - OpenRouter API niedostępne
 - Timeout przy komunikacji z AI
@@ -210,6 +226,7 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
 ```
 
 ### Strategia obsługi błędów
+
 1. **Early validation**: Sprawdzenie parametrów na początku
 2. **Guard clauses**: Zwracanie błędu przy warunkach uniemożliwiających dalsze wykonanie
 3. **Descriptive errors**: Komunikaty zawierające szczegóły co poszło nie tak
@@ -219,6 +236,7 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
 ## 8. Rozważania dotyczące wydajności
 
 ### Potencjalne wąskie gardła
+
 - **AI Service Latency**: OpenRouter API może mieć opóźnienie 5-30 sekund
 - **Image Upload**: Wgranie dużego pliku do Supabase Storage może być wolne
 - **Database Write**: Zapis metadanych do PostgreSQL
@@ -226,18 +244,19 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
 
 ### Strategie optymalizacji
 
-| Optymizacja | Opis |
-|------------|------|
-| **Async operations** | Użycie async/await dla operacji I/O (API, Storage, DB) |
-| **Request timeout** | Ustawienie timeout dla OpenRouter API (np. 60s) |
-| **Connection pooling** | Reużywanie połączeń do bazy danych |
-| **Caching** | Ewentualne cachowanie promptów (ale mało efektywne - każdy prompt unikalny) |
-| **Rate limiting** | Limit generacji chronić zasoby |
-| **Queue system** | Opcjonalnie - kolejka żądań dla bardzo dużego ruchu |
-| **Compression** | Kompresja obrazów przed wysyłką |
-| **CDN** | Supabase Storage ma wbudowany CDN |
+| Optymizacja            | Opis                                                                        |
+| ---------------------- | --------------------------------------------------------------------------- |
+| **Async operations**   | Użycie async/await dla operacji I/O (API, Storage, DB)                      |
+| **Request timeout**    | Ustawienie timeout dla OpenRouter API (np. 60s)                             |
+| **Connection pooling** | Reużywanie połączeń do bazy danych                                          |
+| **Caching**            | Ewentualne cachowanie promptów (ale mało efektywne - każdy prompt unikalny) |
+| **Rate limiting**      | Limit generacji chronić zasoby                                              |
+| **Queue system**       | Opcjonalnie - kolejka żądań dla bardzo dużego ruchu                         |
+| **Compression**        | Kompresja obrazów przed wysyłką                                             |
+| **CDN**                | Supabase Storage ma wbudowany CDN                                           |
 
 ### Monitoring
+
 - Śledzenie czasu odpowiedzi endpointu
 - Monitoring statusu OpenRouter API
 - Alerty na wysokie czasy opóźnień
@@ -246,6 +265,7 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
 ## 9. Etapy wdrożenia
 
 ### Faza 1: Przygotowanie i walidacja
+
 1. **Zapoznanie się z istniejącym kodem**
    - Przeanalizować `src/lib/services/ai-image.service.ts`
    - Przeanalizować `src/lib/services/openrouter.service.ts`
@@ -262,8 +282,9 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
    - Sprawdzić dostępność typów w `src/types.ts`
 
 ### Faza 2: Implementacja logiki usługi
+
 1. **Rozbudowa/Aktualizacja `ai-image.service.ts`**
-   - Funkcja `generateImage(prompt: string, userId: string)` 
+   - Funkcja `generateImage(prompt: string, userId: string)`
    - Logika walidacji promptu (jeśli nie w walidacjach)
    - Integracja z OpenRouter (`openrouter.service.ts`)
    - Wgranie obrazu do Supabase Storage
@@ -276,6 +297,7 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
    - Obsługa limitów OpenRouter API
 
 ### Faza 3: Implementacja endpointu API
+
 1. **Tworzenie/Aktualizacja `src/pages/api/images/generate.ts`**
    - Funkcja `POST` handler
    - Ekstrakcja i parsowanie request body
@@ -289,6 +311,7 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
    - Zwrócenie 201 Created z danymi obrazu
 
 ### Faza 4: Implementacja bezpieczeństwa
+
 1. **Middleware (istniejące)**
    - Upewnić się, że middleware w `src/middleware/index.ts` waliduje tokeny
 
@@ -303,6 +326,7 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
    - Error logging na serwerze
 
 ### Faza 5: Testy
+
 1. **Testy jednostkowe (`tests/unit/api`)**
    - Walidacja promptu (valid, empty, too short, too long)
    - Autentykacja (valid token, invalid token, no token, expired token)
@@ -318,6 +342,7 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
    - Pełny przepływ z UI (jeśli dostępne)
 
 ### Faza 6: Deployment i monitoring
+
 1. **Code review**
    - Przegląd kodu pod kątem bezpieczeństwa
    - Sprawdzenie zgodności z style guide
@@ -334,6 +359,7 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
    - Monitoring błędów i wydajności
 
 ### Faza 7: Dokumentacja
+
 1. **API documentation**
    - Aktualizacja API spec (już zawarta w `api-plan.md`)
    - Dodanie endpoint do postman collection (jeśli istnieje)
@@ -344,6 +370,7 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
    - Instrukcje troubleshootingu
 
 ### Checklist implementacyjny
+
 - [ ] Schematy walidacji (Zod)
 - [ ] Funkcja `generateImage` w service
 - [ ] Endpoint POST handler
@@ -365,6 +392,7 @@ Endpoint `POST /api/images/generate` umożliwia użytkownikom z rolą "client" w
 ---
 
 **Notatki dla zespołu**:
+
 - Ensure TypeScript strict mode is enabled
 - Follow existing code style and patterns in project
 - Use early returns for error handling

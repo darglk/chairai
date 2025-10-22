@@ -41,10 +41,7 @@ if (imageData.is_used) {
 }
 
 // Pobranie kategorii
-const { data: categories, error: categoriesError } = await supabase
-  .from("categories")
-  .select("*")
-  .order("name");
+const { data: categories, error: categoriesError } = await supabase.from("categories").select("*").order("name");
 
 if (categoriesError) {
   console.error("Error fetching categories:", categoriesError);
@@ -52,10 +49,7 @@ if (categoriesError) {
 }
 
 // Pobranie materiałów
-const { data: materials, error: materialsError } = await supabase
-  .from("materials")
-  .select("*")
-  .order("name");
+const { data: materials, error: materialsError } = await supabase.from("materials").select("*").order("name");
 
 if (materialsError) {
   console.error("Error fetching materials:", materialsError);

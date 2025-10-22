@@ -1,15 +1,19 @@
 # Plan implementacji widoku Marketplace
 
 ## 1. Przegląd
+
 Widok Marketplace (Rynek Projektów) to dedykowana sekcja dla zalogowanych użytkowników z rolą "Rzemieślnik". Umożliwia im przeglądanie, wyszukiwanie i filtrowanie listy otwartych projektów (zleceń) dodanych przez klientów. Celem jest ułatwienie rzemieślnikom znalezienia zleceń odpowiadających ich specjalizacji i możliwościom.
 
 ## 2. Routing widoku
+
 Widok będzie dostępny pod następującą ścieżką:
+
 - `/market`
 
 Dostęp do tej ścieżki powinien być ograniczony tylko dla uwierzytelnionych użytkowników z rolą `artisan`. Użytkownicy niespełniający tych warunków powinni zostać przekierowani na stronę logowania lub stronę główną.
 
 ## 3. Struktura komponentów
+
 Hierarchia komponentów dla widoku Marketplace będzie zorganizowana w następujący sposób, wykorzystując podejście "wysp Reacta" w Astro:
 
 ```
@@ -30,6 +34,7 @@ Hierarchia komponentów dla widoku Marketplace będzie zorganizowana w następuj
 ## 4. Szczegóły komponentów
 
 ### `MarketplaceView.tsx`
+
 - **Opis komponentu:** Główny kontener, który integruje wszystkie podkomponenty widoku. Jest odpowiedzialny za zarządzanie stanem (za pomocą customowego hooka `useMarketplace`), pobieranie danych z API i przekazywanie ich do komponentów podrzędnych.
 - **Główne elementy:** `div` jako kontener, w którym umieszczone są `ProjectFilters`, `ProjectList` i `PaginationControls`.
 - **Obsługiwane interakcje:** Brak bezpośrednich interakcji, deleguje obsługę zdarzeń do hooka.
@@ -38,6 +43,7 @@ Hierarchia komponentów dla widoku Marketplace będzie zorganizowana w następuj
 - **Propsy:** Brak.
 
 ### `ProjectFilters.tsx`
+
 - **Opis komponentu:** Formularz zawierający wszystkie opcje filtrowania: wyszukiwanie tekstowe, wybór kategorii i materiału. Na urządzeniach mobilnych jego zawartość będzie renderowana wewnątrz modalu (`Dialog` z Shadcn/ui).
 - **Główne elementy:** `form`, `Input` (wyszukiwanie), `Select` (kategoria), `Select` (materiał), `Button` (resetowanie filtrów).
 - **Obsługiwane interakcje:** `onChange` na polach input, `onValueChange` na selectach.
@@ -51,6 +57,7 @@ Hierarchia komponentów dla widoku Marketplace będzie zorganizowana w następuj
   - `isLoading: boolean`
 
 ### `ProjectList.tsx`
+
 - **Opis komponentu:** Wyświetla listę projektów w formie responsywnej siatki (desktop) lub listy (mobile). Mapuje dane projektów na komponenty `ProjectCard`.
 - **Główne elementy:** `div` z klasami `grid` Tailwinda.
 - **Obsługiwane interakcje:** Brak.
@@ -60,6 +67,7 @@ Hierarchia komponentów dla widoku Marketplace będzie zorganizowana w następuj
   - `projects: ProjectCardViewModel[]`
 
 ### `ProjectCard.tsx`
+
 - **Opis komponentu:** Reprezentuje pojedynczy projekt na liście. Wyświetla kluczowe informacje, takie jak obraz, kategoria, materiał i budżet. Jest klikalny i prowadzi do strony szczegółów projektu.
 - **Główne elementy:** Komponent `Card` z Shadcn/ui, `img` dla obrazu, `p` i `span` dla danych tekstowych. Całość owinięta w tag `a` dla nawigacji.
 - **Obsługiwane interakcje:** `onClick` (nawigacja).
@@ -69,6 +77,7 @@ Hierarchia komponentów dla widoku Marketplace będzie zorganizowana w następuj
   - `project: ProjectCardViewModel`
 
 ### `PaginationControls.tsx`
+
 - **Opis komponentu:** Zestaw przycisków umożliwiający nawigację między stronami wyników.
 - **Główne elementy:** `nav`, `Button` (poprzednia/następna strona), wskaźnik bieżącej strony.
 - **Obsługiwane interakcje:** `onClick` na przyciskach.
@@ -80,6 +89,7 @@ Hierarchia komponentów dla widoku Marketplace będzie zorganizowana w następuj
   - `isLoading: boolean`
 
 ## 5. Typy
+
 Do implementacji widoku wymagane będą istniejące typy DTO oraz nowe typy ViewModel.
 
 - **DTO (z `src/types.ts`):**
@@ -103,6 +113,7 @@ Do implementacji widoku wymagane będą istniejące typy DTO oraz nowe typy View
     - `materialId?: string`
 
 ## 6. Zarządzanie stanem
+
 Cała logika związana ze stanem, pobieraniem danych i interakcjami zostanie zamknięta w customowym hooku `useMarketplace`.
 
 - **`useMarketplace()`**:
@@ -123,6 +134,7 @@ Cała logika związana ze stanem, pobieraniem danych i interakcjami zostanie zam
   - **Zwracane wartości:** Obiekt zawierający wszystkie stany oraz funkcje do ich modyfikacji (`setFilters`, `setPage`).
 
 ## 7. Integracja API
+
 Integracja będzie opierać się na trzech endpointach:
 
 1.  **`GET /api/projects`**
@@ -143,22 +155,26 @@ Integracja będzie opierać się na trzech endpointach:
 Wszystkie zapytania będą wysyłane z nagłówkiem `Authorization: Bearer {token}`.
 
 ## 8. Interakcje użytkownika
+
 - **Filtrowanie:** Użytkownik wchodzi w interakcję z komponentem `ProjectFilters`. Zmiana wartości w polach wywołuje funkcję `setFilters` z hooka `useMarketplace`, co prowadzi do aktualizacji stanu i ponownego zapytania do API.
 - **Wyszukiwanie:** Wpisywanie tekstu w pole `Input` będzie miało zaimplementowany debouncing (np. 300ms), aby zapytania do API nie były wysyłane po każdej zmianie znaku.
 - **Paginacja:** Kliknięcie przycisków w `PaginationControls` wywołuje funkcję `setPage`, co aktualizuje stronę i pobiera nową partię danych.
 - **Nawigacja:** Kliknięcie `ProjectCard` przenosi użytkownika na stronę `/projects/{project.id}`.
 
 ## 9. Warunki i walidacja
+
 - **Dostęp do widoku:** W pliku `/src/pages/market.astro` zostanie umieszczona logika po stronie serwera, która sprawdzi sesję użytkownika. Jeśli użytkownik nie jest zalogowany lub jego rola jest inna niż `artisan`, zostanie wykonane przekierowanie (`Astro.redirect`).
 - **Stan ładowania:** Komponenty `ProjectFilters` i `PaginationControls` będą miały wyłączone interaktywne elementy (`disabled`), gdy `isLoading` jest `true`. Komponent `ProjectList` może wyświetlać szkielety (skeletons) interfejsu podczas ładowania.
 - **Puste dane:** Jeśli API zwróci pustą tablicę projektów, `ProjectList` wyświetli komunikat "Nie znaleziono projektów spełniających podane kryteria".
 
 ## 10. Obsługa błędów
+
 - **Błędy API (np. 500):** Hook `useMarketplace` przechwyci błąd i ustawi stan `error`. `MarketplaceView` wyświetli centralny komunikat o błędzie zamiast listy projektów.
 - **Błędy autoryzacji (401, 403):** Jeśli sesja wygaśnie w trakcie użytkowania, hook przechwyci błąd i może wywołać globalną funkcję wylogowującą lub przekierować na stronę logowania.
 - **Błąd ładowania słowników (kategorie/materiały):** Jeśli pobieranie danych do filtrów nie powiedzie się, odpowiednie pola `Select` zostaną wyłączone, a użytkownik zobaczy komunikat o błędzie.
 
 ## 11. Kroki implementacji
+
 1.  **Utworzenie struktury plików:** Stworzenie strony `/src/pages/market.astro` oraz katalogu `/src/components/market/` z pustymi plikami dla wszystkich komponentów React.
 2.  **Zabezpieczenie strony:** Implementacja logiki sprawdzającej rolę użytkownika w `market.astro` i konfiguracja przekierowania.
 3.  **Implementacja `useMarketplace`:** Stworzenie customowego hooka z całą logiką zarządzania stanem, bez integracji z API (dane mockowe).

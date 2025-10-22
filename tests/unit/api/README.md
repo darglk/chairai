@@ -14,21 +14,25 @@ tests/unit/api/
 ## Uruchomienie Testów
 
 ### Wszystkie testy API
+
 ```bash
 npm run test:unit tests/unit/api
 ```
 
 ### Konkretny endpoint
+
 ```bash
 npm run test:unit tests/unit/api/auth/login.test.ts
 ```
 
 ### Tryb watch
+
 ```bash
 npm run test:unit -- --watch tests/unit/api/auth/login.test.ts
 ```
 
 ### Z pokryciem kodu
+
 ```bash
 npm run test:unit -- --coverage tests/unit/api
 ```
@@ -40,6 +44,7 @@ npm run test:unit -- --coverage tests/unit/api
 **Plik:** `auth/login.test.ts`
 
 #### Kategorie testów:
+
 1. **Pomyślne logowanie** (2 testy)
    - Logowanie z poprawnymi danymi
    - Ustawianie ciasteczek sesji
@@ -70,11 +75,13 @@ npm run test:unit -- --coverage tests/unit/api
 ## Konwencje Testów
 
 ### Nazewnictwo
+
 - Pliki testowe: `{endpoint}.test.ts`
 - Testy w języku polskim dla lepszej komunikacji z zespołem
 - Struktura: `describe` → `it`
 
 ### Przykład
+
 ```typescript
 describe("POST /api/auth/login", () => {
   describe("Pomyślne logowanie", () => {
@@ -86,6 +93,7 @@ describe("POST /api/auth/login", () => {
 ```
 
 ### Mock Data
+
 ```typescript
 const mockSupabaseAuth = {
   signInWithPassword: vi.fn(),
@@ -111,17 +119,20 @@ function createMockContext(body: unknown): APIContext {
 ## Testowane Aspekty
 
 ### ✅ Walidacja
+
 - Sprawdzanie wszystkich wymaganych pól
 - Walidacja formatów (email, hasło)
 - Komunikaty błędów w języku polskim
 
 ### ✅ Bezpieczeństwo
+
 - httpOnly flaga dla ciasteczek
 - sameSite: lax
 - secure w produkcji
 - Ukrywanie szczegółów błędów wewnętrznych
 
 ### ✅ Kody Statusu HTTP
+
 - 200: Sukces
 - 400: Błąd autoryzacji (ogólny)
 - 401: Nieprawidłowe dane logowania
@@ -129,6 +140,7 @@ function createMockContext(body: unknown): APIContext {
 - 500: Błąd serwera
 
 ### ✅ Integracja z Supabase
+
 - Wywołanie odpowiednich metod
 - Przekazywanie poprawnych parametrów
 - Obsługa odpowiedzi z błędem
@@ -139,17 +151,20 @@ function createMockContext(body: unknown): APIContext {
 Cel: **>80%** pokrycia dla endpointów API
 
 ### Aktualne pokrycie:
+
 - `src/pages/api/auth/login.ts`: **100%**
 
 ## Następne Kroki
 
 ### Do zaimplementowania:
+
 1. ⬜ `auth/register.test.ts` - testy dla rejestracji
 2. ⬜ `auth/logout.test.ts` - testy dla wylogowania
 3. ⬜ `auth/password-recovery.test.ts` - testy dla odzyskiwania hasła
 4. ⬜ `auth/password-reset.test.ts` - testy dla resetowania hasła
 
 ### Rekomendacje:
+
 - Dodać testy performance (benchmarking)
 - Rozważyć testy security (rate limiting)
 - Dodać testy dla middleware
@@ -158,29 +173,34 @@ Cel: **>80%** pokrycia dla endpointów API
 ## Best Practices
 
 ### 1. Izolacja Testów
+
 ✅ Każdy test jest niezależny  
 ✅ Mockowanie zależności zewnętrznych  
-✅ Reset mocków w `beforeEach`  
+✅ Reset mocków w `beforeEach`
 
 ### 2. Czytelność
+
 ✅ Opisowe nazwy testów  
 ✅ AAA Pattern (Arrange, Act, Assert)  
-✅ Grupowanie powiązanych testów  
+✅ Grupowanie powiązanych testów
 
 ### 3. Kompletność
+
 ✅ Happy path  
 ✅ Edge cases  
 ✅ Error handling  
-✅ Security aspects  
+✅ Security aspects
 
 ### 4. Utrzymywalność
+
 ✅ Helper functions dla tworzenia mock data  
 ✅ Reużywalne fixtures  
-✅ Dokumentacja w komentarzach  
+✅ Dokumentacja w komentarzach
 
 ## Troubleshooting
 
 ### Problem: Błędy TypeScript z mockowanym context
+
 **Rozwiązanie:** Użyj `as unknown as APIContext` dla złożonych mocków
 
 ```typescript
@@ -190,6 +210,7 @@ return {
 ```
 
 ### Problem: Testy nie resetują się między runs
+
 **Rozwiązanie:** Użyj `beforeEach` do czyszczenia mocków
 
 ```typescript
@@ -199,6 +220,7 @@ beforeEach(() => {
 ```
 
 ### Problem: Async testy timeout
+
 **Rozwiązanie:** Zwiększ timeout w `vitest.config.ts`
 
 ```typescript

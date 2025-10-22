@@ -11,11 +11,13 @@ Ten dokument opisuje implementację testów dla **TC-US-003: Wylogowywanie użyt
 **Tytuł:** Pomyślne wylogowanie z systemu
 
 ### Kroki testowe:
+
 1. Zaloguj się na konto użytkownika
 2. Otwórz menu profilowe
 3. Kliknij przycisk "Wyloguj"
 
 ### Oczekiwany rezultat:
+
 - Sesja użytkownika zostaje zakończona
 - Użytkownik jest przekierowany na stronę główną i widzi opcje "Zaloguj" i "Zarejestruj"
 - Dostęp do stron chronionych jest niemożliwy
@@ -23,11 +25,13 @@ Ten dokument opisuje implementację testów dla **TC-US-003: Wylogowywanie użyt
 ## Struktura Implementacji
 
 ### 1. Test E2E
+
 **Plik:** `tests/e2e/TC-US-003-logout-user.spec.ts`
 
 #### Główne scenariusze:
 
 ##### 1.1. Pomyślne wylogowanie z systemu
+
 ```typescript
 test("Pomyślne wylogowanie z systemu", async ({ page }) => {
   // Krok 2: Otwórz menu profilowe
@@ -51,30 +55,31 @@ test("Pomyślne wylogowanie z systemu", async ({ page }) => {
 ```
 
 ##### 1.2. Brak dostępu do stron chronionych po wylogowaniu
+
 Weryfikuje, że po wylogowaniu użytkownik nie ma dostępu do chronionych zasobów.
 
 ##### 1.3. Wylogowanie czyści ciasteczka sesji
+
 Sprawdza, czy ciasteczka `sb-access-token` i `sb-refresh-token` są usuwane.
 
 ##### 1.4. Wielokrotne kliknięcie przycisku wylogowania
+
 Testuje odporność na wielokrotne wywołania endpointu.
 
 ##### 1.5. Accessibility - Wylogowanie za pomocą klawiatury
+
 Weryfikuje, że wylogowanie działa poprawnie z nawigacją klawiaturową.
 
 #### Używane helpery:
+
 ```typescript
-import {
-  fillLoginForm,
-  waitForRedirect,
-  expectUserToBeLoggedIn,
-  expectUserToBeLoggedOut
-} from "./helpers";
+import { fillLoginForm, waitForRedirect, expectUserToBeLoggedIn, expectUserToBeLoggedOut } from "./helpers";
 ```
 
 ### 2. Testy Jednostkowe
 
 #### 2.1. Endpoint `/api/auth/logout`
+
 **Plik:** `tests/unit/api/auth/logout.test.ts`
 
 Testuje logikę endpointu wylogowania:
@@ -101,6 +106,7 @@ describe("POST /api/auth/logout - Testy Jednostkowe", () => {
 ```
 
 **Mockowanie:**
+
 ```typescript
 const mockSupabaseAuth = {
   signOut: vi.fn(),
@@ -116,6 +122,7 @@ function createMockContext(): APIContext {
 ```
 
 #### 2.2. Funkcje pomocnicze `clearSessionCookies`
+
 **Plik:** `tests/unit/lib/api-utils-cookies.test.ts`
 
 Testuje funkcje zarządzania ciasteczkami:
@@ -138,6 +145,7 @@ describe("Integracja setSessionCookies i clearSessionCookies", () => {
 ### 3. Testy Integracyjne
 
 #### 3.1. Komponent `LogoutButton`
+
 **Plik:** `tests/integration/components/LogoutButton.test.tsx`
 
 Testuje komponent React odpowiedzialny za wylogowanie:
@@ -171,6 +179,7 @@ describe("LogoutButton - Testy Integracyjne", () => {
 ```
 
 **Mockowanie:**
+
 ```typescript
 // Mock window.location
 const mockLocation = { href: "" };
@@ -186,6 +195,7 @@ global.fetch = vi.fn();
 ## Komponenty Utworzone/Zmodyfikowane
 
 ### Nowy Komponent: `LogoutButton.tsx`
+
 **Lokalizacja:** `src/components/auth/LogoutButton.tsx`
 
 ```typescript
@@ -233,6 +243,7 @@ export function LogoutButton({
 ```
 
 **Funkcjonalności:**
+
 - Obsługa stanu ładowania
 - Zapobieganie wielokrotnym kliknięciom
 - Callbacki `onLogoutSuccess` i `onLogoutError`
@@ -243,6 +254,7 @@ export function LogoutButton({
 ## Integracja z Istniejącym Kodem
 
 ### Endpoint `/api/auth/logout.ts`
+
 ```typescript
 export const POST: APIRoute = async (context) => {
   try {
@@ -257,6 +269,7 @@ export const POST: APIRoute = async (context) => {
 ```
 
 ### Funkcje pomocnicze w `api-utils.ts`
+
 ```typescript
 export function clearSessionCookies(context: APIContext): void {
   context.cookies.delete("sb-access-token", { path: "/" });
@@ -267,6 +280,7 @@ export function clearSessionCookies(context: APIContext): void {
 ## Uruchamianie Testów
 
 ### Testy jednostkowe i integracyjne:
+
 ```bash
 npm run test:run tests/unit/api/auth/logout.test.ts
 npm run test:run tests/unit/lib/api-utils-cookies.test.ts
@@ -274,11 +288,13 @@ npm run test:run tests/integration/components/LogoutButton.test.tsx
 ```
 
 ### Wszystkie testy jednostkowe/integracyjne razem:
+
 ```bash
 npm run test:run tests/unit/api/auth/logout.test.ts tests/unit/lib/api-utils-cookies.test.ts tests/integration/components/LogoutButton.test.tsx
 ```
 
 ### Testy E2E:
+
 ```bash
 # Najpierw uruchom serwer deweloperski w osobnym terminalu
 npm run dev
@@ -293,6 +309,7 @@ npm run test:e2e:ui tests/e2e/TC-US-003-logout-user.spec.ts
 ## Pokrycie Testowe
 
 ### Statystyki:
+
 - **Testy jednostkowe:** 21 testów
   - Endpoint logout: 9 testów
   - Funkcje pomocnicze: 12 testów
@@ -303,6 +320,7 @@ npm run test:e2e:ui tests/e2e/TC-US-003-logout-user.spec.ts
 **Łącznie:** 48 testów
 
 ### Obszary pokrycia:
+
 - ✅ Podstawowa funkcjonalność wylogowania
 - ✅ Obsługa błędów (sieć, Supabase, wielokrotne wywołania)
 - ✅ Bezpieczeństwo (czyszczenie ciasteczek)
@@ -314,6 +332,7 @@ npm run test:e2e:ui tests/e2e/TC-US-003-logout-user.spec.ts
 ## Zgodność z Wymaganiami
 
 ### Tech Stack:
+
 - ✅ **Playwright** - testy E2E
 - ✅ **Vitest** - testy jednostkowe
 - ✅ **React Testing Library** - testy komponentów
@@ -322,6 +341,7 @@ npm run test:e2e:ui tests/e2e/TC-US-003-logout-user.spec.ts
 - ✅ **Supabase Auth** - autoryzacja
 
 ### Copilot Instructions:
+
 - ✅ Helpery w `src/lib/api-utils.ts`
 - ✅ Obsługa błędów na początku funkcji
 - ✅ Early returns dla error conditions
@@ -329,6 +349,7 @@ npm run test:e2e:ui tests/e2e/TC-US-003-logout-user.spec.ts
 - ✅ Komponenty React bez dyrektyw Next.js
 
 ### Test Plan:
+
 - ✅ Wszystkie kroki z TC-US-003 zaimplementowane
 - ✅ Scenariusze pozytywne i negatywne
 - ✅ Testy bezpieczeństwa

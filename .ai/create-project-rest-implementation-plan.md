@@ -1,10 +1,11 @@
-
 # Plan implementacji punktu końcowego API: Create Project
 
 ## 1. Przegląd punktu końcowego
+
 Ten dokument opisuje plan implementacji punktu końcowego `POST /api/projects`. Punkt końcowy umożliwia uwierzytelnionym użytkownikom z rolą "klient" tworzenie nowego ogłoszenia o projekcie meblarskim. Projekt jest tworzony na podstawie wcześniej wygenerowanego przez AI obrazu i zawiera szczegóły takie jak kategoria, materiał, wymiary i budżet.
 
 ## 2. Szczegóły żądania
+
 - **Metoda HTTP**: `POST`
 - **Struktura URL**: `/api/projects`
 - **Nagłówki**:
@@ -23,12 +24,13 @@ Ten dokument opisuje plan implementacji punktu końcowego `POST /api/projects`. 
 ## 3. Wykorzystywane typy
 
 ### `src/lib/schemas.ts`
+
 ```typescript
 // ... existing code
 export const CreateProjectSchema = z.object({
-  generated_image_id: z.string().uuid({ message: 'Invalid UUID for generated image' }),
-  category_id: z.string().uuid({ message: 'Invalid UUID for category' }),
-  material_id: z.string().uuid({ message: 'Invalid UUID for material' }),
+  generated_image_id: z.string().uuid({ message: "Invalid UUID for generated image" }),
+  category_id: z.string().uuid({ message: "Invalid UUID for category" }),
+  material_id: z.string().uuid({ message: "Invalid UUID for material" }),
   dimensions: z.string().max(100).optional(),
   budget_range: z.string().max(50).optional(),
 });
@@ -37,6 +39,7 @@ export type CreateProjectDto = z.infer<typeof CreateProjectSchema>;
 ```
 
 ### `src/types.ts`
+
 ```typescript
 // ... existing code
 export interface Project {
@@ -45,7 +48,7 @@ export interface Project {
   generated_image_id: string;
   category_id: string;
   material_id: string;
-  status: 'open' | 'in_progress' | 'completed' | 'cancelled';
+  status: "open" | "in_progress" | "completed" | "cancelled";
   dimensions: string | null;
   budget_range: string | null;
   accepted_proposal_id: string | null;
@@ -56,6 +59,7 @@ export interface Project {
 ```
 
 ## 4. Szczegóły odpowiedzi
+
 - **Odpowiedź sukcesu (201 Created)**:
   - Zwraca nowo utworzony obiekt projektu, zgodny z typem `Project`.
 - **Odpowiedzi błędów**:
@@ -67,6 +71,7 @@ export interface Project {
   - `500 Internal Server Error`: Wewnętrzny błąd serwera.
 
 ## 5. Przepływ danych
+
 1.  Żądanie `POST` trafia do punktu końcowego `/src/pages/api/projects/index.astro`.
 2.  Middleware Astro (`src/middleware/index.ts`) weryfikuje token JWT, pobiera dane użytkownika i umieszcza je w `context.locals`. Sprawdza, czy użytkownik ma rolę `client`.
 3.  Handler `POST` w pliku Astro odczytuje i waliduje ciało żądania za pomocą `CreateProjectSchema` z `zod`.
@@ -82,6 +87,7 @@ export interface Project {
 7.  Handler Astro zwraca odpowiedź `201 Created` z danymi projektu w formacie JSON.
 
 ## 6. Względy bezpieczeństwa
+
 - **Uwierzytelnianie**: Wszystkie żądania muszą zawierać ważny token JWT w nagłówku `Authorization`. Middleware jest odpowiedzialne za jego weryfikację.
 - **Autoryzacja**:
   - Dostęp do punktu końcowego jest ograniczony do użytkowników z rolą `client`.
@@ -90,17 +96,21 @@ export interface Project {
 - **Ochrona przed Race Condition**: Użycie transakcji bazodanowej oraz atomowej operacji sprawdzania i aktualizacji flagi `is_used` na obrazie zapobiegnie podwójnemu wykorzystaniu tego samego obrazu.
 
 ## 7. Obsługa błędów
+
 Błędy będą obsługiwane centralnie za pomocą funkcji pomocniczych z `src/lib/api-utils.ts`.
+
 - **Błędy walidacji (400)**: Zwracane, gdy `CreateProjectSchema` zwróci błąd.
 - **Błędy autoryzacji (401, 403)**: Zwracane przez middleware lub logikę serwisu.
 - **Błędy zasobów (404, 409)**: Zwracane przez `ProjectService`, gdy zasoby zależne nie istnieją lub naruszają ograniczenia biznesowe.
 - **Błędy serwera (500)**: Każdy nieprzewidziany wyjątek zostanie przechwycony i zwrócony jako ogólny błąd serwera, a szczegóły zostaną zalogowane.
 
 ## 8. Rozważania dotyczące wydajności
+
 - Operacje na bazie danych powinny być zoptymalizowane i wykonywane w ramach jednej transakcji, aby zapewnić spójność i zminimalizować czas blokady zasobów.
 - Należy upewnić się, że kolumny używane do wyszukiwania (`generated_image_id`, `category_id`, `material_id`, `client_id`) są odpowiednio zindeksowane w bazie danych.
 
 ## 9. Etapy wdrożenia
+
 1.  **Aktualizacja typów i schematów**:
     - Dodać typ `Project` do `src/types.ts`.
     - Dodać `CreateProjectSchema` i typ `CreateProjectDto` do `src/lib/schemas.ts`.

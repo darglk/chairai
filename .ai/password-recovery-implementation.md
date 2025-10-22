@@ -30,7 +30,7 @@ Został zaimplementowany pełny proces odzyskiwania i resetowania hasła z wykor
         (zawiera code + type=recovery)
                            │
                            ▼
-   Użytkownik otrzymuje: 
+   Użytkownik otrzymuje:
    https://yourapp.com/api/auth/callback?code=XXX&type=recovery
 
 ┌─────────────────────────────────────────────────────────────┐
@@ -89,11 +89,13 @@ Został zaimplementowany pełny proces odzyskiwania i resetowania hasła z wykor
 **Plik:** `src/pages/api/auth/password-recovery.ts`
 
 **Odpowiedzialności:**
+
 - Walidacja adresu email (Zod)
 - Wywołanie `supabase.auth.resetPasswordForEmail()`
 - Zawsze zwraca sukces (zapobiega enumeracji emaili)
 
 **Request:**
+
 ```json
 {
   "email": "user@example.com"
@@ -101,6 +103,7 @@ Został zaimplementowany pełny proces odzyskiwania i resetowania hasła z wykor
 ```
 
 **Response (zawsze 200):**
+
 ```json
 {
   "success": true,
@@ -109,6 +112,7 @@ Został zaimplementowany pełny proces odzyskiwania i resetowania hasła z wykor
 ```
 
 **Bezpieczeństwo:**
+
 - Zawsze zwraca sukces, nawet jeśli email nie istnieje
 - Zapobiega to atakom enumeracyjnym (sprawdzaniu, czy email istnieje w bazie)
 
@@ -117,11 +121,13 @@ Został zaimplementowany pełny proces odzyskiwania i resetowania hasła z wykor
 **Plik:** `src/pages/api/auth/password-reset.ts`
 
 **Odpowiedzialności:**
+
 - Walidacja nowego hasła (Zod - min. 8 znaków, regex)
 - Wywołanie `supabase.auth.updateUser({ password })`
 - Automatyczne zalogowanie użytkownika (ustawienie cookies)
 
 **Request:**
+
 ```json
 {
   "password": "NewPassword123",
@@ -130,6 +136,7 @@ Został zaimplementowany pełny proces odzyskiwania i resetowania hasła z wykor
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -142,6 +149,7 @@ Został zaimplementowany pełny proces odzyskiwania i resetowania hasła z wykor
 ```
 
 **Możliwe błędy:**
+
 - `400` - Link wygasł lub sesja nieważna
 - `422` - Błąd walidacji (hasła się nie zgadzają, za krótkie, etc.)
 - `500` - Błąd serwera
@@ -151,25 +159,28 @@ Został zaimplementowany pełny proces odzyskiwania i resetowania hasła z wykor
 **Plik:** `src/pages/api/auth/callback.ts`
 
 **Odpowiedzialności:**
+
 - Obsługa callbacków z Supabase (email verification, password reset, OAuth)
 - Wymiana kodu autoryzacyjnego na sesję
 - Ustawienie session cookies
 - Przekierowanie na odpowiednią stronę
 
 **URL Parameters:**
+
 - `code` - kod autoryzacyjny z Supabase (required)
 - `type` - typ callbacku (recovery, signup, etc.)
 - `error` - opcjonalny błąd z Supabase
 - `error_description` - opis błędu
 
 **Logika przekierowań:**
+
 ```typescript
 if (type === "recovery") {
   // Password reset flow
-  redirect("/password-reset")
+  redirect("/password-reset");
 } else {
   // Email verification, OAuth, etc.
-  redirect("/")
+  redirect("/");
 }
 ```
 
@@ -180,6 +191,7 @@ if (type === "recovery") {
 **Plik:** `src/components/auth/PasswordRecoveryForm.tsx`
 
 **Funkcjonalność:**
+
 - Formularz z jednym polem: email
 - Walidacja client-side (format email)
 - Wywołanie API: `POST /api/auth/password-recovery`
@@ -187,6 +199,7 @@ if (type === "recovery") {
 - Obsługa błędów walidacji z serwera (422)
 
 **Stany:**
+
 ```typescript
 {
   email: string,
@@ -202,6 +215,7 @@ if (type === "recovery") {
 **Plik:** `src/components/auth/PasswordResetForm.tsx`
 
 **Funkcjonalność:**
+
 - Formularz z dwoma polami: password, confirmPassword
 - Walidacja client-side:
   - Hasło min. 8 znaków
@@ -211,6 +225,7 @@ if (type === "recovery") {
 - Obsługa szczegółowych błędów walidacji z serwera
 
 **Stany:**
+
 ```typescript
 {
   password: string,
@@ -218,9 +233,9 @@ if (type === "recovery") {
   loading: boolean,
   success: boolean,
   error: string | null,
-  fieldErrors: { 
+  fieldErrors: {
     password?: string,
-    confirmPassword?: string 
+    confirmPassword?: string
   }
 }
 ```
@@ -257,22 +272,24 @@ if (type === "recovery") {
 **Problem:** Atakujący może sprawdzać, czy dany email istnieje w bazie.
 
 **Rozwiązanie:**
+
 ```typescript
 // ❌ ZŁE - ujawnia czy email istnieje
 if (userNotFound) {
-  return { error: "Email nie istnieje" }
+  return { error: "Email nie istnieje" };
 }
-return { success: "Email wysłany" }
+return { success: "Email wysłany" };
 
 // ✅ DOBRE - zawsze zwraca sukces
-return { 
-  success: "Jeśli konto istnieje, email został wysłany" 
-}
+return {
+  success: "Jeśli konto istnieje, email został wysłany",
+};
 ```
 
 ### 2. Walidacja Sesji
 
 **Endpoint `/api/auth/password-reset` wymaga:**
+
 - Aktywnej sesji z cookies (ustawionej przez callback)
 - Sesja musi być świeża (z linku emailowego)
 - Automatyczna walidacja przez Supabase
@@ -280,6 +297,7 @@ return {
 ### 3. Link Resetujący
 
 **Bezpieczeństwo linku:**
+
 - Jednorazowy kod (code) w URL
 - Wygasa po określonym czasie (domyślnie 1h w Supabase)
 - Nie można użyć dwukrotnie tego samego kodu
@@ -288,14 +306,11 @@ return {
 ### 4. Walidacja Hasła
 
 **Wymagania (Zod Schema):**
+
 ```typescript
-password: z
-  .string()
+password: z.string()
   .min(8, "Hasło musi mieć co najmniej 8 znaków")
-  .regex(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-    "Hasło musi zawierać małą literę, wielką literę i cyfrę"
-  )
+  .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, "Hasło musi zawierać małą literę, wielką literę i cyfrę");
 ```
 
 ## 🧪 Testowanie
@@ -303,6 +318,7 @@ password: z
 ### Test 1: Żądanie Resetowania (Istniejący Email)
 
 **Kroki:**
+
 1. Otwórz `/password-recovery`
 2. Wpisz poprawny email z Supabase
 3. Kliknij "Wyślij link resetujący"
@@ -314,6 +330,7 @@ password: z
 ### Test 2: Żądanie Resetowania (Nieistniejący Email)
 
 **Kroki:**
+
 1. Otwórz `/password-recovery`
 2. Wpisz email, który NIE istnieje
 3. Kliknij "Wyślij link resetujący"
@@ -324,12 +341,14 @@ password: z
 ### Test 3: Walidacja Email (Client-Side)
 
 **Kroki:**
+
 1. Wpisz nieprawidłowy email: "test"
 2. **Oczekiwany wynik:** "Nieprawidłowy format adresu e-mail"
 
 ### Test 4: Callback - Poprawny Link
 
 **Kroki:**
+
 1. Kliknij link z emaila
 2. **Oczekiwany wynik:**
    - Przekierowanie na `/password-reset`
@@ -339,6 +358,7 @@ password: z
 ### Test 5: Callback - Wygasły Link
 
 **Kroki:**
+
 1. Użyj linku starszego niż 1h
 2. **Oczekiwany wynik:**
    - Przekierowanie na `/login?error=...`
@@ -347,6 +367,7 @@ password: z
 ### Test 6: Reset Hasła - Walidacja
 
 **Kroki:**
+
 1. Wpisz hasło: "abc" (za krótkie)
 2. **Oczekiwany wynik:** "Hasło musi mieć co najmniej 8 znaków"
 3. Wpisz hasło: "password123", potwierdzenie: "password456"
@@ -355,6 +376,7 @@ password: z
 ### Test 7: Reset Hasła - Sukces
 
 **Kroki:**
+
 1. Po kliknięciu linku z emaila, wejdź na `/password-reset`
 2. Wpisz nowe hasło: "NewPassword123"
 3. Potwierdź hasło: "NewPassword123"
@@ -367,6 +389,7 @@ password: z
 ### Test 8: Reset Hasła - Bez Sesji
 
 **Kroki:**
+
 1. Wejdź bezpośrednio na `/password-reset` (bez callbacku)
 2. Spróbuj zresetować hasło
 3. **Oczekiwany wynik:**
@@ -375,6 +398,7 @@ password: z
 ### Test cURL
 
 #### 1. Password Recovery
+
 ```bash
 curl -X POST http://localhost:3000/api/auth/password-recovery \
   -H "Content-Type: application/json" \
@@ -382,6 +406,7 @@ curl -X POST http://localhost:3000/api/auth/password-recovery \
 ```
 
 #### 2. Password Reset (wymaga session cookies)
+
 ```bash
 curl -X POST http://localhost:3000/api/auth/password-reset \
   -H "Content-Type: application/json" \
@@ -396,6 +421,7 @@ curl -X POST http://localhost:3000/api/auth/password-reset \
 W panelu Supabase → Authentication → Email Templates skonfiguruj:
 
 **Reset Password Template:**
+
 ```html
 <h2>Resetowanie hasła</h2>
 <p>Otrzymaliśmy prośbę o zresetowanie hasła dla Twojego konta.</p>
@@ -412,6 +438,7 @@ W panelu Supabase → Authentication → URL Configuration:
 **Site URL:** `http://localhost:3000` (dev) / `https://yourapp.com` (prod)
 
 **Redirect URLs (whitelist):**
+
 - `http://localhost:3000/api/auth/callback`
 - `https://yourapp.com/api/auth/callback`
 

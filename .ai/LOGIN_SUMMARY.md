@@ -119,6 +119,7 @@ Każde żądanie HTTP
 Pełny przewodnik testowania znajduje się w `.ai/testing-guide.md`
 
 **Szybki test:**
+
 ```bash
 # Uruchom projekt
 npm run dev
@@ -165,6 +166,7 @@ Aby ukończyć moduł uwierzytelniania:
 ## 🤝 Zgodność z Wytycznymi
 
 Implementacja zgodna z:
+
 - ✅ `copilot-instructions.md` - best practices
 - ✅ `auth-spec.md` - specyfikacja techniczna
 - ✅ `prd.md` - wymagania produktowe

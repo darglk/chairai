@@ -16,25 +16,30 @@
 ## 📋 Do zrobienia przed uruchomieniem testów
 
 ### 1. Upewnij się, że strona `/register` działa poprawnie
+
 ```bash
 npm run dev
 # Sprawdź http://localhost:4321/register
 ```
 
 ### 2. Dostosuj selektory w testach do faktycznego UI
+
 Obecne testy używają ogólnych selektorów ARIA. Może być konieczne dopasowanie ich do rzeczywistej implementacji formularza rejestracji.
 
 ### 3. Uruchom pierwszy test
+
 ```bash
 npm run test:e2e:ui
 ```
 
 ### 4. Jeśli testy failują
+
 - Sprawdź czy formularz ma odpowiednie `aria-label` lub `<label>` dla inputów
 - Sprawdź czy przyciski mają odpowiednie role i nazwy
 - Użyj Playwright Inspector (`--debug`) aby zobaczyć co się dzieje
 
 ### 5. Dostosuj timeouty jeśli potrzeba
+
 W `playwright.config.ts` możesz zwiększyć globalne timeouty jeśli aplikacja potrzebuje więcej czasu na odpowiedź.
 
 ## 🎯 Następne scenariusze do implementacji
@@ -51,9 +56,9 @@ Kolejność zgodna z `test-plan.md`:
 8. **TC-US-008**: Zakończenie i ocena projektu
 9. **TC-US-009**: Rejestracja i uzupełnienie profilu rzemieślnika
 10. **TC-US-010**: Przeglądanie rynku projektów
-10. **TC-US-011**: Składanie propozycji do projektu
-11. **TC-US-012**: Oczekiwanie na akceptację i realizacja
-12. **TC-US-013**: Otrzymanie oceny
+11. **TC-US-011**: Składanie propozycji do projektu
+12. **TC-US-012**: Oczekiwanie na akceptację i realizacja
+13. **TC-US-013**: Otrzymanie oceny
 
 ## 💡 Wskazówki
 
@@ -86,9 +91,9 @@ test("Test z helperami", async ({ page }) => {
   await fillRegistrationForm(page, {
     email: "test@example.com",
     password: "Password123!",
-    accountType: "klient"
+    accountType: "klient",
   });
-  
+
   await expectUserToBeLoggedIn(page);
 });
 ```
@@ -98,11 +103,13 @@ test("Test z helperami", async ({ page }) => {
 Jeśli test failuje:
 
 1. **Użyj trybu UI**:
+
    ```bash
    npm run test:e2e:ui
    ```
 
 2. **Użyj trybu debug**:
+
    ```bash
    npm run test:e2e:debug
    ```

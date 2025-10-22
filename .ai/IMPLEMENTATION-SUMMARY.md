@@ -9,12 +9,14 @@
 ## 🎯 Wykonane Kroki
 
 ### ✅ Krok 1: Aktualizacja Schematów Walidacji
+
 - **Plik**: `src/lib/schemas.ts`
 - **Stan**: Schema `GenerateImageSchema` już istniała z prawidłową walidacją
 - **Specyfikacja**: Prompt wymagany, długość 10-500 znaków
 - **Typ**: `GenerateImageInput` eksportowany i wykorzystywany w endpoincie
 
 ### ✅ Krok 2: Rozbudowa AIImageService
+
 - **Plik**: `src/lib/services/ai-image.service.ts`
 - **Metody**:
   - `generateFurnitureImage(prompt: string)` - główna funkcja generacji
@@ -28,10 +30,12 @@
 - **Mock Images**: 5 domyślnych Unsplash URL'ów dla developmentu
 
 ### ✅ Krok 3: Implementacja Endpointa POST /api/images/generate
+
 - **Plik**: `src/pages/api/images/generate.ts`
 - **Prerender**: `false` (API endpoint, nie statyczny)
 
 #### Workflow (9 kroków):
+
 1. **Autentykacja** - Supabase Auth token verification
 2. **Rate Limiting** - Sprawdzenie limitu żądań
 3. **Autoryzacja** - Weryfikacja roli "client"
@@ -43,6 +47,7 @@
 9. **Odpowiedź** - Zwrot 201 Created z danymi obrazu
 
 #### Response Codes:
+
 - **201 Created** - Sukces
 - **400 Bad Request** - Nieprawidłowy JSON
 - **401 Unauthorized** - Brak/invalid tokenu
@@ -54,6 +59,7 @@
 - **503 Service Unavailable** - AI service unavailable
 
 #### Response DTO:
+
 ```typescript
 {
   id: string;
@@ -69,6 +75,7 @@
 ### ✅ Krok 4: Testy Jednostkowe i Integracyjne
 
 #### Testy Schematów (`tests/unit/schemas/generate-image.schema.test.ts`)
+
 - **11 testów**: Wszystkie przechodzą ✅
 - **Pokrycie**: Walidacja promptu na wszystkie edge cases
   - Prawidłowy prompt (10-500 znaków)
@@ -82,8 +89,9 @@
   - Komunikaty błędów zawierają szczegóły
 
 #### Testy Integracyjne AIImageService (`tests/integration/services/ai-image.service.integration.test.ts`)
+
 - **19 testów**: Wszystkie przechodzą ✅
-- **Pokrycie**: 
+- **Pokrycie**:
   - Pełny workflow generowania obrazu
   - Obsługa różnych opisów
   - Długie opisy bez problemu
@@ -92,6 +100,7 @@
   - Konfiguracja serwisu
 
 #### Ogólne Statystyki:
+
 - **Test Files**: 14 testów (wszystkie przechodzą)
 - **Total Tests**: 257 testów przechodzi, 1 pominięty
 - **Duration**: ~4.3 sekundy
@@ -99,6 +108,7 @@
 ### ✅ Krok 5: Dokumentacja i Code Review
 
 #### Dokumentacja Endpointa:
+
 - **70+ linii komentarzy** opisujących:
   - Ogólny opis endpointa i workflow
   - Request/Response struktura
@@ -107,6 +117,7 @@
   - Obsługa błędów z szczegółami
 
 #### Code Quality:
+
 - **Linting**: 0 błędów ✅
 - **TypeScript**: Strict mode, pełna type safety
 - **Konwencje**: Zgodne z wytycznymi projektu
@@ -145,6 +156,7 @@ tests/
 ## 🔄 Workflow Kompletny
 
 ### Request:
+
 ```bash
 POST /api/images/generate
 Authorization: Bearer {access_token}
@@ -156,6 +168,7 @@ Content-Type: application/json
 ```
 
 ### Response (201 Created):
+
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -169,6 +182,7 @@ Content-Type: application/json
 ```
 
 ### Error Response (422 Unprocessable):
+
 ```json
 {
   "error": {
@@ -190,7 +204,7 @@ Content-Type: application/json
 ✅ **Walidacja**: Zod schema validation na wszystkich inputach  
 ✅ **Rate Limiting**: Ochrona przed abuse'em  
 ✅ **Quota Management**: Limit generacji per użytkownika  
-✅ **Error Handling**: Brak eksponowania wrażliwych detali  
+✅ **Error Handling**: Brak eksponowania wrażliwych detali
 
 ---
 
@@ -209,15 +223,15 @@ Content-Type: application/json
 
 ## 📊 Metryki
 
-| Metrika | Wartość |
-|---------|---------|
-| Linie kodu (endpoint) | ~260 |
-| Linie dokumentacji | ~70 |
-| Linie testów | ~300 |
-| Pokrycie workflow'u | 100% |
-| Test success rate | 257/258 (99.6%) |
-| TypeScript errors | 0 |
-| Lint errors | 0 |
+| Metrika               | Wartość         |
+| --------------------- | --------------- |
+| Linie kodu (endpoint) | ~260            |
+| Linie dokumentacji    | ~70             |
+| Linie testów          | ~300            |
+| Pokrycie workflow'u   | 100%            |
+| Test success rate     | 257/258 (99.6%) |
+| TypeScript errors     | 0               |
+| Lint errors           | 0               |
 
 ---
 
@@ -229,6 +243,6 @@ Implementacja endpointa `POST /api/images/generate` została **ukończona** z pe
 ✅ Wszystkie scenariusze błędów są obsłużone  
 ✅ Kod jest dobrze udokumentowany i przejrzysty  
 ✅ Testy pokrywają wszystkie krytyczne ścieżki  
-✅ Kod następuje best practices projektu  
+✅ Kod następuje best practices projektu
 
 **Gotowy do code review i deployment!** 🚀

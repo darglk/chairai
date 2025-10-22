@@ -9,6 +9,7 @@ Przy uploadzie plików do portfolio backend zwracał błąd **400 Bad Request**.
 Po przeanalizowaniu kodu znaleziono następujące niezgodności:
 
 #### Backend (`/api/artisans/me/portfolio`)
+
 ```typescript
 // Oczekuje pojedynczego pliku z nazwą "image"
 const image = formData.get("image");
@@ -19,6 +20,7 @@ if (!image) {
 ```
 
 #### Frontend (przed naprawą)
+
 ```typescript
 // Wysyłał tablicę plików z nazwą "images"
 files.forEach((file) => {
@@ -115,23 +117,25 @@ Dodano komunikat o postępie uploadu:
 
 ## 📊 Porównanie: Przed vs Po
 
-| Aspekt | Przed | Po |
-|--------|-------|-----|
-| **Nazwa pola** | `"images"` ❌ | `"image"` ✅ |
-| **Ilość requestów** | 1 (z wieloma plikami) | N (po jednym na plik) |
-| **Format odpowiedzi** | Oczekiwano tablicy ❌ | Pojedynczy obiekt ✅ |
-| **Obsługa błędów** | Upload wszystkich lub żadnego | Stop na pierwszym błędzie |
-| **UX - feedback** | Brak | Alert z postępem ✅ |
+| Aspekt                | Przed                         | Po                        |
+| --------------------- | ----------------------------- | ------------------------- |
+| **Nazwa pola**        | `"images"` ❌                 | `"image"` ✅              |
+| **Ilość requestów**   | 1 (z wieloma plikami)         | N (po jednym na plik)     |
+| **Format odpowiedzi** | Oczekiwano tablicy ❌         | Pojedynczy obiekt ✅      |
+| **Obsługa błędów**    | Upload wszystkich lub żadnego | Stop na pierwszym błędzie |
+| **UX - feedback**     | Brak                          | Alert z postępem ✅       |
 
 ## 🎯 Dlaczego sequential upload?
 
 ### Zalety:
+
 1. ✅ **Prostota** - nie wymaga zmian w backend API
 2. ✅ **Zgodność** - wykorzystuje istniejący endpoint bez modyfikacji
 3. ✅ **Feedback** - użytkownik widzi że coś się dzieje
 4. ✅ **Graceful degradation** - upload zatrzymuje się na pierwszym błędzie
 
 ### Wady:
+
 - ⏱️ **Wolniejsze** - pliki uploadowane sekwencyjnie, nie równolegle
 - 📶 **Więcej requestów** - każdy plik = osobny request HTTP
 
@@ -173,7 +177,6 @@ return createSuccessResponse(uploadedImages, 201);
 - ✏️ `src/components/hooks/useArtisanProfileForm.ts`
   - Zmieniono logikę `handlePortfolioUpload`
   - Sequential upload zamiast batch upload
-  
 - ✏️ `src/components/profile/PortfolioManager.tsx`
   - Dodano alert z informacją o postępie
   - Ukrycie błędów podczas uploadu

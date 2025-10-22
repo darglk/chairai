@@ -1,9 +1,11 @@
 # API Endpoint Implementation Plan: Create/Update Artisan Profile
 
 ## 1. Przegląd punktu końcowego
+
 Ten punkt końcowy `PUT /api/artisans/me` umożliwia uwierzytelnionemu użytkownikowi z rolą "rzemieślnik" (artisan) utworzenie lub zaktualizowanie swojego profilu zawodowego. Operacja jest idempotentna, co oznacza, że wielokrotne wywołania z tymi samymi danymi wejściowymi będą miały ten sam efekt. Endpoint wykorzystuje metodę `upsert` do modyfikacji danych w tabeli `artisan_profiles`.
 
 ## 2. Szczegóły żądania
+
 - **Metoda HTTP**: `PUT`
 - **Struktura URL**: `/api/artisans/me`
 - **Nagłówki**:
@@ -22,18 +24,21 @@ Ten punkt końcowy `PUT /api/artisans/me` umożliwia uwierzytelnionemu użytkown
     - `nip`: `string`, musi składać się z dokładnie 10 cyfr.
 
 ## 3. Wykorzystywane typy
+
 - **DTO (Data Transfer Object)**: `ArtisanProfilePutDto` zostanie zdefiniowany w `src/lib/schemas.ts` przy użyciu `zod` w celu walidacji danych wejściowych.
+
   ```typescript
   // src/lib/schemas.ts
-  import { z } from 'zod';
+  import { z } from "zod";
 
   export const ArtisanProfilePutDtoSchema = z.object({
     company_name: z.string().min(1, { message: "Company name cannot be empty" }),
-    nip: z.string().regex(/^\d{10}$/, { message: "NIP must be a 10-digit string" })
+    nip: z.string().regex(/^\d{10}$/, { message: "NIP must be a 10-digit string" }),
   });
 
   export type ArtisanProfilePutDto = z.infer<typeof ArtisanProfilePutDtoSchema>;
   ```
+
 - **Entity**: `ArtisanProfile` w `src/types.ts` będzie reprezentować strukturę danych w tabeli `artisan_profiles`.
   ```typescript
   // src/types.ts
@@ -48,6 +53,7 @@ Ten punkt końcowy `PUT /api/artisans/me` umożliwia uwierzytelnionemu użytkown
   ```
 
 ## 4. Szczegóły odpowiedzi
+
 - **Odpowiedź sukcesu (200 OK)**: Zwraca obiekt JSON z danymi utworzonego lub zaktualizowanego profilu rzemieślnika.
   ```json
   {
@@ -70,6 +76,7 @@ Ten punkt końcowy `PUT /api/artisans/me` umożliwia uwierzytelnionemu użytkown
   (Szczegółowe kody w sekcji "Obsługa błędów").
 
 ## 5. Przepływ danych
+
 1.  Żądanie `PUT` trafia do endpointu `/api/artisans/me`.
 2.  Astro middleware (`src/middleware/index.ts`) przechwytuje żądanie, weryfikuje token JWT, pobiera sesję i dane użytkownika z Supabase, a następnie umieszcza je w `context.locals`.
 3.  Handler API (`src/pages/api/artisans/me.ts`) jest wywoływany.
@@ -83,6 +90,7 @@ Ten punkt końcowy `PUT /api/artisans/me` umożliwia uwierzytelnionemu użytkown
 9.  Handler formatuje odpowiedź i wysyła ją do klienta ze statusem `200 OK`.
 
 ## 6. Względy bezpieczeństwa
+
 - **Uwierzytelnianie**: Dostęp jest chroniony przez middleware, które weryfikuje token JWT z Supabase Auth. Żądania bez ważnego tokenu są odrzucane z kodem `401 Unauthorized`.
 - **Autoryzacja**: Handler API jawnie sprawdza, czy rola zalogowanego użytkownika to `artisan`. Użytkownicy z inną rolą (np. `client`) otrzymają odpowiedź `403 Forbidden`.
 - **Walidacja danych wejściowych**: Użycie `zod` do walidacji formatu i typów danych (`company_name`, `nip`) chroni przed niepoprawnymi danymi.
@@ -90,6 +98,7 @@ Ten punkt końcowy `PUT /api/artisans/me` umożliwia uwierzytelnionemu użytkown
 - **Row-Level Security (RLS)**: Chociaż logika autoryzacji jest w handlerze, należy upewnić się, że w bazie danych Supabase istnieją odpowiednie polityki RLS dla tabeli `artisan_profiles`, pozwalające rzemieślnikowi na modyfikację tylko własnego profilu.
 
 ## 7. Obsługa błędów
+
 - **400 Bad Request**: Zwracany, gdy walidacja `zod` nie powiedzie się (np. NIP ma nieprawidłowy format). Odpowiedź będzie zawierać szczegóły błędu walidacji.
 - **401 Unauthorized**: Zwracany przez middleware, gdy token jest nieprawidłowy, wygasł lub go brakuje.
 - **403 Forbidden**: Zwracany, gdy uwierzytelniony użytkownik nie ma roli `artisan`.
@@ -97,11 +106,13 @@ Ten punkt końcowy `PUT /api/artisans/me` umożliwia uwierzytelnionemu użytkown
 - **500 Internal Server Error**: Zwracany w przypadku nieoczekiwanych błędów po stronie serwera, np. problemów z połączeniem z bazą danych. Każdy taki błąd powinien być logowany po stronie serwera w celu dalszej analizy.
 
 ## 8. Rozważania dotyczące wydajności
+
 - Operacja `upsert` jest pojedynczym zapytaniem do bazy danych, co jest wydajne.
 - Sprawdzenie unikalności NIP wymaga dodatkowego zapytania `SELECT` przed `upsert`. Aby zoptymalizować ten proces, na kolumnie `nip` w tabeli `artisan_profiles` powinien znajdować się indeks. Jeśli na kolumnie `nip` istnieje ograniczenie `UNIQUE`, można polegać na obsłudze błędu bazy danych, co upraszcza kod i redukuje liczbę zapytań do jednego.
 - Czas odpowiedzi będzie głównie zależał od wydajności bazy danych Supabase.
 
 ## 9. Etapy wdrożenia
+
 1.  **Aktualizacja typów**: Dodać lub zweryfikować typ `ArtisanProfile` w pliku `src/types.ts`.
 2.  **Definicja schematu walidacji**: Dodać `ArtisanProfilePutDtoSchema` do pliku `src/lib/schemas.ts`.
 3.  **Utworzenie serwisu**: Stworzyć nowy plik `src/lib/services/artisan-profile.service.ts`.

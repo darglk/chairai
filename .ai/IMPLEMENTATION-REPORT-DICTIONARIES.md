@@ -12,6 +12,7 @@ Pomyślnie zaimplementowano trzy publiczne REST API endpointy słownikowe dla pr
 ### 📦 Implementowane Komponenty
 
 #### 1. **Serwis Dictionary** (`src/lib/services/dictionary.service.ts`)
+
 ```typescript
 - Klasa DictionaryService z trzema metodami publicznym:
   • getCategories(): Promise<CategoryDTO[]>
@@ -20,6 +21,7 @@ Pomyślnie zaimplementowano trzy publiczne REST API endpointy słownikowe dla pr
 ```
 
 **Charakterystyka**:
+
 - Przyjmuje instancję `SupabaseClient` jako zależność (dependency injection)
 - Każda metoda wykonuje zapytanie `SELECT * FROM [tabela]`
 - Obsługuje błędy i rzuca wyjątkami w przypadku niepowodzenia
@@ -27,13 +29,15 @@ Pomyślnie zaimplementowano trzy publiczne REST API endpointy słownikowe dla pr
 - W pełni typowana za pomocą TypeScript
 
 #### 2. **Trzy Endpointy API**
-| Endpoint | Plik | Metoda | Opis |
-|----------|------|--------|------|
-| `/api/categories` | `src/pages/api/categories.ts` | GET | Pobiera kategorie mebli |
-| `/api/materials` | `src/pages/api/materials.ts` | GET | Pobiera materiały |
-| `/api/specializations` | `src/pages/api/specializations.ts` | GET | Pobiera specjalizacje rzemieślników |
+
+| Endpoint               | Plik                               | Metoda | Opis                                |
+| ---------------------- | ---------------------------------- | ------ | ----------------------------------- |
+| `/api/categories`      | `src/pages/api/categories.ts`      | GET    | Pobiera kategorie mebli             |
+| `/api/materials`       | `src/pages/api/materials.ts`       | GET    | Pobiera materiały                   |
+| `/api/specializations` | `src/pages/api/specializations.ts` | GET    | Pobiera specjalizacje rzemieślników |
 
 **Charakterystyka endpointów**:
+
 - ✅ Publiczne - nie wymagają uwierzytelniania
 - ✅ `prerender = false` - traktowane jako dynamiczne endpointy API
 - ✅ Handler `GET` zgodny ze standardami Astro
@@ -42,6 +46,7 @@ Pomyślnie zaimplementowano trzy publiczne REST API endpointy słownikowe dla pr
 - ✅ Zwracają nagłówek `Content-Type: application/json`
 
 #### 3. **Testy Integracyjne** (`tests/integration/api/dictionary.service.integration.test.ts`)
+
 ```typescript
 9 testów obejmujących:
 - Pomyślne pobieranie danych dla każdej metody
@@ -53,6 +58,7 @@ Pomyślnie zaimplementowano trzy publiczne REST API endpointy słownikowe dla pr
 **Status testów**: ✅ Wszystkie przeszły (9/9)
 
 #### 4. **Testy E2E** (`tests/e2e/dictionary-api.spec.ts`)
+
 ```typescript
 13 testów obejmujących:
 - Poprawne kody statusu HTTP (200)
@@ -71,6 +77,7 @@ Pomyślnie zaimplementowano trzy publiczne REST API endpointy słownikowe dla pr
 ### 🔍 Szczegóły Implementacji
 
 #### Struktura Odpowiedzi (200 OK)
+
 ```json
 {
   "data": [
@@ -81,6 +88,7 @@ Pomyślnie zaimplementowano trzy publiczne REST API endpointy słownikowe dla pr
 ```
 
 #### Struktura Odpowiedzi Błędu (500 Internal Server Error)
+
 ```json
 {
   "error": {
@@ -91,6 +99,7 @@ Pomyślnie zaimplementowano trzy publiczne REST API endpointy słownikowe dla pr
 ```
 
 #### Flow Danych
+
 ```
 1. HTTP Request GET /api/categories
    ↓
@@ -118,18 +127,23 @@ Pomyślnie zaimplementowano trzy publiczne REST API endpointy słownikowe dla pr
 ### ✅ Walidacja i Testowanie
 
 #### Unit + Integracyjne (Vitest)
+
 ```bash
 npm run test
 ```
+
 **Wynik**: ✅ 9/9 testów przeszło dla Dictionary Service
 
 #### Build Projektu
+
 ```bash
 npm run build
 ```
+
 **Wynik**: ✅ Build pomyślny bez błędów TypeScript
 
 #### Linting (ESLint)
+
 **Wynik**: ✅ Wszystkie pliki zdały kontrolę lintingu
 
 ---
@@ -176,28 +190,32 @@ npm run build
 ### 🚀 Jak Używać Endpointów
 
 #### Pobieranie Kategorii
+
 ```bash
 curl http://localhost:3000/api/categories
 ```
 
 #### Pobieranie Materiałów
+
 ```bash
 curl http://localhost:3000/api/materials
 ```
 
 #### Pobieranie Specjalizacji
+
 ```bash
 curl http://localhost:3000/api/specializations
 ```
 
 #### W Kodzie Frontend (React/Astro)
+
 ```typescript
 // Pobierz kategorie
-const response = await fetch('/api/categories');
+const response = await fetch("/api/categories");
 const { data: categories } = await response.json();
 
 // Użyj w komponencie
-categories.forEach(cat => {
+categories.forEach((cat) => {
   console.log(cat.id, cat.name);
 });
 ```
@@ -206,20 +224,21 @@ categories.forEach(cat => {
 
 ### 📈 Metrics
 
-| Metryka | Wartość |
-|---------|---------|
-| Liczba Testów | 9 (integracyjne) + 13 (E2E) = 22 |
-| Linting Errors | 0 |
-| TypeScript Errors | 0 |
-| Build Status | ✅ Sukces |
-| Czas Budowy | ~4.32s |
-| Test Coverage | Wszystkie sceny opisane w planie |
+| Metryka           | Wartość                          |
+| ----------------- | -------------------------------- |
+| Liczba Testów     | 9 (integracyjne) + 13 (E2E) = 22 |
+| Linting Errors    | 0                                |
+| TypeScript Errors | 0                                |
+| Build Status      | ✅ Sukces                        |
+| Czas Budowy       | ~4.32s                           |
+| Test Coverage     | Wszystkie sceny opisane w planie |
 
 ---
 
 ### 📝 Pliki Zmienione/Utworzone
 
 **Nowe pliki:**
+
 - ✅ `src/lib/services/dictionary.service.ts` - Serwis Dictionary
 - ✅ `src/pages/api/categories.ts` - Endpoint Categories
 - ✅ `src/pages/api/materials.ts` - Endpoint Materials

@@ -8,6 +8,7 @@ Wersja: 1.0 (MVP)
 ChairAI to innowacyjna platforma webowa, która łączy świat kreatywnych pomysłów na meble z rzemieślniczym wykonaniem. Naszym celem jest rozwiązanie dwóch kluczowych problemów: trudności w wizualizacji unikalnych koncepcji mebli oraz bariery w znalezieniu wykwalifikowanego rzemieślnika do ich realizacji.
 
 Platforma skierowana jest do dwóch głównych grup użytkowników:
+
 - Klientów indywidualnych, którzy chcą zamówić mebel na wymiar, ale potrzebują narzędzia do zwizualizowania swojego pomysłu.
 - Rzemieślników i stolarzy, którzy poszukują nowych zleceń i chcą otrzymywać precyzyjnie zdefiniowane zapytania.
 
@@ -16,11 +17,13 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
 ## 2. Problem użytkownika
 
 ### Dla Klienta:
+
 - Użytkownicy mają pomysł na mebel, ale nie potrafią go precyzyjnie opisać ani zwizualizować, co utrudnia komunikację z wykonawcą.
 - Proces poszukiwania i weryfikacji godnego zaufania rzemieślnika jest czasochłonny i niepewny.
 - Brak narzędzi do łatwego przekształcenia abstrakcyjnej koncepcji w konkretne zapytanie ofertowe.
 
 ### Dla Rzemieślnika:
+
 - Otrzymywanie niejasnych, ogólnikowych zapytań od klientów, co prowadzi do frustracji i straty czasu na doprecyzowanie wymagań.
 - Trudność w dotarciu do klientów poszukujących unikalnych, spersonalizowanych projektów.
 - Brak ustandaryzowanego formatu zapytań, który zawierałby minimalne, niezbędne informacje do przygotowania wstępnej wyceny.
@@ -28,22 +31,26 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
 ## 3. Wymagania funkcjonalne
 
 ### 3.1. Moduł Uwierzytelniania i Profili Użytkowników
+
 - Rejestracja i logowanie dla dwóch typów kont: "Klient" i "Rzemieślnik".
 - Profil Klienta: zawiera historię generowanych obrazów, stworzonych projektów i otrzymanych ocen.
 - Profil Rzemieślnika: wymaga podania danych firmy (weryfikacja NIP w MVP), listy specjalizacji oraz portfolio (minimum 5 zdjęć zrealizowanych prac). Profil jest publiczny.
 
 ### 3.2. Generator Obrazów AI
+
 - Interfejs do wprowadzania promptów tekstowych w celu generowania obrazów mebli.
 - Limit 10 darmowych generacji na konto klienta.
 - Galeria, w której klient może zapisać wygenerowane obrazy.
 - Historia wprowadzonych promptów i wygenerowanych obrazów powiązana z kontem klienta.
 
 ### 3.3. Moduł Tworzenia i Zarządzania Projektami
+
 - Formularz tworzenia nowego projektu (ogłoszenia) na podstawie zapisanego obrazu AI.
 - Obowiązkowe pola do uzupełnienia: Kategoria mebla, Materiał, Orientacyjny rozmiar, Oczekiwany budżet (predefiniowane zakresy).
 - Każdy projekt ma unikalny identyfikator i status (np. Otwarty, W realizacji, Zakończony).
 
 ### 3.4. Marketplace i System Ofert
+
 - Rzemieślnicy mogą przeglądać i filtrować listę otwartych projektów.
 - Formularz składania propozycji przez rzemieślnika musi zawierać: wycenę (w PLN) oraz obowiązkowy załącznik (np. wstępny szkic techniczny, opis specyfikacji).
 - Klient otrzymuje powiadomienia o nowych propozycjach i może je przeglądać na stronie projektu.
@@ -51,6 +58,7 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
 - Zaakceptowana kwota wyceny jest zapisywana w bazie danych.
 
 ### 3.5. Komunikacja i System Ocen
+
 - Po akceptacji oferty, między klientem a rzemieślnikiem uruchamiany jest czat oparty na zewnętrznym API.
 - Po obustronnym oznaczeniu projektu jako "Zakończony Sukcesem", aktywowany jest system dwustronnych ocen i recenzji (skala 1-5 gwiazdek + komentarz).
 - Oceny są widoczne w publicznym profilu rzemieślnika oraz w historii klienta.
@@ -58,6 +66,7 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
 ## 4. Granice produktu
 
 ### Funkcjonalności zawarte w wersji MVP:
+
 - Pełna ścieżka użytkownika od generacji obrazu AI do akceptacji oferty rzemieślnika.
 - Rejestracja i profile dla obu typów użytkowników z wymaganymi polami (portfolio, NIP).
 - Ograniczenie do 10 generacji AI na klienta.
@@ -68,6 +77,7 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
 - Podstawowa weryfikacja rzemieślników (NIP).
 
 ### Funkcjonalności wykluczone z wersji MVP:
+
 - Zintegrowany system płatności i obsługa transakcji finansowych.
 - Monetyzacja (prowizje od transakcji, płatne generacje AI, subskrypcje dla rzemieślników).
 - Zaawansowane narzędzia do edycji obrazów lub optymalizacji promptów AI.
@@ -193,10 +203,11 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
   - Moja średnia ocen jest aktualizowana i widoczna na moim publicznym profilu.
 
 ## 6. Metryki sukcesu
-| Kryterium | Definicja | Sposób Mierzenia | Cel dla MVP (pierwsze 3 miesiące) |
-| :--- | :--- | :--- | :--- |
-| Główny KPI: Finalizacja Transakcji | Liczba projektów, dla których klient zaakceptował propozycję rzemieślnika. | Zliczanie liczby projektów, których status zmienił się na "W realizacji" ("Projekt Rozpoczęty"). | 20+ sfinalizowanych transakcji miesięcznie. |
-| Jakość Projektów | Procent opublikowanych projektów, które przyciągają zainteresowanie rzemieślników. | Stosunek liczby projektów z co najmniej jedną propozycją w ciągu 7 dni do całkowitej liczby nowych projektów. | 60% projektów otrzymuje co najmniej jedną ofertę. |
-| Wartość Biznesowa | Potencjał monetyzacyjny platformy. | Suma wartości (PLN) wszystkich zaakceptowanych wycen w danym okresie. | Śledzenie metryki w celu przygotowania modelu prowizyjnego. |
-| Zaangażowanie w AI | Skuteczność narzędzia AI jako punktu wyjścia do tworzenia projektów. | Procent zapisanych obrazów AI, które zostały wykorzystane do stworzenia ogłoszenia. | 25% zapisanych obrazów przekształconych w projekty. |
-| Aktywność Rzemieślników | Zaangażowanie bazy rzemieślników na platformie. | Średnia liczba propozycji składanych przez aktywnego rzemieślnika miesięcznie. | Średnio 3+ propozycji na aktywnego rzemieślnika. |
+
+| Kryterium                          | Definicja                                                                          | Sposób Mierzenia                                                                                              | Cel dla MVP (pierwsze 3 miesiące)                           |
+| :--------------------------------- | :--------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------ | :---------------------------------------------------------- |
+| Główny KPI: Finalizacja Transakcji | Liczba projektów, dla których klient zaakceptował propozycję rzemieślnika.         | Zliczanie liczby projektów, których status zmienił się na "W realizacji" ("Projekt Rozpoczęty").              | 20+ sfinalizowanych transakcji miesięcznie.                 |
+| Jakość Projektów                   | Procent opublikowanych projektów, które przyciągają zainteresowanie rzemieślników. | Stosunek liczby projektów z co najmniej jedną propozycją w ciągu 7 dni do całkowitej liczby nowych projektów. | 60% projektów otrzymuje co najmniej jedną ofertę.           |
+| Wartość Biznesowa                  | Potencjał monetyzacyjny platformy.                                                 | Suma wartości (PLN) wszystkich zaakceptowanych wycen w danym okresie.                                         | Śledzenie metryki w celu przygotowania modelu prowizyjnego. |
+| Zaangażowanie w AI                 | Skuteczność narzędzia AI jako punktu wyjścia do tworzenia projektów.               | Procent zapisanych obrazów AI, które zostały wykorzystane do stworzenia ogłoszenia.                           | 25% zapisanych obrazów przekształconych w projekty.         |
+| Aktywność Rzemieślników            | Zaangażowanie bazy rzemieślników na platformie.                                    | Średnia liczba propozycji składanych przez aktywnego rzemieślnika miesięcznie.                                | Średnio 3+ propozycji na aktywnego rzemieślnika.            |

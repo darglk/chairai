@@ -21,6 +21,7 @@ ImageGalleryContainer (główny kontener)
 Główny komponent kontenera zarządzający całą logiką galerii.
 
 **Odpowiedzialności:**
+
 - Zarządzanie stanem galerii przez hook `useImageGallery`
 - Renderowanie siatki obrazów z filtrem
 - Wyświetlanie stanów: loading, error, empty, success
@@ -29,10 +30,12 @@ Główny komponent kontenera zarządzający całą logiką galerii.
 **Propsy:** Brak (komponent jest standalone)
 
 **Funkcjonalności:**
+
 - **Filtr:** Przycisk "Tylko nieużyte obrazy" z licznikiem znalezionych obrazów
 - **Interakcje:** Toggle filtra, zmiana strony
 
 **Stany UI:**
+
 - **Loading:** Spinner z komunikatem "Ładowanie obrazów..."
 - **Error:** Komunikat błędu z przyciskiem "Spróbuj ponownie"
 - **Empty:** Komunikat "Brak wygenerowanych obrazów" z linkiem do generatora
@@ -47,6 +50,7 @@ Główny komponent kontenera zarządzający całą logiką galerii.
 Komponent karty wyświetlający pojedynczy wygenerowany obraz.
 
 **Propsy:**
+
 ```typescript
 interface ImageCardProps {
   image: GeneratedImageDTO;
@@ -54,12 +58,14 @@ interface ImageCardProps {
 ```
 
 **Elementy:**
+
 - Obraz w formacie aspect-square
 - Badge "✓ Użyto w projekcie" (jeśli `is_used === true`)
 - Hover overlay z przyciskiem "Stwórz projekt" (jeśli `is_used === false`)
 - Footer z promptem (2 linie max) i datą utworzenia
 
 **Interakcje:**
+
 - Hover: Scale image (105%) + pokazuje overlay
 - Click na "Stwórz projekt": Przekierowanie do `/projects/create?imageId={id}`
 
@@ -72,6 +78,7 @@ interface ImageCardProps {
 Komponent kontrolek nawigacji między stronami.
 
 **Propsy:**
+
 ```typescript
 interface PaginationControlsProps {
   pagination: PaginationMetaDTO;
@@ -80,11 +87,13 @@ interface PaginationControlsProps {
 ```
 
 **Elementy:**
+
 - Przycisk "← Poprzednia" (disabled na pierwszej stronie)
 - Wskaźnik "Strona X z Y" + "Łącznie obrazów: Z"
 - Przycisk "Następna →" (disabled na ostatniej stronie)
 
 **Funkcjonalność:**
+
 - Zmiana strony przez `onPageChange(newPage)`
 - Auto-scroll do góry po zmianie strony
 - Responsive layout (kolumna na mobile, wiersz na desktop)
@@ -98,6 +107,7 @@ interface PaginationControlsProps {
 Hook zarządzający stanem galerii i komunikacją z API.
 
 **Zwracane wartości:**
+
 ```typescript
 {
   images: GeneratedImageDTO[];
@@ -112,6 +122,7 @@ Hook zarządzający stanem galerii i komunikacją z API.
 ```
 
 **Logika:**
+
 - Używa `useState` do zarządzania stanem (images, pagination, loading, error, page, filter)
 - Używa `useEffect` do fetchowania danych przy zmianie strony lub filtra
 - Wywołuje `GET /api/images/generated?page={page}&limit=20&unused_only={bool}`
@@ -126,11 +137,13 @@ Hook zarządzający stanem galerii i komunikacją z API.
 ### Endpoint: `GET /api/images/generated`
 
 **Query Parameters:**
+
 - `page`: number (default: 1)
 - `limit`: number (default: 20, max: 100)
 - `unused_only`: boolean (default: false) - nie używany w UI, ale dostępny
 
 **Response:** `GeneratedImagesListResponseDTO`
+
 ```typescript
 {
   data: GeneratedImageDTO[];
@@ -140,6 +153,7 @@ Hook zarządzający stanem galerii i komunikacją z API.
 ```
 
 **Status Codes:**
+
 - 200: Sukces
 - 401: Nie zalogowany
 - 403: Brak uprawnień (nie jest klientem)
@@ -153,6 +167,7 @@ Hook zarządzający stanem galerii i komunikacją z API.
 Wszystkie typy zdefiniowane w `src/types.ts`:
 
 ### GeneratedImageDTO
+
 ```typescript
 {
   id: string;
@@ -165,6 +180,7 @@ Wszystkie typy zdefiniowane w `src/types.ts`:
 ```
 
 ### PaginationMetaDTO
+
 ```typescript
 {
   page: number;
@@ -181,20 +197,24 @@ Wszystkie typy zdefiniowane w `src/types.ts`:
 ### Wykorzystane klasy Tailwind:
 
 **Grid Layout:**
+
 - `grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6`
 - Responsive: 1 kolumna (mobile) → 4 kolumny (desktop)
 
 **ImageCard:**
+
 - `aspect-square` - kwadratowy format obrazu
 - `group-hover:scale-105` - zoom efekt przy hover
 - `line-clamp-2` - ograniczenie promptu do 2 linii
 
 **Colors:**
+
 - `bg-card` - tło karty
 - `text-muted-foreground` - wtórny tekst
 - `bg-primary` / `text-primary-foreground` - badge
 
 **Transitions:**
+
 - `transition-shadow duration-200` - płynna zmiana cienia
 - `transition-transform duration-300` - płynny zoom obrazu
 - `transition-opacity duration-200` - płynne pojawianie overlay
@@ -214,11 +234,13 @@ Wszystkie typy zdefiniowane w `src/types.ts`:
 ## Obsługa błędów
 
 ### Poziom API (useImageGallery):
+
 - Błędy HTTP (400-500): Parse JSON error response
 - Błędy sieciowe: Generic "Nie udało się pobrać obrazów"
 - Timeout: Obsługiwany przez przeglądarkę
 
 ### Poziom UI (ImageGalleryContainer):
+
 - Error state: Wyświetla `error.error.message` + przycisk reload
 - Empty state: Link do generatora
 - Authorization errors: Powinny być obsłużone przez middleware (redirect do /login)
@@ -228,12 +250,14 @@ Wszystkie typy zdefiniowane w `src/types.ts`:
 ## Performance
 
 ### Optymalizacje:
+
 - `loading="lazy"` na obrazach - lazy loading
 - `useCallback` w hooku - unikanie re-createów funkcji
 - Warunkowe renderowanie paginacji (tylko jeśli > 1 strona)
 - Scroll to top po zmianie strony (smooth behavior)
 
 ### Potencjalne usprawnienia:
+
 - Image optimization (WebP, srcset)
 - Infinite scroll zamiast paginacji
 - Skeleton loading zamiast spinnera
@@ -245,6 +269,7 @@ Wszystkie typy zdefiniowane w `src/types.ts`:
 ## Testowanie
 
 ### Manualne testy do wykonania:
+
 1. ✅ Wyświetlanie obrazów z paginacją
 2. ✅ Przycisk "Stwórz projekt" tylko dla nieużytych obrazów
 3. ✅ Badge "Użyto w projekcie" dla użytych obrazów
@@ -257,6 +282,7 @@ Wszystkie typy zdefiniowane w `src/types.ts`:
 10. ✅ Scroll to top po zmianie strony
 
 ### Testy automatyczne (TODO):
+
 - Unit testy: `useImageGallery` hook
 - Component testy: ImageCard, PaginationControls
 - Integration testy: ImageGalleryContainer

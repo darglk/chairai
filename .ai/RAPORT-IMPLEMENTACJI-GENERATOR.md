@@ -15,12 +15,14 @@ Pomyślnie zaimplementowano **Generator Obrazów AI** - kluczowy interfejs dla k
 ## 🎯 Cele Osiągnięte
 
 ### Faza 1: Przygotowanie ✅
+
 - [x] Strona Astro `/generate` z middleware checks
 - [x] Komponent React `ImageGeneratorContainer`
 - [x] Custom hook `useImageGenerator`
 - [x] Typy z `src/types.ts`
 
 ### Faza 2: Komponenty UI ✅
+
 - [x] `PromptInput.tsx` - textarea z walidacją i licznikiem znaków
 - [x] `GenerateButton.tsx` - przycisk z loader spinerem
 - [x] `QuotaDisplay.tsx` - progress bar limitu generacji
@@ -28,6 +30,7 @@ Pomyślnie zaimplementowano **Generator Obrazów AI** - kluczowy interfejs dla k
 - [x] `ErrorMessage.tsx` - wyświetlacz błędów z ikonami
 
 ### Faza 3: Logika i API ✅
+
 - [x] Custom hook z state management
 - [x] Fetch API POST `/api/images/generate`
 - [x] Kompleksowa obsługa błędów
@@ -36,6 +39,7 @@ Pomyślnie zaimplementowano **Generator Obrazów AI** - kluczowy interfejs dla k
 - [x] Mapowanie błędów HTTP na polskie komunikaty
 
 ### Faza 4: Middleware ✅
+
 - [x] Dodanie `/generate` do `PROTECTED_ROUTES`
 - [x] Ochrona autentykacji na poziomie middleware
 - [x] Walidacja roli "client" w stronie Astro
@@ -78,24 +82,28 @@ tests/
 ## 🔧 Kluczowe Funkcionalności
 
 ### 1. Walidacja Promptu
+
 - ✅ Minimum 10 znaków
 - ✅ Maksimum 500 znaków
 - ✅ Real-time licznik znaków z visual feedback
 - ✅ Disabled state gdy prompt zbyt krótki
 
 ### 2. Zarządzanie Limitem Generacji
+
 - ✅ Wyświetlanie pozostałych generacji (0-10)
 - ✅ Progress bar pokazujący wykorzystanie
 - ✅ Zmiana kolorów wg. stanu (zielony/pomarańczowy/czerwony)
 - ✅ Ostrzeżenia i komunikaty when limit wyczerpany
 
 ### 3. Generacja Obrazów
+
 - ✅ Fetch POST do `/api/images/generate`
 - ✅ Loading spinner podczas generacji
 - ✅ Timeout 90 sekund
 - ✅ Aktualizacja limitu po sukcesie
 
 ### 4. Obsługa Błędów
+
 - ✅ 400 Bad Request → VALIDATION_ERROR
 - ✅ 401 Unauthorized → UNAUTHORIZED (sesja wygasła)
 - ✅ 403 Forbidden → FORBIDDEN (nie client)
@@ -105,6 +113,7 @@ tests/
 - ✅ Polskie komunikaty dla użytkownika
 
 ### 5. Interakcje Użytkownika
+
 - ✅ Wpisanie prompta
 - ✅ Generacja obrazu
 - ✅ Zapisanie do galerii
@@ -113,6 +122,7 @@ tests/
 - ✅ Zamykanie błędów
 
 ### 6. Dostępność (A11y)
+
 - ✅ Semantic HTML5
 - ✅ ARIA labels na przyciskach
 - ✅ Proper focus management
@@ -120,6 +130,7 @@ tests/
 - ✅ Screen reader support
 
 ### 7. Styling
+
 - ✅ Tailwind 4 z dark mode
 - ✅ Responsive design (mobile-first)
 - ✅ Hover states
@@ -130,37 +141,40 @@ tests/
 
 ## 📊 Metryki Implementacji
 
-| Metryka | Wartość |
-|---------|---------|
-| Komponenty React | 5 |
-| Custom Hooks | 1 |
-| Pliki TypeScript | 7 |
-| Linie kodu (komponenty) | ~450 |
-| Linie kodu (hook) | ~200 |
-| Linie kodu (strona Astro) | ~40 |
-| Obsługiwane statusy HTTP | 6+ |
-| Walidacje po stronie frontend | 3+ |
-| Testy jednostkowe | 12+ |
-| Testy integracyjne | 7+ |
-| Testy E2E | 10+ |
+| Metryka                       | Wartość |
+| ----------------------------- | ------- |
+| Komponenty React              | 5       |
+| Custom Hooks                  | 1       |
+| Pliki TypeScript              | 7       |
+| Linie kodu (komponenty)       | ~450    |
+| Linie kodu (hook)             | ~200    |
+| Linie kodu (strona Astro)     | ~40     |
+| Obsługiwane statusy HTTP      | 6+      |
+| Walidacje po stronie frontend | 3+      |
+| Testy jednostkowe             | 12+     |
+| Testy integracyjne            | 7+      |
+| Testy E2E                     | 10+     |
 
 ---
 
 ## 🧪 Pokrycie Testami
 
 ### Walidacja Promptu
+
 - ✅ Empty prompt
 - ✅ Too short prompt (< 10 chars)
 - ✅ Too long prompt (> 500 chars)
 - ✅ Valid prompt
 
 ### Generacja Obrazów
+
 - ✅ Loading state
 - ✅ Success response
 - ✅ Image display
 - ✅ Quota update
 
 ### Obsługa Błędów
+
 - ✅ 400 validation error
 - ✅ 401 unauthorized
 - ✅ 429 rate limit
@@ -168,11 +182,13 @@ tests/
 - ✅ Network timeout
 
 ### Kontrola Dostępu
+
 - ✅ Unauthenticated redirect
 - ✅ Non-client user redirect
 - ✅ Client access allowed
 
 ### Interakcje UI
+
 - ✅ Button enabled/disabled states
 - ✅ Character counter
 - ✅ Progress bar
@@ -188,6 +204,7 @@ tests/
 ### Endpoint POST `/api/images/generate`
 
 **Request:**
+
 ```json
 {
   "prompt": "A modern oak dining table with metal legs"
@@ -195,6 +212,7 @@ tests/
 ```
 
 **Success Response (201):**
+
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
@@ -208,6 +226,7 @@ tests/
 ```
 
 **Error Responses:**
+
 - 400 Bad Request (validation error)
 - 401 Unauthorized (invalid token)
 - 403 Forbidden (not client)
@@ -219,11 +238,13 @@ tests/
 ## ⚙️ Konfiguracja
 
 ### Middleware (`src/middleware/index.ts`)
+
 ```typescript
 const PROTECTED_ROUTES = ["/dashboard", "/generate"];
 ```
 
 ### Environment Variables
+
 - `PUBLIC_SUPABASE_URL` - Supabase project URL
 - `PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
 - `OPENROUTER_API_KEY` - OpenRouter API key (backend)
@@ -233,12 +254,14 @@ const PROTECTED_ROUTES = ["/dashboard", "/generate"];
 ## 🚀 Praca Przyszła (Faza 5-8)
 
 ### Faza 5: Optymalizacja Wydajności
+
 - [ ] Image lazy loading
 - [ ] Memo optimization na komponentach
 - [ ] Caching wygenerowanych obrazów
 - [ ] Bundle size optimization
 
 ### Faza 6: Ulepszenia UX
+
 - [ ] Toast notifications (zamiast error div)
 - [ ] Image preview fullscreen mode
 - [ ] Download image functionality
@@ -246,12 +269,14 @@ const PROTECTED_ROUTES = ["/dashboard", "/generate"];
 - [ ] Image history/gallery view
 
 ### Faza 7: Funcjonalności Premium
+
 - [ ] Upgrade flow do premium
 - [ ] Unlimited generations
 - [ ] Advanced prompt templates
 - [ ] Image style presets
 
 ### Faza 8: Monitoring i Analytics
+
 - [ ] Generation success rate tracking
 - [ ] User engagement metrics
 - [ ] Error logging

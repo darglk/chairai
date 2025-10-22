@@ -258,6 +258,19 @@ export const ProjectIdSchema = z.string().uuid({ message: "Nieprawidłowy UUID d
 
 export type ProjectId = z.infer<typeof ProjectIdSchema>;
 
+/**
+ * Schema for updating project status
+ * Used in: PATCH /api/projects/{id}/status
+ */
+export const UpdateProjectStatusSchema = z.object({
+  status: z.enum(["open", "in_progress", "completed", "closed"], {
+    required_error: "Status jest wymagany",
+    invalid_type_error: "Nieprawidłowy status projektu",
+  }),
+});
+
+export type UpdateProjectStatusInput = z.infer<typeof UpdateProjectStatusSchema>;
+
 // ============================================================================
 // Proposal Schemas
 // ============================================================================
@@ -289,6 +302,40 @@ export const CreateProposalSchema = z.object({
 
 export type CreateProposalInput = z.infer<typeof CreateProposalSchema>;
 
+/**
+ * Schema for accepting a proposal
+ * Validates proposal_id in request body
+ */
+export const AcceptProposalSchema = z.object({
+  proposal_id: z
+    .string({ required_error: "ID propozycji jest wymagane" })
+    .uuid({ message: "Nieprawidłowy format UUID dla propozycji" }),
+});
+
+export type AcceptProposalInput = z.infer<typeof AcceptProposalSchema>;
+
+// ============================================================================
+// Review Schemas
+// ============================================================================
+
+/**
+ * Schema for creating a review
+ * Validates rating (1-5) and comment
+ */
+export const CreateReviewSchema = z.object({
+  rating: z
+    .number({ required_error: "Ocena jest wymagana" })
+    .int({ message: "Ocena musi być liczbą całkowitą" })
+    .min(1, { message: "Ocena musi być co najmniej 1" })
+    .max(5, { message: "Ocena nie może być większa niż 5" }),
+  comment: z
+    .string({ required_error: "Komentarz jest wymagany" })
+    .min(1, { message: "Komentarz nie może być pusty" })
+    .max(1000, { message: "Komentarz nie może przekraczać 1000 znaków" }),
+});
+
+export type CreateReviewInput = z.infer<typeof CreateReviewSchema>;
+
 // ============================================================================
 // Artisan Profile Schemas
 // ============================================================================
@@ -299,3 +346,22 @@ export type CreateProposalInput = z.infer<typeof CreateProposalSchema>;
 export const ArtisanIdSchema = z.string().uuid({ message: "Nieprawidłowy format ID rzemieślnika" });
 
 export type ArtisanId = z.infer<typeof ArtisanIdSchema>;
+
+/**
+ * Schema for artisan reviews query parameters
+ * Validates pagination parameters (page, limit)
+ */
+export const ArtisanReviewsQuerySchema = z.object({
+  page: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : 1))
+    .pipe(z.number().int().min(1).default(1)),
+  limit: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : 20))
+    .pipe(z.number().int().min(1).max(100).default(20)),
+});
+
+export type ArtisanReviewsQuery = z.infer<typeof ArtisanReviewsQuerySchema>;

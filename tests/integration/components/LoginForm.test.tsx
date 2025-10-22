@@ -212,16 +212,18 @@ describe("LoginForm - Testy Integracyjne", () => {
 
     it("powinien obsłużyć błąd nieprawidłowych danych logowania", async () => {
       const user = userEvent.setup();
-      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      const mockResponse = {
         ok: false,
         status: 401,
-        json: async () => ({
+        json: vi.fn().mockResolvedValue({
           error: {
             code: "INVALID_CREDENTIALS",
             message: "Nieprawidłowy e-mail lub hasło",
           },
         }),
-      });
+      };
+      const mockFetch = vi.fn().mockResolvedValue(mockResponse);
+      global.fetch = mockFetch;
 
       render(<LoginForm />);
 
@@ -234,13 +236,14 @@ describe("LoginForm - Testy Integracyjne", () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/nieprawidłowy e-?mail lub hasło/i)).toBeInTheDocument();
+        expect(screen.getByText(/nieprawidłowy e-mail lub hasło/i)).toBeInTheDocument();
       });
     });
 
     it("powinien obsłużyć błąd sieciowy", async () => {
       const user = userEvent.setup();
-      (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("Network error"));
+      const mockFetch = vi.fn().mockRejectedValue(new Error("Network error"));
+      global.fetch = mockFetch;
 
       render(<LoginForm />);
 
@@ -253,7 +256,7 @@ describe("LoginForm - Testy Integracyjne", () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/wystąpił błąd|nie udało się|network error/i)).toBeInTheDocument();
+        expect(screen.getByText(/network error/i)).toBeInTheDocument();
       });
     });
   });

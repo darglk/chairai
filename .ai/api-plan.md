@@ -2,28 +2,30 @@
 
 ## 1. Resources
 
-| Resource | Database Table(s) | Description |
-|----------|------------------|-------------|
-| Auth | `users` (via Supabase Auth) | User authentication and session management |
-| Users | `users` | Basic user information and role |
+| Resource         | Database Table(s)                                                 | Description                                    |
+| ---------------- | ----------------------------------------------------------------- | ---------------------------------------------- |
+| Auth             | `users` (via Supabase Auth)                                       | User authentication and session management     |
+| Users            | `users`                                                           | Basic user information and role                |
 | Artisan Profiles | `artisan_profiles`, `artisan_specializations`, `portfolio_images` | Extended profile information for artisan users |
-| Generated Images | `generated_images` | AI-generated furniture images |
-| Projects | `projects` | Client-created furniture project listings |
-| Proposals | `proposals` | Artisan proposals for projects |
-| Reviews | `reviews` | Bidirectional ratings and reviews |
-| Categories | `categories` | Dictionary of furniture categories |
-| Materials | `materials` | Dictionary of materials |
-| Specializations | `specializations` | Dictionary of artisan specializations |
+| Generated Images | `generated_images`                                                | AI-generated furniture images                  |
+| Projects         | `projects`                                                        | Client-created furniture project listings      |
+| Proposals        | `proposals`                                                       | Artisan proposals for projects                 |
+| Reviews          | `reviews`                                                         | Bidirectional ratings and reviews              |
+| Categories       | `categories`                                                      | Dictionary of furniture categories             |
+| Materials        | `materials`                                                       | Dictionary of materials                        |
+| Specializations  | `specializations`                                                 | Dictionary of artisan specializations          |
 
 ## 2. Endpoints
 
 ### 2.1 Authentication
 
 #### Register User
+
 - **Method**: `POST`
 - **Path**: `/api/auth/register`
 - **Description**: Register a new user account (client or artisan)
 - **Request Body**:
+
 ```json
 {
   "email": "user@example.com",
@@ -31,7 +33,9 @@
   "role": "client" // or "artisan"
 }
 ```
+
 - **Success Response** (201 Created):
+
 ```json
 {
   "user": {
@@ -46,23 +50,28 @@
   }
 }
 ```
+
 - **Error Responses**:
   - `400 Bad Request`: Invalid email format or weak password
   - `409 Conflict`: Email already exists
   - `422 Unprocessable Entity`: Invalid role value
 
 #### Login
+
 - **Method**: `POST`
 - **Path**: `/api/auth/login`
 - **Description**: Authenticate user and obtain session token
 - **Request Body**:
+
 ```json
 {
   "email": "user@example.com",
   "password": "securePassword123"
 }
 ```
+
 - **Success Response** (200 OK):
+
 ```json
 {
   "user": {
@@ -77,10 +86,12 @@
   }
 }
 ```
+
 - **Error Responses**:
   - `401 Unauthorized`: Invalid credentials
 
 #### Logout
+
 - **Method**: `POST`
 - **Path**: `/api/auth/logout`
 - **Description**: Invalidate current session
@@ -92,11 +103,13 @@
 ### 2.2 Users
 
 #### Get Current User
+
 - **Method**: `GET`
 - **Path**: `/api/users/me`
 - **Description**: Get current authenticated user information
 - **Headers**: `Authorization: Bearer {access_token}`
 - **Success Response** (200 OK):
+
 ```json
 {
   "id": "uuid",
@@ -105,16 +118,19 @@
   "created_at": "2025-10-12T10:00:00Z"
 }
 ```
+
 - **Error Responses**:
   - `401 Unauthorized`: Invalid or expired token
 
 ### 2.3 Artisan Profiles
 
 #### Get Artisan Profile
+
 - **Method**: `GET`
 - **Path**: `/api/artisans/{artisanId}`
 - **Description**: Get public artisan profile information
 - **Success Response** (200 OK):
+
 ```json
 {
   "user_id": "uuid",
@@ -143,10 +159,12 @@
   "updated_at": "2025-10-12T10:00:00Z"
 }
 ```
+
 - **Error Responses**:
   - `404 Not Found`: Artisan not found or profile not public
 
 #### Get My Artisan Profile
+
 - **Method**: `GET`
 - **Path**: `/api/artisans/me`
 - **Description**: Get own artisan profile (including non-public data)
@@ -158,18 +176,22 @@
   - `404 Not Found`: Profile not yet created
 
 #### Create/Update Artisan Profile
+
 - **Method**: `PUT`
 - **Path**: `/api/artisans/me`
 - **Description**: Create or update own artisan profile
 - **Headers**: `Authorization: Bearer {access_token}`
 - **Request Body**:
+
 ```json
 {
   "company_name": "Master Woodworks",
   "nip": "1234567890"
 }
 ```
+
 - **Success Response** (200 OK):
+
 ```json
 {
   "user_id": "uuid",
@@ -179,6 +201,7 @@
   "updated_at": "2025-10-12T10:00:00Z"
 }
 ```
+
 - **Error Responses**:
   - `400 Bad Request`: Invalid NIP format (must be 10 digits)
   - `401 Unauthorized`: Invalid or expired token
@@ -186,17 +209,21 @@
   - `409 Conflict`: NIP already exists
 
 #### Add Artisan Specializations
+
 - **Method**: `POST`
 - **Path**: `/api/artisans/me/specializations`
 - **Description**: Add specializations to artisan profile
 - **Headers**: `Authorization: Bearer {access_token}`
 - **Request Body**:
+
 ```json
 {
   "specialization_ids": ["uuid1", "uuid2"]
 }
 ```
+
 - **Success Response** (200 OK):
+
 ```json
 {
   "specializations": [
@@ -211,12 +238,14 @@
   ]
 }
 ```
+
 - **Error Responses**:
   - `400 Bad Request`: Invalid specialization IDs
   - `401 Unauthorized`: Invalid or expired token
   - `403 Forbidden`: User is not an artisan
 
 #### Remove Artisan Specialization
+
 - **Method**: `DELETE`
 - **Path**: `/api/artisans/me/specializations/{specializationId}`
 - **Description**: Remove specialization from artisan profile
@@ -228,14 +257,16 @@
   - `404 Not Found`: Specialization not found in profile
 
 #### Upload Portfolio Image
+
 - **Method**: `POST`
 - **Path**: `/api/artisans/me/portfolio`
 - **Description**: Upload image to artisan portfolio
-- **Headers**: 
+- **Headers**:
   - `Authorization: Bearer {access_token}`
   - `Content-Type: multipart/form-data`
 - **Request Body**: Form data with `image` file field
 - **Success Response** (201 Created):
+
 ```json
 {
   "id": "uuid",
@@ -244,12 +275,14 @@
   "created_at": "2025-10-12T10:00:00Z"
 }
 ```
+
 - **Error Responses**:
   - `400 Bad Request`: Invalid image format or size
   - `401 Unauthorized`: Invalid or expired token
   - `403 Forbidden`: User is not an artisan
 
 #### Delete Portfolio Image
+
 - **Method**: `DELETE`
 - **Path**: `/api/artisans/me/portfolio/{imageId}`
 - **Description**: Delete image from artisan portfolio
@@ -264,17 +297,21 @@
 ### 2.4 Generated Images
 
 #### Generate Image
+
 - **Method**: `POST`
 - **Path**: `/api/images/generate`
 - **Description**: Generate furniture image using AI based on text prompt
 - **Headers**: `Authorization: Bearer {access_token}`
 - **Request Body**:
+
 ```json
 {
   "prompt": "A modern oak dining table with metal legs"
 }
 ```
+
 - **Success Response** (201 Created):
+
 ```json
 {
   "id": "uuid",
@@ -285,6 +322,7 @@
   "remaining_generations": 9
 }
 ```
+
 - **Error Responses**:
   - `400 Bad Request`: Invalid or empty prompt
   - `401 Unauthorized`: Invalid or expired token
@@ -292,6 +330,7 @@
   - `503 Service Unavailable`: AI service temporarily unavailable
 
 #### List My Generated Images
+
 - **Method**: `GET`
 - **Path**: `/api/images/generated`
 - **Description**: Get list of user's generated images
@@ -301,6 +340,7 @@
   - `limit` (optional, default: 20, max: 100): Items per page
   - `unused_only` (optional, default: false): Filter to show only images not used in projects
 - **Success Response** (200 OK):
+
 ```json
 {
   "data": [
@@ -322,16 +362,19 @@
   "remaining_generations": 9
 }
 ```
+
 - **Error Responses**:
   - `401 Unauthorized`: Invalid or expired token
   - `403 Forbidden`: User is not a client
 
 #### Get Generated Image
+
 - **Method**: `GET`
 - **Path**: `/api/images/generated/{imageId}`
 - **Description**: Get specific generated image details
 - **Headers**: `Authorization: Bearer {access_token}`
 - **Success Response** (200 OK):
+
 ```json
 {
   "id": "uuid",
@@ -342,12 +385,14 @@
   "is_used": false
 }
 ```
+
 - **Error Responses**:
   - `401 Unauthorized`: Invalid or expired token
   - `403 Forbidden`: User doesn't own the image
   - `404 Not Found`: Image not found
 
 #### Delete Generated Image
+
 - **Method**: `DELETE`
 - **Path**: `/api/images/generated/{imageId}`
 - **Description**: Delete generated image (only if not used in project)
@@ -362,11 +407,13 @@
 ### 2.5 Projects
 
 #### Create Project
+
 - **Method**: `POST`
 - **Path**: `/api/projects`
 - **Description**: Create new project listing based on generated image
 - **Headers**: `Authorization: Bearer {access_token}`
 - **Request Body**:
+
 ```json
 {
   "generated_image_id": "uuid",
@@ -376,7 +423,9 @@
   "budget_range": "2000-3000 PLN"
 }
 ```
+
 - **Success Response** (201 Created):
+
 ```json
 {
   "id": "uuid",
@@ -393,6 +442,7 @@
   "updated_at": "2025-10-12T10:00:00Z"
 }
 ```
+
 - **Error Responses**:
   - `400 Bad Request`: Missing required fields or invalid IDs
   - `401 Unauthorized`: Invalid or expired token
@@ -401,6 +451,7 @@
   - `409 Conflict`: Image already used in another project
 
 #### List Projects (Marketplace)
+
 - **Method**: `GET`
 - **Path**: `/api/projects`
 - **Description**: List open projects (marketplace view for artisans)
@@ -412,6 +463,7 @@
   - `page` (optional, default: 1): Page number
   - `limit` (optional, default: 20, max: 100): Items per page
 - **Success Response** (200 OK):
+
 ```json
 {
   "data": [
@@ -444,16 +496,19 @@
   }
 }
 ```
+
 - **Error Responses**:
   - `401 Unauthorized`: Invalid or expired token (if authentication required)
   - `403 Forbidden`: User is not an artisan (for non-open projects)
 
 #### Get Project Details
+
 - **Method**: `GET`
 - **Path**: `/api/projects/{projectId}`
 - **Description**: Get detailed project information
 - **Headers**: `Authorization: Bearer {access_token}`
 - **Success Response** (200 OK):
+
 ```json
 {
   "id": "uuid",
@@ -481,12 +536,14 @@
   "updated_at": "2025-10-12T10:00:00Z"
 }
 ```
+
 - **Error Responses**:
   - `401 Unauthorized`: Invalid or expired token
   - `403 Forbidden`: User doesn't have access to this project
   - `404 Not Found`: Project not found
 
 #### List My Projects
+
 - **Method**: `GET`
 - **Path**: `/api/projects/me`
 - **Description**: List current user's projects
@@ -501,17 +558,21 @@
   - `403 Forbidden`: User is not a client
 
 #### Update Project Status
+
 - **Method**: `PATCH`
 - **Path**: `/api/projects/{projectId}/status`
 - **Description**: Update project status (client only)
 - **Headers**: `Authorization: Bearer {access_token}`
 - **Request Body**:
+
 ```json
 {
   "status": "completed"
 }
 ```
+
 - **Success Response** (200 OK):
+
 ```json
 {
   "id": "uuid",
@@ -519,6 +580,7 @@
   "updated_at": "2025-10-12T10:00:00Z"
 }
 ```
+
 - **Error Responses**:
   - `400 Bad Request`: Invalid status transition
   - `401 Unauthorized`: Invalid or expired token
@@ -526,26 +588,31 @@
   - `404 Not Found`: Project not found
 
 #### Accept Proposal
+
 - **Method**: `POST`
 - **Path**: `/api/projects/{projectId}/accept-proposal`
 - **Description**: Accept an artisan's proposal and change project status to in_progress
 - **Headers**: `Authorization: Bearer {access_token}`
 - **Request Body**:
+
 ```json
 {
   "proposal_id": "uuid"
 }
 ```
+
 - **Success Response** (200 OK):
+
 ```json
 {
   "id": "uuid",
   "status": "in_progress",
   "accepted_proposal_id": "uuid",
-  "accepted_price": 2500.00,
+  "accepted_price": 2500.0,
   "updated_at": "2025-10-12T10:00:00Z"
 }
 ```
+
 - **Error Responses**:
   - `400 Bad Request`: Invalid proposal or project not in open status
   - `401 Unauthorized`: Invalid or expired token
@@ -555,26 +622,29 @@
 ### 2.6 Proposals
 
 #### Create Proposal
+
 - **Method**: `POST`
 - **Path**: `/api/projects/{projectId}/proposals`
 - **Description**: Submit proposal for a project
-- **Headers**: 
+- **Headers**:
   - `Authorization: Bearer {access_token}`
   - `Content-Type: multipart/form-data`
 - **Request Body**: Form data with:
   - `price` (number): Proposed price in PLN
   - `attachment` (file): PDF or image file with specifications
 - **Success Response** (201 Created):
+
 ```json
 {
   "id": "uuid",
   "project_id": "uuid",
   "artisan_id": "uuid",
-  "price": 2500.00,
+  "price": 2500.0,
   "attachment_url": "https://storage.supabase.co/...",
   "created_at": "2025-10-12T10:00:00Z"
 }
 ```
+
 - **Error Responses**:
   - `400 Bad Request`: Missing or invalid fields, invalid file format
   - `401 Unauthorized`: Invalid or expired token
@@ -583,11 +653,13 @@
   - `409 Conflict`: Artisan already submitted proposal for this project
 
 #### List Project Proposals
+
 - **Method**: `GET`
 - **Path**: `/api/projects/{projectId}/proposals`
 - **Description**: Get all proposals for a project (client owner only)
 - **Headers**: `Authorization: Bearer {access_token}`
 - **Success Response** (200 OK):
+
 ```json
 {
   "data": [
@@ -600,7 +672,7 @@
         "average_rating": 4.5,
         "total_reviews": 12
       },
-      "price": 2500.00,
+      "price": 2500.0,
       "attachment_url": "https://storage.supabase.co/...",
       "created_at": "2025-10-12T10:00:00Z"
     }
@@ -608,12 +680,14 @@
   "total": 3
 }
 ```
+
 - **Error Responses**:
   - `401 Unauthorized`: Invalid or expired token
   - `403 Forbidden`: User doesn't own the project
   - `404 Not Found`: Project not found
 
 #### Get My Proposals
+
 - **Method**: `GET`
 - **Path**: `/api/proposals/me`
 - **Description**: Get all proposals submitted by current artisan
@@ -623,6 +697,7 @@
   - `page` (optional, default: 1): Page number
   - `limit` (optional, default: 20, max: 100): Items per page
 - **Success Response** (200 OK):
+
 ```json
 {
   "data": [
@@ -639,7 +714,7 @@
           "image_url": "https://storage.supabase.co/..."
         }
       },
-      "price": 2500.00,
+      "price": 2500.0,
       "attachment_url": "https://storage.supabase.co/...",
       "created_at": "2025-10-12T10:00:00Z",
       "is_accepted": false
@@ -653,6 +728,7 @@
   }
 }
 ```
+
 - **Error Responses**:
   - `401 Unauthorized`: Invalid or expired token
   - `403 Forbidden`: User is not an artisan
@@ -660,18 +736,22 @@
 ### 2.7 Reviews
 
 #### Create Review
+
 - **Method**: `POST`
 - **Path**: `/api/projects/{projectId}/reviews`
 - **Description**: Submit review for completed project
 - **Headers**: `Authorization: Bearer {access_token}`
 - **Request Body**:
+
 ```json
 {
   "rating": 5,
   "comment": "Excellent craftsmanship and communication"
 }
 ```
+
 - **Success Response** (201 Created):
+
 ```json
 {
   "id": "uuid",
@@ -683,6 +763,7 @@
   "created_at": "2025-10-12T10:00:00Z"
 }
 ```
+
 - **Error Responses**:
   - `400 Bad Request`: Invalid rating (must be 1-5) or project not completed
   - `401 Unauthorized`: Invalid or expired token
@@ -691,6 +772,7 @@
   - `409 Conflict`: User already submitted review for this project
 
 #### Get Artisan Reviews
+
 - **Method**: `GET`
 - **Path**: `/api/artisans/{artisanId}/reviews`
 - **Description**: Get all reviews for an artisan
@@ -698,6 +780,7 @@
   - `page` (optional, default: 1): Page number
   - `limit` (optional, default: 20, max: 100): Items per page
 - **Success Response** (200 OK):
+
 ```json
 {
   "data": [
@@ -737,16 +820,19 @@
   }
 }
 ```
+
 - **Error Responses**:
   - `404 Not Found`: Artisan not found
 
 ### 2.8 Dictionary Resources
 
 #### List Categories
+
 - **Method**: `GET`
 - **Path**: `/api/categories`
 - **Description**: Get all furniture categories
 - **Success Response** (200 OK):
+
 ```json
 {
   "data": [
@@ -763,10 +849,12 @@
 ```
 
 #### List Materials
+
 - **Method**: `GET`
 - **Path**: `/api/materials`
 - **Description**: Get all available materials
 - **Success Response** (200 OK):
+
 ```json
 {
   "data": [
@@ -783,10 +871,12 @@
 ```
 
 #### List Specializations
+
 - **Method**: `GET`
 - **Path**: `/api/specializations`
 - **Description**: Get all artisan specializations
 - **Success Response** (200 OK):
+
 ```json
 {
   "data": [
@@ -805,6 +895,7 @@
 ## 3. Authentication and Authorization
 
 ### Authentication Mechanism
+
 - **Provider**: Supabase Auth
 - **Method**: JWT (JSON Web Token) based authentication
 - **Token Storage**: Client-side (localStorage or httpOnly cookies recommended)
@@ -831,7 +922,7 @@
 4. **Authorization Levels**:
    - **Public**: Dictionary endpoints (categories, materials, specializations), public artisan profiles
    - **Authenticated**: All other endpoints require valid JWT token
-   - **Role-based**: 
+   - **Role-based**:
      - Client-only: Image generation, project creation, proposal acceptance
      - Artisan-only: Artisan profile management, proposal submission
      - Owner-only: Updating own resources, accessing private data
@@ -843,41 +934,45 @@
 
 ### Authorization Matrix
 
-| Endpoint | Public | Client | Artisan | Notes |
-|----------|--------|--------|---------|-------|
-| POST /api/auth/register | ✓ | ✓ | ✓ | |
-| POST /api/auth/login | ✓ | ✓ | ✓ | |
-| GET /api/categories | ✓ | ✓ | ✓ | |
-| GET /api/materials | ✓ | ✓ | ✓ | |
-| GET /api/specializations | ✓ | ✓ | ✓ | |
-| GET /api/artisans/{id} | ✓ | ✓ | ✓ | Only if is_public=true |
-| POST /api/images/generate | ✗ | ✓ | ✗ | |
-| POST /api/projects | ✗ | ✓ | ✗ | |
-| GET /api/projects | ✗ | ✗ | ✓ | Open projects only |
-| POST /api/projects/{id}/proposals | ✗ | ✗ | ✓ | |
-| PUT /api/artisans/me | ✗ | ✗ | ✓ | |
-| POST /api/artisans/me/portfolio | ✗ | ✗ | ✓ | |
+| Endpoint                          | Public | Client | Artisan | Notes                  |
+| --------------------------------- | ------ | ------ | ------- | ---------------------- |
+| POST /api/auth/register           | ✓      | ✓      | ✓       |                        |
+| POST /api/auth/login              | ✓      | ✓      | ✓       |                        |
+| GET /api/categories               | ✓      | ✓      | ✓       |                        |
+| GET /api/materials                | ✓      | ✓      | ✓       |                        |
+| GET /api/specializations          | ✓      | ✓      | ✓       |                        |
+| GET /api/artisans/{id}            | ✓      | ✓      | ✓       | Only if is_public=true |
+| POST /api/images/generate         | ✗      | ✓      | ✗       |                        |
+| POST /api/projects                | ✗      | ✓      | ✗       |                        |
+| GET /api/projects                 | ✗      | ✗      | ✓       | Open projects only     |
+| POST /api/projects/{id}/proposals | ✗      | ✗      | ✓       |                        |
+| PUT /api/artisans/me              | ✗      | ✗      | ✓       |                        |
+| POST /api/artisans/me/portfolio   | ✗      | ✗      | ✓       |                        |
 
 ## 4. Validation and Business Logic
 
 ### 4.1 Validation Rules
 
 #### User Registration
+
 - **email**: Valid email format, unique
 - **password**: Minimum 8 characters, must contain uppercase, lowercase, and number
 - **role**: Must be one of: 'client', 'artisan'
 
 #### Artisan Profile
+
 - **company_name**: Required, max 255 characters
 - **nip**: Required, exactly 10 digits, unique
 - **portfolio_images**: Minimum 5 images required before profile can be public
 - **specializations**: At least 1 specialization required before profile can be public
 
 #### Generated Images
+
 - **prompt**: Required, min 10 characters, max 500 characters
 - **generation_limit**: Maximum 10 generations per client account
 
 #### Projects
+
 - **generated_image_id**: Required, must exist, must not be used in another project, must belong to user
 - **category_id**: Required, must exist in categories table
 - **material_id**: Required, must exist in materials table
@@ -885,11 +980,13 @@
 - **budget_range**: Optional, max 50 characters
 
 #### Proposals
+
 - **price**: Required, positive decimal number, max 2 decimal places
 - **attachment**: Required, allowed formats: PDF, JPG, PNG, max size: 10MB
 - **uniqueness**: One proposal per artisan per project
 
 #### Reviews
+
 - **rating**: Required, integer between 1 and 5 (inclusive)
 - **comment**: Optional, max 1000 characters
 - **uniqueness**: One review per user per project
@@ -897,6 +994,7 @@
 ### 4.2 Business Logic Implementation
 
 #### AI Image Generation
+
 ```
 1. Check if user is authenticated and has role 'client'
 2. Count existing generated_images for user
@@ -909,6 +1007,7 @@
 ```
 
 #### Artisan Profile Publication
+
 ```
 1. Check if artisan profile exists
 2. Validate required fields:
@@ -923,6 +1022,7 @@
 ```
 
 #### Project Creation
+
 ```
 1. Check if user is authenticated and has role 'client'
 2. Validate generated_image_id exists and belongs to user
@@ -934,6 +1034,7 @@
 ```
 
 #### Proposal Submission
+
 ```
 1. Check if user is authenticated and has role 'artisan'
 2. Verify artisan profile is_public = true
@@ -948,6 +1049,7 @@
 ```
 
 #### Proposal Acceptance
+
 ```
 1. Check if user is authenticated and owns the project
 2. Validate project status = 'open'
@@ -963,6 +1065,7 @@
 ```
 
 #### Project Completion
+
 ```
 1. Check if user is authenticated
 2. Validate user is either project owner or accepted artisan
@@ -974,6 +1077,7 @@
 ```
 
 #### Review Submission
+
 ```
 1. Check if user is authenticated
 2. Validate project exists and status = 'completed'
@@ -1006,6 +1110,7 @@ All API errors follow this format:
 ```
 
 **Common Error Codes**:
+
 - `VALIDATION_ERROR`: Request validation failed
 - `UNAUTHORIZED`: Authentication required or failed
 - `FORBIDDEN`: User doesn't have permission
@@ -1025,15 +1130,18 @@ All API errors follow this format:
 ### 4.5 File Upload Specifications
 
 **Supported Formats**:
+
 - **Portfolio Images**: JPEG, PNG
 - **Proposal Attachments**: PDF, JPEG, PNG
 - **AI Generated Images**: PNG (generated by AI service)
 
 **Size Limits**:
+
 - **Portfolio Images**: 5MB per file
 - **Proposal Attachments**: 10MB per file
 
 **Storage**:
+
 - All files stored in Supabase Storage
 - Organized in buckets:
   - `portfolio-images/{artisan_id}/`
@@ -1044,11 +1152,14 @@ All API errors follow this format:
 ## 5. Additional Considerations
 
 ### 5.1 Pagination
+
 All list endpoints support pagination with standard parameters:
+
 - `page`: Page number (1-indexed)
 - `limit`: Items per page (default: 20, max: 100)
 
 Response includes pagination metadata:
+
 ```json
 {
   "data": [...],
@@ -1062,23 +1173,28 @@ Response includes pagination metadata:
 ```
 
 ### 5.2 Filtering and Sorting
+
 - **Projects**: Filter by status, category_id, material_id
 - **Proposals**: Filter by project status
 - **Reviews**: No filtering required for MVP
 - **Sorting**: Default by `created_at DESC`, can be extended in future
 
 ### 5.3 Notifications
+
 While not part of REST API, the following events should trigger notifications:
+
 - New proposal submitted → notify project owner
 - Proposal accepted → notify artisan
 - Project status changed → notify both parties
 - Review submitted → notify reviewee
 
 Notification implementation can use:
+
 - Email (Supabase Auth integration)
 - WebSocket/Server-Sent Events for real-time updates (future enhancement)
 
 ### 5.4 Performance Optimization
+
 - Use database indexes on foreign keys and frequently filtered columns
 - Implement caching for dictionary resources (categories, materials, specializations)
 - Paginate all list endpoints
@@ -1086,6 +1202,7 @@ Notification implementation can use:
 - Optimize image storage with CDN (Supabase Storage includes CDN)
 
 ### 5.5 Future API Extensions (Post-MVP)
+
 - Payment integration endpoints
 - Advanced search and recommendations
 - Analytics endpoints for users

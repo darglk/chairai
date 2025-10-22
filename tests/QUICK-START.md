@@ -25,21 +25,25 @@ npm run test:coverage
 ## Przykłady
 
 ### Uruchom tylko testy jednostkowe
+
 ```bash
 npm test -- tests/unit
 ```
 
 ### Uruchom tylko testy integracyjne
+
 ```bash
 npm test -- tests/integration
 ```
 
 ### Uruchom konkretny plik testowy
+
 ```bash
 npm test -- tests/unit/lib/utils.test.ts
 ```
 
 ### Uruchom testy z nazwą zawierającą "Login"
+
 ```bash
 npm test -- -t "Login"
 ```

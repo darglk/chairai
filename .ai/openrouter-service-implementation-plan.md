@@ -17,8 +17,8 @@ Konstruktor klasy `OpenRouterService` będzie odpowiedzialny za inicjalizację u
 ```typescript
 // src/lib/services/openrouter.service.ts
 
-import { z } from 'zod';
-import { imagePromptSchema } from '@/lib/schemas'; // Schemat do zdefiniowania
+import { z } from "zod";
+import { imagePromptSchema } from "@/lib/schemas"; // Schemat do zdefiniowania
 
 type OpenRouterServiceConfig = {
   apiKey: string;
@@ -31,10 +31,10 @@ export class OpenRouterService {
 
   constructor(config: OpenRouterServiceConfig) {
     if (!config.apiKey) {
-      throw new Error('OpenRouter API key is required.');
+      throw new Error("OpenRouter API key is required.");
     }
     this.apiKey = config.apiKey;
-    this.baseUrl = config.baseUrl || 'https://openrouter.ai/api/v1';
+    this.baseUrl = config.baseUrl || "https://openrouter.ai/api/v1";
   }
 
   // ... metody
@@ -91,11 +91,11 @@ Metoda budująca kompletny obiekt `payload` dla zapytania do API.
 - **`userContent`**: Tekst od użytkownika.
 - **Logika**:
   1. **Komunikat systemowy**: Definiuje rolę i zadanie dla LLM.
-     - *Przykład*: `"You are an expert in interior design and creative writing, specializing in crafting detailed prompts for AI image generation models. Your task is to take a user's simple description of a piece of furniture and expand it into a rich, detailed prompt that will produce a photorealistic and aesthetically pleasing image. You must also provide a negative prompt to exclude common visual artifacts."`
+     - _Przykład_: `"You are an expert in interior design and creative writing, specializing in crafting detailed prompts for AI image generation models. Your task is to take a user's simple description of a piece of furniture and expand it into a rich, detailed prompt that will produce a photorealistic and aesthetically pleasing image. You must also provide a negative prompt to exclude common visual artifacts."`
   2. **Komunikat użytkownika**: Przekazuje treść od użytkownika.
-     - *Przykład*: `userContent`
+     - _Przykład_: `userContent`
   3. **`response_format` (schemat JSON)**: Wymusza strukturę odpowiedzi.
-     - *Przykład*:
+     - _Przykład_:
        ```json
        {
          "type": "json_schema",
@@ -120,9 +120,9 @@ Metoda budująca kompletny obiekt `payload` dla zapytania do API.
        }
        ```
   4. **Nazwa modelu**: Określa model do użycia.
-     - *Przykład*: `"anthropic/claude-3.5-sonnet"` (dobry balans między jakością a kosztem).
+     - _Przykład_: `"anthropic/claude-3.5-sonnet"` (dobry balans między jakością a kosztem).
   5. **Parametry modelu**: Dostraja zachowanie modelu.
-     - *Przykład*: `temperature: 0.7`, `max_tokens: 512`.
+     - _Przykład_: `temperature: 0.7`, `max_tokens: 512`.
   6. Zwraca złożony obiekt `payload`.
 
 ## 5. Obsługa błędów
@@ -161,7 +161,7 @@ Usługa musi implementować solidną obsługę błędów, aby zapewnić stabilno
 
     ```typescript
     // src/lib/schemas.ts
-    import { z } from 'zod';
+    import { z } from "zod";
 
     export const imagePromptSchema = z.object({
       positivePrompt: z.string().min(1, "Positive prompt cannot be empty."),
@@ -186,9 +186,9 @@ Usługa musi implementować solidną obsługę błędów, aby zapewnić stabilno
 
     ```typescript
     // src/pages/api/images/generate.ts
-    import type { APIRoute } from 'astro';
-    import { OpenRouterService } from '@/lib/services/openrouter.service';
-    import { z } from 'zod';
+    import type { APIRoute } from "astro";
+    import { OpenRouterService } from "@/lib/services/openrouter.service";
+    import { z } from "zod";
 
     export const prerender = false;
 
@@ -202,7 +202,7 @@ Usługa musi implementować solidną obsługę błędów, aby zapewnić stabilno
         const validation = requestBodySchema.safeParse(body);
 
         if (!validation.success) {
-          return new Response(JSON.stringify({ error: 'Invalid input.' }), { status: 400 });
+          return new Response(JSON.stringify({ error: "Invalid input." }), { status: 400 });
         }
 
         const { prompt } = validation.data;
@@ -215,13 +215,12 @@ Usługa musi implementować solidną obsługę błędów, aby zapewnić stabilno
 
         return new Response(JSON.stringify(imagePrompt), {
           status: 200,
-          headers: { 'Content-Type': 'application/json' },
+          headers: { "Content-Type": "application/json" },
         });
-
       } catch (error) {
-        console.error('Error in generate endpoint:', error);
+        console.error("Error in generate endpoint:", error);
         // TODO: Dodać bardziej szczegółową obsługę błędów
-        return new Response(JSON.stringify({ error: 'Failed to generate image prompt.' }), { status: 500 });
+        return new Response(JSON.stringify({ error: "Failed to generate image prompt." }), { status: 500 });
       }
     };
     ```

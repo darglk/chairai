@@ -1,9 +1,11 @@
 # Plan implementacji widoku: Edycja Profilu Rzemieślnika
 
 ## 1. Przegląd
+
 Widok "Edycja Profilu Rzemieślnika" to kluczowy element platformy, umożliwiający rzemieślnikom tworzenie i zarządzanie ich publicznym profilem. Celem jest zapewnienie intuicyjnego, wieloetapowego formularza, który prowadzi użytkownika przez proces uzupełniania danych firmowych, wyboru specjalizacji oraz budowania portfolio. Widok ten jest niezbędny do aktywacji profilu rzemieślnika na platformie i budowania zaufania potencjalnych klientów.
 
 ## 2. Routing widoku
+
 Widok powinien być dostępny pod chronioną ścieżką, dostępną tylko dla zalogowanych użytkowników z rolą "Rzemieślnik".
 
 - **Ścieżka:** `/profile/edit`
@@ -12,6 +14,7 @@ Widok powinien być dostępny pod chronioną ścieżką, dostępną tylko dla za
 Strona ta będzie renderować główny komponent React odpowiedzialny za logikę formularza.
 
 ## 3. Struktura komponentów
+
 Hierarchia komponentów została zaprojektowana w celu modularności i reużywalności.
 
 ```
@@ -35,6 +38,7 @@ Hierarchia komponentów została zaprojektowana w celu modularności i reużywal
 ## 4. Szczegóły komponentów
 
 ### `ArtisanProfileEditView`
+
 - **Opis komponentu:** Główny kontener zarządzający stanem całego wieloetapowego formularza. Odpowiada za nawigację między krokami, agregację danych i komunikację z API.
 - **Główne elementy:** Komponent `StepperNavigation` do wizualizacji postępu, oraz dynamicznie renderowany komponent dla aktywnego kroku (`CompanyDataForm`, `SpecializationsForm`, `PortfolioManager`).
 - **Obsługiwane interakcje:** Przechodzenie do następnego/poprzedniego kroku.
@@ -42,6 +46,7 @@ Hierarchia komponentów została zaprojektowana w celu modularności i reużywal
 - **Propsy:** Brak (pobiera dane z API przy montowaniu).
 
 ### `CompanyDataForm` (Krok 1)
+
 - **Opis komponentu:** Formularz do wprowadzania podstawowych danych firmy.
 - **Główne elementy:** Dwa pola `Input` dla nazwy firmy i numeru NIP, przyciski nawigacyjne.
 - **Obsługiwane interakcje:** Wprowadzanie tekstu, walidacja `onBlur`, przesyłanie danych kroku.
@@ -55,6 +60,7 @@ Hierarchia komponentów została zaprojektowana w celu modularności i reużywal
   - `isSubmitting: boolean`
 
 ### `SpecializationsForm` (Krok 2)
+
 - **Opis komponentu:** Formularz do wyboru specjalizacji z predefiniowanej listy.
 - **Główne elementy:** Komponent `MultiSelect` pozwalający na wybór wielu opcji, przyciski nawigacyjne.
 - **Obsługiwane interakcje:** Wybór/usunięcie specjalizacji z listy.
@@ -68,6 +74,7 @@ Hierarchia komponentów została zaprojektowana w celu modularności i reużywal
   - `isSubmitting: boolean`
 
 ### `PortfolioManager` (Krok 3)
+
 - **Opis komponentu:** Zarządzanie portfolio – przesyłanie nowych zdjęć i usuwanie istniejących.
 - **Główne elementy:** Komponent `FileUploader` z funkcją "przeciągnij i upuść", siatka (`ImageGrid`) z miniaturami wgranych zdjęć (`ImageCard`).
 - **Obsługiwane interakcje:** Wybór plików z dysku, przeciąganie plików, usuwanie pojedynczego zdjęcia.
@@ -87,7 +94,9 @@ Hierarchia komponentów została zaprojektowana w celu modularności i reużywal
 ## 5. Typy
 
 ### `ArtisanProfileViewModel`
+
 Agreguje dane ze wszystkich kroków formularza, stanowiąc frontendowy model całego profilu.
+
 ```typescript
 interface ArtisanProfileViewModel {
   company_name: string;
@@ -99,7 +108,9 @@ interface ArtisanProfileViewModel {
 ```
 
 ### `CompanyDataViewModel`
+
 Model widoku dla pierwszego kroku formularza.
+
 ```typescript
 interface CompanyDataViewModel {
   company_name: string;
@@ -108,9 +119,11 @@ interface CompanyDataViewModel {
 ```
 
 ## 6. Zarządzanie stanem
+
 Zalecane jest stworzenie customowego hooka `useArtisanProfileForm`, który będzie zarządzał stanem całego procesu.
 
 ### `useArtisanProfileForm`
+
 - **Cel:** Hermetyzacja logiki formularza wieloetapowego.
 - **Zarządzany stan:**
   - `currentStep: number`: Aktualnie wyświetlany krok (np. 1, 2, 3).
@@ -127,6 +140,7 @@ Zalecane jest stworzenie customowego hooka `useArtisanProfileForm`, który będz
   - `goToNextStep()`, `goToPrevStep()`: Funkcje nawigacyjne.
 
 ## 7. Integracja API
+
 Komponent `ArtisanProfileEditView` (poprzez hook `useArtisanProfileForm`) będzie komunikował się z następującymi endpointami:
 
 1.  **Pobranie danych profilu:**
@@ -154,6 +168,7 @@ Komponent `ArtisanProfileEditView` (poprzez hook `useArtisanProfileForm`) będzi
     - **Akcja:** Wywoływane w `handlePortfolioDelete`.
 
 ## 8. Interakcje użytkownika
+
 - **Wypełnianie pól:** Użytkownik wpisuje dane, które są walidowane na bieżąco lub przy utracie fokusu.
 - **Nawigacja:** Użytkownik klika "Dalej" / "Wstecz", co zmienia `currentStep` i renderuje odpowiedni komponent kroku. Przycisk "Dalej" jest nieaktywny, dopóki dane w kroku nie są poprawne.
 - **Wybór specjalizacji:** Użytkownik klika na opcje w `MultiSelect`, co aktualizuje listę `specialization_ids`.
@@ -162,6 +177,7 @@ Komponent `ArtisanProfileEditView` (poprzez hook `useArtisanProfileForm`) będzi
 - **Zakończenie:** Użytkownik klika "Zakończ" w ostatnim kroku, co uruchamia finalną wysyłkę danych.
 
 ## 9. Warunki i walidacja
+
 - **Nazwa firmy:** Pole wymagane, co najmniej 2 znaki. Komponent `CompanyDataForm`. Stan przycisku "Dalej" zależy od tej walidacji.
 - **NIP:** Pole wymagane, dokładnie 10 cyfr. Komponent `CompanyDataForm`. Stan przycisku "Dalej" zależy od tej walidacji.
 - **Specjalizacje:** Wymagany wybór co najmniej jednej. Komponent `SpecializationsForm`. Stan przycisku "Dalej" zależy od tej walidacji.
@@ -169,6 +185,7 @@ Komponent `ArtisanProfileEditView` (poprzez hook `useArtisanProfileForm`) będzi
 - **Typ i rozmiar pliku:** Walidacja po stronie klienta przed wysłaniem na serwer. Komponent `FileUploader`.
 
 ## 10. Obsługa błędów
+
 - **Błędy walidacji formularza:** Komunikaty o błędach wyświetlane są pod odpowiednimi polami (np. "NIP musi mieć 10 cyfr").
 - **Błędy API (4xx, 5xx):**
   - Błędy przechwytywane są w bloku `catch` wywołań API.
@@ -178,6 +195,7 @@ Komponent `ArtisanProfileEditView` (poprzez hook `useArtisanProfileForm`) będzi
 - **Stan ładowania/wysyłania:** Przyciski akcji są dezaktywowane, a na ekranie może pojawić się wskaźnik ładowania (spinner), aby zapobiec wielokrotnemu przesyłaniu.
 
 ## 11. Kroki implementacji
+
 1.  **Stworzenie pliku strony:** Utwórz plik `src/pages/profile/edit.astro` i osadź w nim główny komponent React `ArtisanProfileEditView`. Zabezpiecz trasę middlewarem sprawdzającym rolę użytkownika.
 2.  **Implementacja `useArtisanProfileForm`:** Stwórz hook do zarządzania stanem, nawigacją i logiką formularza. Na początku może zawierać atrapy danych.
 3.  **Implementacja `ArtisanProfileEditView`:** Zbuduj główny kontener, który używa hooka `useArtisanProfileForm` i renderuje komponenty kroków warunkowo na podstawie `currentStep`.

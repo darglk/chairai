@@ -86,6 +86,7 @@
 ## Cechy implementacji
 
 ### Dostępność (ARIA)
+
 - ✅ Właściwe użycie `aria-invalid` dla pól z błędami
 - ✅ Powiązanie komunikatów błędów z polami przez `aria-describedby`
 - ✅ Role ARIA dla komunikatów (`role="alert"`, `role="status"`)
@@ -93,6 +94,7 @@
 - ✅ Focus-visible states dla elementów interaktywnych
 
 ### Stylowanie (Tailwind 4)
+
 - ✅ Responsive design
 - ✅ Dark mode ready (warianty dark:)
 - ✅ Focus states (focus-visible:)
@@ -101,6 +103,7 @@
 - ✅ Error states (aria-invalid)
 
 ### UX
+
 - ✅ Loading states (blokowanie przycisków i pól)
 - ✅ Walidacja po stronie klienta przed wysłaniem
 - ✅ Komunikaty błędów pod odpowiednimi polami
@@ -108,6 +111,7 @@
 - ✅ Odpowiednie typy input (email, password)
 
 ### Bezpieczeństwo
+
 - ✅ Brak eksponowania informacji o istnieniu konta (password recovery)
 - ✅ Minimalna długość hasła (8 znaków)
 - ✅ Walidacja formatu e-mail
@@ -127,6 +131,7 @@
 ## Testowanie
 
 Projekt kompiluje się bez błędów:
+
 ```bash
 npm run build  # ✅ Success
 ```

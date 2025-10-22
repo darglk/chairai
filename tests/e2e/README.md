@@ -10,21 +10,25 @@ Ten katalog zawiera testy End-to-End (E2E) dla aplikacji ChairAI, napisane przy 
 ## Uruchamianie testów
 
 ### Wszystkie testy
+
 ```bash
 npm run test:e2e
 ```
 
 ### Testy w trybie UI (interaktywny)
+
 ```bash
 npm run test:e2e:ui
 ```
 
 ### Testy w trybie debug
+
 ```bash
 npm run test:e2e:debug
 ```
 
 ### Konkretny plik testowy
+
 ```bash
 npx playwright test TC-US-001-register-client.spec.ts
 ```
@@ -32,15 +36,18 @@ npx playwright test TC-US-001-register-client.spec.ts
 ## Konwencje nazewnictwa
 
 Pliki testowe powinny być nazwane według wzorca:
+
 - `TC-US-XXX-<nazwa-testu>.spec.ts`
 
 gdzie:
+
 - `TC-US-XXX` - ID scenariusza testowego z test-plan.md
 - `<nazwa-testu>` - krótki opis w formacie kebab-case
 
 ## Organizacja testów
 
 Każdy plik testowy powinien:
+
 1. Zawierać `test.describe()` z ID scenariusza testowego
 2. Mieć `beforeEach` hook do przygotowania stanu
 3. Zawierać co najmniej jeden test "happy path"
@@ -50,6 +57,7 @@ Każdy plik testowy powinien:
 ## Helpery
 
 Plik `helpers.ts` zawiera:
+
 - Funkcje pomocnicze do wypełniania formularzy
 - Funkcje do weryfikacji stanu aplikacji
 - Stałe z danymi testowymi
@@ -67,6 +75,7 @@ Plik `helpers.ts` zawiera:
 ## Raportowanie
 
 Po uruchomieniu testów, raport HTML jest dostępny w:
+
 ```bash
 npx playwright show-report
 ```

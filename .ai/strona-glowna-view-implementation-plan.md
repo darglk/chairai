@@ -1,13 +1,16 @@
 # Plan implementacji widoku Strona Główna
 
 ## 1. Przegląd
+
 Widok Strony Głównej (`/`) jest wizytówką aplikacji ChairAI. Jego głównym celem jest przedstawienie propozycji wartości platformy nowym użytkownikom, wyjaśnienie korzyści dla Klientów i Rzemieślników oraz zachęcenie ich do podjęcia akcji – rejestracji lub logowania. Jako strona w dużej mierze statyczna, zostanie zaimplementowana przy użyciu komponentów Astro w celu zapewnienia maksymalnej wydajności.
 
 ## 2. Routing widoku
+
 - **Ścieżka:** `/`
 - **Plik:** `src/pages/index.astro`
 
 ## 3. Struktura komponentów
+
 Widok zostanie zbudowany w oparciu o główny `Layout.astro`, który zapewni spójną strukturę z nagłówkiem i stopką na całej stronie.
 
 ```
@@ -26,6 +29,7 @@ Widok zostanie zbudowany w oparciu o główny `Layout.astro`, który zapewni sp�
 ## 4. Szczegóły komponentów
 
 ### `Header.astro`
+
 - **Opis komponentu:** Globalny nagłówek aplikacji, wyświetlany na wszystkich stronach. Zawiera logo oraz przyciski nawigacyjne.
 - **Główne elementy:**
   - Logo aplikacji (link do `/`).
@@ -37,6 +41,7 @@ Widok zostanie zbudowany w oparciu o główny `Layout.astro`, który zapewni sp�
 - **Propsy:** Brak.
 
 ### `HeroSection.astro`
+
 - **Opis komponentu:** Pierwsza, najbardziej widoczna sekcja strony. Ma za zadanie przyciągnąć uwagę użytkownika i w zwięzły sposób przedstawić główną ideę ChairAI.
 - **Główne elementy:**
   - Nagłówek `h1` z głównym hasłem (np. "Przekształć swoje pomysły w realne meble").
@@ -49,6 +54,7 @@ Widok zostanie zbudowany w oparciu o główny `Layout.astro`, który zapewni sp�
 - **Propsy:** Brak.
 
 ### `BenefitsSection.astro`
+
 - **Opis komponentu:** Sekcja prezentująca korzyści płynące z używania platformy, podzielona na dwie części: dla Klientów i dla Rzemieślników.
 - **Główne elementy:**
   - Dwa kontenery (np. w układzie `flex` lub `grid`).
@@ -59,6 +65,7 @@ Widok zostanie zbudowany w oparciu o główny `Layout.astro`, który zapewni sp�
 - **Propsy:** Brak.
 
 ### `HowItWorksSection.astro`
+
 - **Opis komponentu:** Sekcja wizualnie wyjaśniająca proces działania platformy w prostych krokach.
 - **Główne elementy:**
   - Nagłówek `h2` (np. "Jak to działa?").
@@ -72,6 +79,7 @@ Widok zostanie zbudowany w oparciu o główny `Layout.astro`, który zapewni sp�
 - **Propsy:** Brak.
 
 ### `CallToActionSection.astro`
+
 - **Opis komponentu:** Końcowa sekcja strony, której celem jest ponowne, mocne wezwanie do działania.
 - **Główne elementy:**
   - Nagłówek `h2` (np. "Gotowy, by zacząć?").
@@ -82,6 +90,7 @@ Widok zostanie zbudowany w oparciu o główny `Layout.astro`, który zapewni sp�
 - **Propsy:** Brak.
 
 ### `Footer.astro`
+
 - **Opis komponentu:** Globalna stopka aplikacji.
 - **Główne elementy:**
   - Informacja o prawach autorskich.
@@ -93,27 +102,34 @@ Widok zostanie zbudowany w oparciu o główny `Layout.astro`, który zapewni sp�
 - **Propsy:** Brak.
 
 ## 5. Typy
+
 Dla tego widoku nie są wymagane żadne nowe typy danych (DTO, ViewModel), ponieważ jest on w pełni statyczny.
 
 ## 6. Zarządzanie stanem
+
 Brak potrzeby zarządzania stanem. Widok nie zawiera interaktywnych elementów wymagających stanu po stronie klienta.
 
 ## 7. Integracja API
+
 Brak integracji z API. Strona ma charakter informacyjny i nie pobiera ani nie wysyła żadnych danych.
 
 ## 8. Interakcje użytkownika
+
 - **Kliknięcie "Zarejestruj się" / "Zacznij tworzyć":** Użytkownik jest przekierowywany na stronę `/register`.
 - **Kliknięcie "Zaloguj się":** Użytkownik jest przekierowywany na stronę `/login`.
 - **Kliknięcie logo:** Użytkownik jest przekierowywany na stronę główną (`/`).
 - **Kliknięcie linków w stopce:** Użytkownik jest przekierowywany do odpowiednich stron informacyjnych.
 
 ## 9. Warunki i walidacja
+
 Brak logiki walidacyjnej na tym widoku.
 
 ## 10. Obsługa błędów
+
 Ponieważ strona jest statyczna i nie wykonuje operacji we/wy (API, formularze), nie przewiduje się scenariuszy błędów, które wymagałyby specjalnej obsługi.
 
 ## 11. Kroki implementacji
+
 1.  **Utworzenie struktury plików:** Stworzenie nowych plików dla komponentów w katalogu `src/components/landing/` (`HeroSection.astro`, `BenefitsSection.astro`, `HowItWorksSection.astro`, `CallToActionSection.astro`) oraz `src/components/layout/` (`Header.astro`, `Footer.astro`), jeśli jeszcze nie istnieją.
 2.  **Implementacja `Header.astro` i `Footer.astro`:** Zakodowanie globalnych komponentów nagłówka i stopki z użyciem komponentów `Button` z biblioteki `shadcn/ui` dla przycisków akcji.
 3.  **Integracja w `Layout.astro`:** Umieszczenie komponentów `Header` i `Footer` w głównym layoucie, aby zapewnić ich widoczność na wszystkich stronach.
