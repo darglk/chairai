@@ -144,7 +144,12 @@ export function ProposalsList({ projectId, onProposalAccepted }: ProposalsListPr
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-semibold">{proposal.artisan_profiles.company_name}</span>
+                        <a
+                          href={`/artisan/${proposal.artisan_id}`}
+                          className="font-semibold hover:text-primary hover:underline transition-colors"
+                        >
+                          {proposal.artisan_profiles.company_name}
+                        </a>
                       </div>
                     </div>
                     <Badge variant="secondary" className="text-lg font-bold">

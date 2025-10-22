@@ -1,4 +1,4 @@
--- Migration: Create function for getting artisan reviews with pagination and summary
+-- Migration: Create function for getting artisan reviews with pagination and summary (FIX)
 -- This function returns both paginated reviews and aggregated statistics in a single call
 -- to optimize database round-trips and improve performance.
 

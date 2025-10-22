@@ -215,7 +215,6 @@ export const GET: APIRoute = async ({ params, locals }) => {
     }
 
     // Fetch proposals with artisan details
-    // Note: proposals.artisan_id -> users.id -> artisan_profiles.user_id
     const { data: proposals, error: proposalsError } = await locals.supabase
       .from("proposals")
       .select(
@@ -226,12 +225,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
         price,
         message,
         attachment_url,
-        created_at,
-        users!proposals_artisan_id_fkey (
-          artisan_profiles (
-            company_name
-          )
-        )
+        created_at
       `
       )
       .eq("project_id", projectId)
@@ -243,20 +237,59 @@ export const GET: APIRoute = async ({ params, locals }) => {
       return createErrorResponse("INTERNAL_SERVER_ERROR", "Nie udało się pobrać ofert", 500);
     }
 
-    // Transform data to match expected structure
-    // proposals.users.artisan_profiles -> proposals.artisan_profiles
-    const transformedProposals = (proposals || []).map((proposal) => ({
-      id: proposal.id,
-      project_id: proposal.project_id,
-      artisan_id: proposal.artisan_id,
-      price: proposal.price,
-      message: proposal.message,
-      attachment_url: proposal.attachment_url,
-      created_at: proposal.created_at,
-      artisan_profiles: {
-        company_name: proposal.users?.artisan_profiles?.company_name || "Nieznany rzemieślnik",
-      },
-    }));
+    // Get unique artisan IDs
+    const artisanIds = [...new Set((proposals || []).map((p) => p.artisan_id))];
+
+    // Fetch artisan profiles for all artisans in one query
+    const { data: artisanProfiles } = await locals.supabase
+      .from("artisan_profiles")
+      .select("user_id, company_name")
+      .in("user_id", artisanIds);
+
+    // Create a map for quick lookup
+    const artisanProfilesMap = new Map(
+      (artisanProfiles || []).map((profile) => [profile.user_id, profile.company_name])
+    );
+
+    // Transform data to match expected structure and generate signed URLs for attachments
+    const transformedProposals = await Promise.all(
+      (proposals || []).map(async (proposal) => {
+        let signedAttachmentUrl = proposal.attachment_url;
+
+        // Generate signed URL for attachment if it exists
+        if (proposal.attachment_url) {
+          try {
+            const filePath = proposal.attachment_url.split("/proposal-attachments/")[1];
+            if (filePath) {
+              const { data: signedData } = await locals.supabase.storage
+                .from("proposal-attachments")
+                .createSignedUrl(filePath, 3600); // 1 hour expiry
+
+              if (signedData?.signedUrl) {
+                signedAttachmentUrl = signedData.signedUrl;
+              }
+            }
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error("[API] Error generating signed URL for attachment:", error);
+            // Keep original URL as fallback
+          }
+        }
+
+        return {
+          id: proposal.id,
+          project_id: proposal.project_id,
+          artisan_id: proposal.artisan_id,
+          price: proposal.price,
+          message: proposal.message,
+          attachment_url: signedAttachmentUrl,
+          created_at: proposal.created_at,
+          artisan_profiles: {
+            company_name: artisanProfilesMap.get(proposal.artisan_id) || "Nieznany rzemieślnik",
+          },
+        };
+      })
+    );
 
     return createSuccessResponse({ data: transformedProposals });
   } catch (error) {

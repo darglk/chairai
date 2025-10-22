@@ -211,9 +211,11 @@ export class ReviewService {
       artisan_id_param: artisanId,
       page_num: normalizedPage,
       page_size: normalizedLimit,
-    })) as { data: ArtisanReviewsResponseDTO | null; error: { code?: string } | null };
+    })) as { data: ArtisanReviewsResponseDTO | null; error: { code?: string; message?: string } | null };
 
     if (error) {
+      // eslint-disable-next-line no-console
+      console.error("[ReviewService] RPC error:", error);
       // Check if error is due to artisan not found
       if (error.code === "P0001") {
         throw new ReviewError("Nie znaleziono rzemieślnika", "ARTISAN_NOT_FOUND", 404);

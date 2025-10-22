@@ -63,6 +63,8 @@ export const GET: APIRoute = async ({ params, url, locals }) => {
   } catch (error) {
     // Handle known business logic errors
     if (error instanceof ReviewError) {
+      // eslint-disable-next-line no-console
+      console.error("[API] ReviewError in GET /api/artisans/{artisanId}/reviews:", error.message, error.code);
       return createErrorResponse(error.code, error.message, error.statusCode);
     }
 

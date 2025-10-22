@@ -42,37 +42,35 @@ export function ClientStatsGrid() {
       try {
         setIsLoading(true);
 
-        // Fetch generated images
-        const imagesResponse = await fetch("/api/images/generated");
+        // Fetch generated images and projects in parallel
+        const [imagesResponse, projectsResponse] = await Promise.all([
+          fetch("/api/images/generated"),
+          fetch("/api/projects/me?limit=100"),
+        ]);
 
-        console.log("[ClientStatsGrid] Response status:", imagesResponse.status);
-
+        // Process images data
         if (imagesResponse.ok) {
           const imagesData: GeneratedImagesListResponseDTO = await imagesResponse.json();
-          console.log("[ClientStatsGrid] Images data:", imagesData);
-          console.log("[ClientStatsGrid] Images count:", imagesData.data.length);
-
           setStats((prev) => ({
             ...prev,
             generatedImages: imagesData.data.length,
           }));
-        } else {
-          const errorData = await imagesResponse.text();
-          console.error("[ClientStatsGrid] Failed to fetch images:", imagesResponse.status, errorData);
         }
 
-        // TODO: Fetch projects data when API is available
-        // const projectsResponse = await fetch("/api/projects/me");
-        // if (projectsResponse.ok) {
-        //   const projectsData = await projectsResponse.json();
-        //   setStats(prev => ({
-        //     ...prev,
-        //     totalProjects: projectsData.length,
-        //     awaitingProposals: projectsData.filter(p => p.status === 'open').length,
-        //     completed: projectsData.filter(p => p.status === 'completed').length,
-        //   }));
-        // }
+        // Process projects data
+        if (projectsResponse.ok) {
+          const projectsData = await projectsResponse.json();
+          const projects = projectsData.data || [];
+
+          setStats((prev) => ({
+            ...prev,
+            totalProjects: projects.length,
+            awaitingProposals: projects.filter((p: { status: string }) => p.status === "open").length,
+            completed: projects.filter((p: { status: string }) => p.status === "completed").length,
+          }));
+        }
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error("[ClientStatsGrid] Error fetching stats:", error);
       } finally {
         setIsLoading(false);
@@ -92,21 +90,21 @@ export function ClientStatsGrid() {
     },
     {
       title: "Wszystkie projekty",
-      value: stats.totalProjects.toString(),
+      value: isLoading ? "..." : stats.totalProjects.toString(),
       description: "Łączna liczba",
       icon: FolderOpen,
       trend: null,
     },
     {
       title: "Oczekujące na oferty",
-      value: stats.awaitingProposals.toString(),
+      value: isLoading ? "..." : stats.awaitingProposals.toString(),
       description: "Otwarte zlecenia",
       icon: Clock,
       trend: null,
     },
     {
       title: "Ukończone",
-      value: stats.completed.toString(),
+      value: isLoading ? "..." : stats.completed.toString(),
       description: "Zrealizowane projekty",
       icon: CheckCircle2,
       trend: null,

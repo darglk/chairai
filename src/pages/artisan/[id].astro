@@ -1,0 +1,27 @@
+---
+/**
+ * Public Artisan Profile Page
+ *
+ * Displays public artisan profile for viewing by clients.
+ * Shows portfolio, specializations, and reviews.
+ */
+
+import Layout from "@/layouts/Layout.astro";
+import ArtisanPublicProfile from "@/components/profile/ArtisanPublicProfile";
+
+// Get artisan ID from URL params
+const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/market");
+}
+
+// Get authenticated user (optional - can view without login)
+const {
+  data: { user },
+} = await Astro.locals.supabase.auth.getUser();
+---
+
+<Layout title="Profil rzemieślnika - ChairAI">
+  <ArtisanPublicProfile artisanId={id} client:load />
+</Layout>
