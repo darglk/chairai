@@ -22,6 +22,17 @@ export interface ProposalViewModel {
 }
 
 /**
+ * ReviewViewModel - Review data for UI rendering
+ */
+export interface ReviewViewModel {
+  id: string;
+  reviewer_id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+}
+
+/**
  * ProjectDetailsViewModel - Aggregated project data optimized for the details view
  */
 export interface ProjectDetailsViewModel {
@@ -35,6 +46,8 @@ export interface ProjectDetailsViewModel {
   budgetRange: string | null;
   isOwner: boolean;
   hasProposed: boolean;
+  hasReviewed: boolean;
+  reviews: ReviewViewModel[];
   proposals: ProposalViewModel[];
   acceptedProposal: ProposalViewModel | null;
   createdAt: string;

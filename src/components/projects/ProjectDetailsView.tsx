@@ -4,6 +4,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { ProposalsList } from "./ProposalsList.tsx";
 import { ProposalForm } from "./ProposalForm.tsx";
+import { ReviewsList } from "./ReviewsList.tsx";
 import { AcceptedProposal, ChatWidget, ReviewForm, useProjectDetails } from "./details";
 
 interface ProjectDetailsViewProps {
@@ -58,8 +59,9 @@ export default function ProjectDetailsView({ projectId }: ProjectDetailsViewProp
     );
   }
 
-  const { isOwner, hasProposed, acceptedProposal } = project;
+  const { isOwner, hasProposed, hasReviewed, acceptedProposal } = project;
   const dashboardUrl = isOwner ? "/dashboard/client" : "/dashboard/artisan";
+  const reviewerLabel = isOwner ? "Opinia rzemieślnika" : "Opinia klienta";
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
@@ -182,17 +184,30 @@ export default function ProjectDetailsView({ projectId }: ProjectDetailsViewProp
               <AlertDescription>Ten projekt został pomyślnie zakończony.</AlertDescription>
             </Alert>
 
-            <ReviewForm
-              onSubmit={async (data) => {
-                setIsSubmittingReview(true);
-                try {
-                  await submitReview(data);
-                } finally {
-                  setIsSubmittingReview(false);
-                }
-              }}
-              isLoading={isSubmittingReview}
-            />
+            {/* Display existing reviews */}
+            {project.reviews.length > 0 && <ReviewsList reviews={project.reviews} reviewerLabel={reviewerLabel} />}
+
+            {/* Show review form only if user hasn't reviewed yet */}
+            {!hasReviewed ? (
+              <ReviewForm
+                onSubmit={async (data) => {
+                  setIsSubmittingReview(true);
+                  try {
+                    await submitReview(data);
+                    // Refresh to update hasReviewed status
+                    refresh();
+                  } finally {
+                    setIsSubmittingReview(false);
+                  }
+                }}
+                isLoading={isSubmittingReview}
+              />
+            ) : (
+              <Alert>
+                <AlertTitle>Opinia wystawiona</AlertTitle>
+                <AlertDescription>Dziękujemy za wystawienie opinii o tym projekcie.</AlertDescription>
+              </Alert>
+            )}
           </div>
         )}
 

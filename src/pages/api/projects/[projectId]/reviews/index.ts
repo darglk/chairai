@@ -1,19 +1,31 @@
 /**
- * Create Review API Endpoint
+ * Reviews API Endpoint
  *
+ * GET /api/projects/{projectId}/reviews - Get all reviews for a project
  * POST /api/projects/{projectId}/reviews - Create a review for a completed project
  *
  * AUTHENTICATION: Required (Supabase Auth token)
- * AUTHORIZATION: Only project client or assigned artisan can create reviews
+ * AUTHORIZATION: GET - Any authenticated user; POST - Only project client or assigned artisan
  *
  * PATH PARAMETERS:
- * - projectId: string (UUID) - ID of the project to review
+ * - projectId: string (UUID) - ID of the project
  *
- * REQUEST BODY (application/json):
+ * GET SUCCESS RESPONSE (200 OK):
+ * [
+ *   {
+ *     "id": "uuid",
+ *     "reviewer_id": "uuid",
+ *     "rating": 5,
+ *     "comment": "Excellent work!",
+ *     "created_at": "2025-10-22T12:30:45Z"
+ *   }
+ * ]
+ *
+ * POST REQUEST BODY (application/json):
  * - rating: number (1-5) - Rating score (required)
  * - comment: string - Review comment (required, max 1000 chars)
  *
- * SUCCESS RESPONSE (201 Created):
+ * POST SUCCESS RESPONSE (201 Created):
  * {
  *   "id": "uuid",
  *   "project": {
@@ -32,11 +44,11 @@
  * }
  *
  * ERROR RESPONSES:
- * - 400 Bad Request: Invalid input data OR project is not completed
+ * - 400 Bad Request: Invalid input data OR project is not completed (POST only)
  * - 401 Unauthorized: Missing or invalid authentication token
- * - 403 Forbidden: User is not involved in the project
+ * - 403 Forbidden: User is not involved in the project (POST only)
  * - 404 Not Found: Project not found
- * - 409 Conflict: User already submitted a review for this project
+ * - 409 Conflict: User already submitted a review for this project (POST only)
  * - 500 Internal Server Error: Unexpected errors
  */
 
@@ -45,6 +57,50 @@ import { ProjectIdSchema, CreateReviewSchema } from "../../../../../lib/schemas"
 import { ReviewService, ReviewError } from "../../../../../lib/services/review.service";
 import { createErrorResponse, createSuccessResponse } from "../../../../../lib/api-utils";
 import { ZodError } from "zod";
+
+// ============================================================================
+// GET Handler - Get all reviews for a project
+// ============================================================================
+export const GET: APIRoute = async ({ params, locals }) => {
+  try {
+    // STEP 1: Authentication
+    const user = locals.user;
+    if (!user || !user.id) {
+      return createErrorResponse("UNAUTHORIZED", "Wymagane uwierzytelnienie", 401);
+    }
+
+    // STEP 2: Validate projectId
+    const projectIdValidation = ProjectIdSchema.safeParse(params.projectId);
+    if (!projectIdValidation.success) {
+      return createErrorResponse("VALIDATION_ERROR", "Nieprawidłowy format ID projektu", 400);
+    }
+
+    const projectId = projectIdValidation.data;
+
+    // STEP 3: Fetch reviews
+    const { data: reviews, error } = await locals.supabase
+      .from("reviews")
+      .select("id, reviewer_id, rating, comment, created_at")
+      .eq("project_id", projectId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error("[API] Error fetching reviews:", error);
+      return createErrorResponse("INTERNAL_SERVER_ERROR", "Błąd pobierania opinii", 500);
+    }
+
+    return createSuccessResponse(reviews || [], 200);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("[API] Unexpected error in GET /api/projects/{projectId}/reviews:", error);
+    return createErrorResponse("INTERNAL_SERVER_ERROR", "Wystąpił nieoczekiwany błąd", 500);
+  }
+};
+
+// ============================================================================
+// POST Handler - Create a new review
+// ============================================================================
 
 export const POST: APIRoute = async ({ params, request, locals }) => {
   // eslint-disable-next-line no-console

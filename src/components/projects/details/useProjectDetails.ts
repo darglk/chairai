@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
-import type { ProjectDetailsViewModel } from "./types";
+import type { ProjectDetailsViewModel, ReviewViewModel } from "./types";
 import type { ApiErrorDTO, CreateReviewCommand } from "@/types";
 
 interface UseProjectDetailsReturn {
@@ -61,11 +61,11 @@ export function useProjectDetails(projectId: string): UseProjectDetailsReturn {
       const projectData = await projectResponse.json();
       const userData = await userResponse.json();
 
-      // Fetch proposals if project is open or in_progress
+      // Fetch proposals if project is open, in_progress, or completed (for reviews)
       let proposals: ProjectDetailsViewModel["proposals"] = [];
       let hasProposed = false;
 
-      if (projectData.status === "open" || projectData.status === "in_progress") {
+      if (projectData.status === "open" || projectData.status === "in_progress" || projectData.status === "completed") {
         try {
           const proposalsResponse = await fetch(`/api/projects/${projectId}/proposals`);
           if (proposalsResponse.ok) {
@@ -99,6 +99,43 @@ export function useProjectDetails(projectId: string): UseProjectDetailsReturn {
         ? proposals.find((p) => p.id === projectData.accepted_proposal_id) || null
         : null;
 
+      // Fetch reviews for completed projects
+      let hasReviewed = false;
+      let reviews: ReviewViewModel[] = [];
+      if (projectData.status === "completed") {
+        try {
+          const reviewsResponse = await fetch(`/api/projects/${projectId}/reviews`);
+          if (reviewsResponse.ok) {
+            const reviewsData = await reviewsResponse.json();
+            if (Array.isArray(reviewsData)) {
+              // Filter reviews based on user role
+              // - Client sees only artisan's review
+              // - Artisan sees only client's review
+              const clientId = projectData.client_id;
+              const artisanId = acceptedProposal?.artisanId;
+
+              reviews = reviewsData.filter((r: { reviewer_id: string }) => {
+                const isClient = userData.id === clientId;
+                if (isClient) {
+                  // Client sees only artisan's review
+                  return artisanId && r.reviewer_id === artisanId;
+                } else {
+                  // Artisan sees only client's review
+                  return r.reviewer_id === clientId;
+                }
+              });
+
+              // Check if current user has already submitted a review
+              hasReviewed = reviewsData.some((r: { reviewer_id: string }) => r.reviewer_id === userData.id);
+            }
+          }
+        } catch {
+          // If reviews fetch fails, assume not reviewed (show form)
+          hasReviewed = false;
+          reviews = [];
+        }
+      }
+
       // Transform to ViewModel
       const viewModel: ProjectDetailsViewModel = {
         id: projectData.id,
@@ -110,7 +147,9 @@ export function useProjectDetails(projectId: string): UseProjectDetailsReturn {
         dimensions: projectData.dimensions,
         budgetRange: projectData.budget_range,
         isOwner: projectData.client_id === userData.id,
+        reviews,
         hasProposed,
+        hasReviewed,
         proposals,
         acceptedProposal,
         createdAt: projectData.created_at,

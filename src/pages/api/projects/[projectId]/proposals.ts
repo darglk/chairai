@@ -184,10 +184,10 @@ export const GET: APIRoute = async ({ params, locals }) => {
 
     const projectId = projectIdValidation.data;
 
-    // Check if user owns the project
+    // Check if user owns the project or is artisan with accepted proposal
     const { data: project, error: projectError } = await locals.supabase
       .from("projects")
-      .select("id, client_id")
+      .select("id, client_id, status, accepted_proposal_id")
       .eq("id", projectId)
       .single();
 
@@ -195,7 +195,22 @@ export const GET: APIRoute = async ({ params, locals }) => {
       return createErrorResponse("NOT_FOUND", "Projekt nie został znaleziony", 404);
     }
 
-    if (project.client_id !== user.id) {
+    const isOwner = project.client_id === user.id;
+
+    // Check if user is artisan with accepted proposal (for completed/in_progress projects)
+    let isArtisanWithAcceptedProposal = false;
+    if (!isOwner && user.role === "artisan" && project.accepted_proposal_id) {
+      const { data: artisanProposal } = await locals.supabase
+        .from("proposals")
+        .select("id")
+        .eq("id", project.accepted_proposal_id)
+        .eq("artisan_id", user.id)
+        .maybeSingle();
+
+      isArtisanWithAcceptedProposal = !!artisanProposal;
+    }
+
+    if (!isOwner && !isArtisanWithAcceptedProposal) {
       return createErrorResponse("FORBIDDEN", "Nie masz dostępu do ofert tego projektu", 403);
     }
 
