@@ -14,34 +14,38 @@ export const prerender = false;
 
 export const GET: APIRoute = async (context) => {
   try {
-    // Get authenticated user from Supabase
-    const {
-      data: { user },
-      error: authError,
-    } = await context.locals.supabase.auth.getUser();
-
-    if (authError || !user) {
+    // Check if user is authenticated via middleware
+    if (!context.locals.user) {
       return createErrorResponse("UNAUTHORIZED", "Musisz być zalogowany", 401);
     }
 
-    // Get user role from database
-    const { data: userData, error: userError } = await context.locals.supabase
-      .from("users")
-      .select("role")
-      .eq("id", user.id)
-      .single();
+    const user = context.locals.user;
 
-    if (userError || !userData) {
-      return createErrorResponse("USER_NOT_FOUND", "Nie znaleziono użytkownika", 404);
+    // If role is not in locals (shouldn't happen with current middleware), fetch from database
+    let role = context.locals.userRole;
+
+    if (!role) {
+      const { data: userData, error: userError } = await context.locals.supabase
+        .from("users")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      if (userError || !userData) {
+        return createErrorResponse("USER_NOT_FOUND", "Nie znaleziono użytkownika", 404);
+      }
+
+      role = userData.role;
     }
 
     // Return user data with role
     return createSuccessResponse({
       id: user.id,
       email: user.email,
-      role: userData.role,
+      role,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Error in GET /api/users/me:", error);
     return createErrorResponse("INTERNAL_ERROR", "Wystąpił nieoczekiwany błąd serwera", 500);
   }

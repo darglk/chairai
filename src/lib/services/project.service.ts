@@ -291,37 +291,42 @@ export class ProjectService {
     }
 
     // Step 4: Transform to ProjectListItemDTO format
-    const projectListItems = (projects || []).map((project) => {
-      type ProjectWithRelations = typeof project;
-      type GeneratedImageRelation = ProjectWithRelations["generated_image"];
-      type CategoryRelation = ProjectWithRelations["category"];
-      type MaterialRelation = ProjectWithRelations["material"];
+    const projectListItems = (projects || [])
+      .filter((project) => {
+        // Filter out projects without required relations
+        return project.generated_image && project.category && project.material;
+      })
+      .map((project) => {
+        type ProjectWithRelations = typeof project;
+        type GeneratedImageRelation = ProjectWithRelations["generated_image"];
+        type CategoryRelation = ProjectWithRelations["category"];
+        type MaterialRelation = ProjectWithRelations["material"];
 
-      return {
-        id: project.id,
-        client_id: project.client_id,
-        generated_image: {
-          id: (project.generated_image as GeneratedImageRelation & { id: string }).id,
-          image_url: (project.generated_image as GeneratedImageRelation & { image_url: string }).image_url,
-          prompt: (project.generated_image as GeneratedImageRelation & { prompt: string | null }).prompt,
-        },
-        category: {
-          id: (project.category as CategoryRelation & { id: string }).id,
-          name: (project.category as CategoryRelation & { name: string }).name,
-        },
-        material: {
-          id: (project.material as MaterialRelation & { id: string }).id,
-          name: (project.material as MaterialRelation & { name: string }).name,
-        },
-        status: project.status,
-        dimensions: project.dimensions,
-        budget_range: project.budget_range,
-        accepted_proposal_id: project.accepted_proposal_id,
-        accepted_price: project.accepted_price,
-        created_at: project.created_at,
-        updated_at: project.updated_at,
-      };
-    });
+        return {
+          id: project.id,
+          client_id: project.client_id,
+          generated_image: {
+            id: (project.generated_image as GeneratedImageRelation & { id: string }).id,
+            image_url: (project.generated_image as GeneratedImageRelation & { image_url: string }).image_url,
+            prompt: (project.generated_image as GeneratedImageRelation & { prompt: string | null }).prompt,
+          },
+          category: {
+            id: (project.category as CategoryRelation & { id: string }).id,
+            name: (project.category as CategoryRelation & { name: string }).name,
+          },
+          material: {
+            id: (project.material as MaterialRelation & { id: string }).id,
+            name: (project.material as MaterialRelation & { name: string }).name,
+          },
+          status: project.status,
+          dimensions: project.dimensions,
+          budget_range: project.budget_range,
+          accepted_proposal_id: project.accepted_proposal_id,
+          accepted_price: project.accepted_price,
+          created_at: project.created_at,
+          updated_at: project.updated_at,
+        };
+      });
 
     // Step 5: Calculate pagination metadata
     const total = count || 0;
@@ -329,6 +334,133 @@ export class ProjectService {
 
     return {
       data: projectListItems,
+      pagination: {
+        page: queryParams.page,
+        limit: queryParams.limit,
+        total,
+        total_pages: totalPages,
+      },
+    };
+  }
+
+  /**
+   * Lists client's own projects with pagination
+   *
+   * Business rules:
+   * - Only clients can list their own projects
+   * - Returns all projects created by the client
+   * - Results are paginated
+   *
+   * @param queryParams - Query parameters including pagination
+   * @param clientId - ID of the client requesting their projects
+   * @returns Promise containing paginated list of client's projects
+   * @throws ProjectError if user is not a client
+   *
+   * @example
+   * const result = await projectService.listMyProjects({
+   *   page: 1,
+   *   limit: 20
+   * }, clientId);
+   */
+  async listMyProjects(
+    queryParams: {
+      page: number;
+      limit: number;
+    },
+    clientId: string
+  ) {
+    // Step 1: Build query
+    const query = this.supabase
+      .from("projects")
+      .select(
+        `
+        id,
+        client_id,
+        status,
+        dimensions,
+        budget_range,
+        accepted_proposal_id,
+        accepted_price,
+        created_at,
+        updated_at,
+        generated_image:generated_images!projects_generated_image_id_fkey (
+          id,
+          image_url,
+          prompt
+        ),
+        category:categories!projects_category_id_fkey (
+          id,
+          name
+        ),
+        material:materials!projects_material_id_fkey (
+          id,
+          name
+        )
+      `,
+        { count: "exact" }
+      )
+      .eq("client_id", clientId);
+
+    // Calculate pagination
+    const from = (queryParams.page - 1) * queryParams.limit;
+    const to = from + queryParams.limit - 1;
+
+    // Apply pagination and ordering (newest first)
+    const { data: projects, error, count } = await query.order("created_at", { ascending: false }).range(from, to);
+
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error("[ProjectService] Failed to fetch client projects:", error);
+      throw new ProjectError("Nie udało się pobrać listy projektów", "PROJECT_LIST_FAILED", 500);
+    }
+
+    // Step 2: Get proposals count for each project
+    const projectsWithProposals = await Promise.all(
+      (projects || []).map(async (project) => {
+        const { count: proposalsCount } = await this.supabase
+          .from("proposals")
+          .select("*", { count: "exact", head: true })
+          .eq("project_id", project.id);
+
+        type ProjectWithRelations = typeof project;
+        type GeneratedImageRelation = ProjectWithRelations["generated_image"];
+        type CategoryRelation = ProjectWithRelations["category"];
+        type MaterialRelation = ProjectWithRelations["material"];
+
+        return {
+          id: project.id,
+          client_id: project.client_id,
+          generated_image: {
+            id: (project.generated_image as GeneratedImageRelation & { id: string }).id,
+            image_url: (project.generated_image as GeneratedImageRelation & { image_url: string }).image_url,
+            prompt: (project.generated_image as GeneratedImageRelation & { prompt: string | null }).prompt,
+          },
+          category: {
+            id: (project.category as CategoryRelation & { id: string }).id,
+            name: (project.category as CategoryRelation & { name: string }).name,
+          },
+          material: {
+            id: (project.material as MaterialRelation & { id: string }).id,
+            name: (project.material as MaterialRelation & { name: string }).name,
+          },
+          status: project.status,
+          dimensions: project.dimensions,
+          budget_range: project.budget_range,
+          accepted_proposal_id: project.accepted_proposal_id,
+          accepted_price: project.accepted_price,
+          proposals_count: proposalsCount || 0,
+          created_at: project.created_at,
+          updated_at: project.updated_at,
+        };
+      })
+    );
+
+    // Step 3: Calculate pagination metadata
+    const total = count || 0;
+    const totalPages = Math.ceil(total / queryParams.limit);
+
+    return {
+      data: projectsWithProposals,
       pagination: {
         page: queryParams.page,
         limit: queryParams.limit,

@@ -15,7 +15,7 @@ import type { UserRole } from "../types.ts";
  */
 
 // Routes that require authentication
-const PROTECTED_ROUTES = ["/dashboard", "/generate", "/gallery", "/profile"];
+const PROTECTED_ROUTES = ["/dashboard", "/generate", "/gallery", "/profile", "/market", "/projects"];
 
 // Routes that should redirect authenticated users
 const AUTH_ROUTES = ["/login", "/register", "/password-recovery", "/password-reset"];
@@ -80,6 +80,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
             const role = await fetchUserRole(data.user.id);
             if (role) {
               Object.assign(data.user, { role });
+              context.locals.userRole = role;
             }
             // @ts-expect-error - adding role property to User type
             context.locals.user = data.user;
@@ -97,6 +98,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
         const role = await fetchUserRole(user.id);
         if (role) {
           Object.assign(user, { role });
+          context.locals.userRole = role;
         }
         // @ts-expect-error - adding role property to User type
         context.locals.user = user;

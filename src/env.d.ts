@@ -9,6 +9,7 @@ declare global {
     interface Locals {
       supabase: SupabaseClient;
       user: (User & { role?: UserRole }) | null;
+      userRole?: UserRole;
     }
   }
 }

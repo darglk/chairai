@@ -1,0 +1,31 @@
+---
+import Layout from "../layouts/Layout.astro";
+import type { UserRole } from "../types";
+
+export const prerender = false;
+
+// Check authentication and role
+const user = Astro.locals.user;
+const userRole = Astro.locals.userRole as UserRole | undefined;
+
+// Redirect if not authenticated or not an artisan
+if (!user || userRole !== "artisan") {
+  return Astro.redirect("/login");
+}
+---
+
+<Layout title="Rynek Projektów - ChairAI">
+  <div id="marketplace-root"></div>
+</Layout>
+
+<script>
+  import { createRoot } from "react-dom/client";
+  import MarketplaceView from "../components/market/MarketplaceView";
+  import { createElement } from "react";
+
+  const container = document.getElementById("marketplace-root");
+  if (container) {
+    const root = createRoot(container);
+    root.render(createElement(MarketplaceView));
+  }
+</script>

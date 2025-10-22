@@ -132,3 +132,107 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     return createErrorResponse("INTERNAL_SERVER_ERROR", "Wystąpił nieoczekiwany błąd", 500);
   }
 };
+
+/**
+ * Get Proposals API Endpoint
+ *
+ * GET /api/projects/{projectId}/proposals - Get all proposals for a project
+ *
+ * AUTHENTICATION: Required (Supabase Auth token)
+ * AUTHORIZATION: Only project owner can view proposals
+ *
+ * PATH PARAMETERS:
+ * - projectId: string (UUID) - ID of the project
+ *
+ * SUCCESS RESPONSE (200 OK):
+ * [
+ *   {
+ *     "id": "uuid",
+ *     "project_id": "uuid",
+ *     "artisan_id": "uuid",
+ *     "price": 2500,
+ *     "message": "Optional message",
+ *     "attachment_url": "https://...",
+ *     "created_at": "2025-10-21T12:30:45Z",
+ *     "artisan_profile": {
+ *       "company_name": "Firma Stolarstwo",
+ *       "city": "Warszawa",
+ *       "user": {
+ *         "full_name": "Jan Kowalski"
+ *       }
+ *     }
+ *   }
+ * ]
+ *
+ * ERROR RESPONSES:
+ * - 401 Unauthorized: Missing or invalid authentication token
+ * - 403 Forbidden: User is not the project owner
+ * - 404 Not Found: Project not found
+ * - 500 Internal Server Error: Unexpected errors
+ */
+export const GET: APIRoute = async ({ params, locals }) => {
+  try {
+    const user = locals.user;
+    if (!user || !user.id) {
+      return createErrorResponse("UNAUTHORIZED", "Wymagane uwierzytelnienie", 401);
+    }
+
+    const projectIdValidation = ProjectIdSchema.safeParse(params.projectId);
+    if (!projectIdValidation.success) {
+      return createErrorResponse("VALIDATION_ERROR", "Nieprawidłowy format ID projektu", 400);
+    }
+
+    const projectId = projectIdValidation.data;
+
+    // Check if user owns the project
+    const { data: project, error: projectError } = await locals.supabase
+      .from("projects")
+      .select("id, client_id")
+      .eq("id", projectId)
+      .single();
+
+    if (projectError || !project) {
+      return createErrorResponse("NOT_FOUND", "Projekt nie został znaleziony", 404);
+    }
+
+    if (project.client_id !== user.id) {
+      return createErrorResponse("FORBIDDEN", "Nie masz dostępu do ofert tego projektu", 403);
+    }
+
+    // Fetch proposals with artisan details
+    const { data: proposals, error: proposalsError } = await locals.supabase
+      .from("proposals")
+      .select(
+        `
+        id,
+        project_id,
+        artisan_id,
+        price,
+        message,
+        attachment_url,
+        created_at,
+        artisan_profiles!inner (
+          company_name,
+          city,
+          users!inner (
+            full_name
+          )
+        )
+      `
+      )
+      .eq("project_id", projectId)
+      .order("created_at", { ascending: false });
+
+    if (proposalsError) {
+      // eslint-disable-next-line no-console
+      console.error("[API] Error fetching proposals:", proposalsError);
+      return createErrorResponse("INTERNAL_SERVER_ERROR", "Nie udało się pobrać ofert", 500);
+    }
+
+    return createSuccessResponse(proposals || []);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("[API] Unexpected error in GET /api/projects/{projectId}/proposals:", error);
+    return createErrorResponse("INTERNAL_SERVER_ERROR", "Wystąpił nieoczekiwany błąd", 500);
+  }
+};

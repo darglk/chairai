@@ -1,0 +1,36 @@
+---
+/**
+ * Project Details Page
+ * 
+ * Dynamic route for viewing project details.
+ * Access control based on user role and project status.
+ * 
+ * Features:
+ * - View project information
+ * - Submit proposals (artisans)
+ * - View and accept proposals (clients)
+ * - Chat functionality (in progress projects)
+ * - Review forms (completed projects)
+ */
+
+import Layout from "@/layouts/Layout.astro";
+import ProjectDetailsView from "@/components/projects/ProjectDetailsView";
+
+// Get authenticated user
+const user = Astro.locals.user;
+
+// Redirect to login if not authenticated
+if (!user) {
+  return Astro.redirect("/login");
+}
+
+const { projectId } = Astro.params;
+
+if (!projectId) {
+  return Astro.redirect("/dashboard");
+}
+---
+
+<Layout title="Szczegóły projektu - ChairAI">
+  <ProjectDetailsView client:load projectId={projectId} />
+</Layout>

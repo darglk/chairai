@@ -71,8 +71,13 @@ export function LoginForm() {
         return;
       }
 
-      // Successful login - fetch user role and redirect accordingly
-      const userResponse = await fetch("/api/users/me");
+      // Successful login - wait a moment for cookies to be set, then fetch user role
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const userResponse = await fetch("/api/users/me", {
+        credentials: "same-origin", // Ensure cookies are sent
+      });
+
       if (userResponse.ok) {
         const userData = await userResponse.json();
         // Redirect based on role
