@@ -34,7 +34,7 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
 
 - Rejestracja i logowanie dla dwóch typów kont: "Klient" i "Rzemieślnik".
 - Profil Klienta: zawiera historię generowanych obrazów, stworzonych projektów i otrzymanych ocen.
-- Profil Rzemieślnika: wymaga podania danych firmy (weryfikacja NIP w MVP), listy specjalizacji oraz portfolio (minimum 5 zdjęć zrealizowanych prac). Profil jest publiczny.
+- Profil Rzemieślnika: wymaga podania danych firmy (NIP w MVP), listy specjalizacji oraz portfolio (minimum 5 zdjęć zrealizowanych prac). Profil jest publiczny.
 
 ### 3.2. Generator Obrazów AI
 
@@ -74,7 +74,6 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
 - Komunikacja za pośrednictwem zewnętrznego API czatu.
 - Dwustronny system ocen po zakończeniu projektu.
 - Zapisywanie historii promptów, obrazów i zaakceptowanych wycen.
-- Podstawowa weryfikacja rzemieślników (NIP).
 
 ### Funkcjonalności wykluczone z wersji MVP:
 

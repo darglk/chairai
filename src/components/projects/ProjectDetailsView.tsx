@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,15 @@ interface ProjectDetailsViewProps {
 export default function ProjectDetailsView({ projectId }: ProjectDetailsViewProps) {
   const { project, isLoading, error, refresh, submitReview, completeProject } = useProjectDetails(projectId);
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // Fetch current user ID
+  useEffect(() => {
+    fetch("/api/users/me")
+      .then((res) => res.json())
+      .then((data) => setCurrentUserId(data.id))
+      .catch(() => setCurrentUserId(null));
+  }, []);
 
   // Loading state
   if (isLoading) {
@@ -146,7 +155,9 @@ export default function ProjectDetailsView({ projectId }: ProjectDetailsViewProp
         {project.status === "in_progress" && (
           <div className="space-y-6">
             {acceptedProposal && <AcceptedProposal proposal={acceptedProposal} />}
-            <ChatWidget projectId={projectId} messages={[]} />
+            {acceptedProposal && currentUserId && (
+              <ChatWidget projectId={projectId} artisanId={acceptedProposal.artisanId} currentUserId={currentUserId} />
+            )}
 
             {/* Mark as completed button - only for project owner */}
             {isOwner && (
