@@ -82,6 +82,7 @@ describe("Unit: PUT /api/artisans/me", () => {
       const validBody = {
         company_name: "Master Woodworks",
         nip: "1234567890",
+        is_public: false,
       };
 
       const context = createMockContext(validBody);
@@ -102,6 +103,7 @@ describe("Unit: PUT /api/artisans/me", () => {
       const updateBody = {
         company_name: "Updated Woodworks",
         nip: "1234567890",
+        is_public: false,
       };
 
       const context = createMockContext(updateBody);
@@ -268,6 +270,7 @@ describe("Unit: PUT /api/artisans/me", () => {
       const validBody = {
         company_name: "Master Woodworks",
         nip: "1234567890",
+        is_public: false,
       };
 
       const context = createMockContext(validBody);
@@ -312,8 +315,9 @@ describe("Unit: PUT /api/artisans/me", () => {
   describe("Błędy bazy danych", () => {
     it("powinien zwrócić 500 gdy wystąpi błąd bazy danych", async () => {
       const validBody = {
-        company_name: "Master Woodworks",
+        company_name: "Test Woodworks",
         nip: "1234567890",
+        is_public: false,
       };
 
       const context = createMockContext(validBody);

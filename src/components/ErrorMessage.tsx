@@ -1,8 +1,8 @@
 import React from "react";
-import type { ErrorMessage } from "./hooks/useImageGenerator";
+import type { ErrorMessage as ErrorMessageType } from "./hooks/useImageGenerator";
 
 interface ErrorMessageProps {
-  error: ErrorMessage;
+  error: ErrorMessageType;
   onClose: () => void;
 }
 

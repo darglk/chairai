@@ -954,6 +954,10 @@ describe("Unit: ProjectService", () => {
             data: closedProject,
             error: null,
           }),
+          maybeSingle: vi.fn().mockResolvedValue({
+            data: null,
+            error: null,
+          }),
         });
 
         await expect(service.getProjectDetails(mockProjectId, mockArtisanId, "artisan")).rejects.toThrow(ProjectError);

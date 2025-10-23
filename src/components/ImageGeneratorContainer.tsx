@@ -12,7 +12,7 @@ interface ImageGeneratorContainerProps {
 }
 
 const ImageGeneratorContainer: React.FC<ImageGeneratorContainerProps> = () => {
-  const { state, generateImage, saveImage, clearError, reset } = useImageGenerator();
+  const { state, generateImage, clearError, reset } = useImageGenerator();
 
   const [prompt, setPrompt] = useState("");
 
@@ -21,16 +21,9 @@ const ImageGeneratorContainer: React.FC<ImageGeneratorContainerProps> = () => {
     setPrompt("");
   }, [prompt, generateImage]);
 
-  const handleSaveImage = useCallback(async () => {
-    if (state.generatedImage) {
-      await saveImage(state.generatedImage.id);
-    }
-  }, [state.generatedImage, saveImage]);
-
   const handleUseInProject = useCallback(() => {
     if (state.generatedImage) {
-      localStorage.setItem("selectedGeneratedImageId", state.generatedImage.id);
-      window.location.href = "/project/create";
+      window.location.href = `/projects/new/${state.generatedImage.id}`;
     }
   }, [state.generatedImage]);
 
@@ -72,11 +65,7 @@ const ImageGeneratorContainer: React.FC<ImageGeneratorContainerProps> = () => {
 
       {state.generatedImage && (
         <div className="space-y-4">
-          <GeneratedImageDisplay
-            image={state.generatedImage}
-            onSave={handleSaveImage}
-            onUseInProject={handleUseInProject}
-          />
+          <GeneratedImageDisplay image={state.generatedImage} onUseInProject={handleUseInProject} />
 
           <div className="flex gap-3">
             <button

@@ -230,7 +230,7 @@ describe("ReviewService - createReview()", () => {
         comment: mockData.dto.comment,
         reviewer: {
           id: clientId,
-          email: "client@example.com",
+          name: "Użytkownik",
         },
       });
     });
@@ -338,7 +338,7 @@ describe("ReviewService - createReview()", () => {
         comment: "Great communication",
         reviewer: {
           id: artisanId,
-          email: "artisan@example.com",
+          name: "Użytkownik",
         },
       });
     });

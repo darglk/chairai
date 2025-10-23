@@ -70,11 +70,9 @@ test.describe("Image Generator View - Full Flow", () => {
     await imageElement.waitFor({ timeout: 60000 });
     await expect(imageElement).toBeVisible();
 
-    // Check for save and use buttons
-    const saveButton = page.locator("button:has-text('Zapisz do galerii')");
+    // Check for use button
     const useButton = page.locator("button:has-text('Użyj w projekcie')");
 
-    await expect(saveButton).toBeVisible();
     await expect(useButton).toBeVisible();
   });
 
@@ -98,28 +96,6 @@ test.describe("Image Generator View - Full Flow", () => {
     await expect(page.locator("text=1/10")).toBeVisible();
   });
 
-  test("should save generated image", async ({ page }) => {
-    const textarea = page.locator("textarea");
-    const generateButton = page.locator("button:has-text('Generuj obraz AI')");
-
-    // Generate image
-    await textarea.fill("A modern minimalist desk with drawer storage");
-    await generateButton.click();
-
-    // Wait for image
-    await page.locator("img[alt*='Wygenerowany obraz']").waitFor({
-      timeout: 60000,
-    });
-
-    // Click save button
-    const saveButton = page.locator("button:has-text('Zapisz do galerii')");
-    await saveButton.click();
-
-    // Check for success feedback (this might be a toast or message)
-    // Adjust based on actual implementation
-    await expect(page.locator("text=Zapisz")).toBeVisible();
-  });
-
   test("should use image in project", async ({ page }) => {
     const textarea = page.locator("textarea");
     const generateButton = page.locator("button:has-text('Generuj obraz AI')");
@@ -137,13 +113,9 @@ test.describe("Image Generator View - Full Flow", () => {
     const useButton = page.locator("button:has-text('Użyj w projekcie')");
     await useButton.click();
 
-    // Should redirect to project creation page
-    await page.waitForNavigation();
-    await expect(page).toHaveURL("/project/create");
-
-    // Check that localStorage has the image ID set
-    const imageId = await page.evaluate(() => localStorage.getItem("selectedGeneratedImageId"));
-    expect(imageId).toBeTruthy();
+    // Should redirect to project creation page with image ID
+    await page.waitForURL(/\/projects\/new\/.+/);
+    await expect(page).toHaveURL(/\/projects\/new\/.+/);
   });
 
   test("should display error on invalid prompt", async ({ page }) => {

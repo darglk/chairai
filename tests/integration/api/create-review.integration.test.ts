@@ -483,7 +483,7 @@ describe("Integration: POST /api/projects/{projectId}/reviews", () => {
       expect(json.rating).toBe(5);
       expect(json.comment).toBe("Excellent craftsmanship!");
       expect(json.reviewer.id).toBe(mockUser.id);
-      expect(json.reviewer.email).toBe("client@example.com");
+      expect(json.reviewer.name).toBe("Użytkownik");
     });
 
     it("powinien utworzyć recenzję dla rzemieślnika i zwrócić 201", async () => {
@@ -608,7 +608,7 @@ describe("Integration: POST /api/projects/{projectId}/reviews", () => {
       expect(json.rating).toBe(4);
       expect(json.comment).toBe("Great communication!");
       expect(json.reviewer.id).toBe(mockUser.id);
-      expect(json.reviewer.email).toBe("artisan@example.com");
+      expect(json.reviewer.name).toBe("Użytkownik");
     });
   });
 });
