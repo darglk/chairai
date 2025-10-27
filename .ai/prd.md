@@ -123,7 +123,7 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
   - Na moim pulpicie widzę pole do wpisania promptu.
   - Po kliknięciu "Generuj" obraz pojawia się na ekranie.
   - System śledzi liczbę dokonanych generacji i nie pozwala przekroczyć 10.
-  - Mogę zapisać wygenerowany obraz w mojej prywatnej galerii.
+  - Obraz jest zapisany w mojej prywatnej galerii.
 
 - ID: US-005
 - Tytuł: Tworzenie projektu na podstawie obrazu
@@ -167,7 +167,7 @@ Za pomocą generatora obrazów AI (tekst → obraz), użytkownicy mogą tworzyć
   - Formularz rejestracji wymaga podania danych firmy (w tym NIP).
   - W panelu profilu mogę dodać listę moich specjalizacji (np. stoły, szafy, kuchnie).
   - Mogę wgrać minimum 5 zdjęć moich poprzednich prac do portfolio.
-  - Profil nie będzie publiczny, dopóki nie uzupełnię wszystkich wymaganych pól.
+  - Mogę ustawić profil jako prywatny lub publiczny.
 
 - ID: US-010
 - Tytuł: Przeglądanie rynku projektów
