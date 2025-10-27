@@ -17,6 +17,7 @@ if (!id) {
 }
 
 // Get authenticated user (optional - can view without login)
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const {
   data: { user },
 } = await Astro.locals.supabase.auth.getUser();

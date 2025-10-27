@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { ProjectService, ProjectError } from "@/lib/services/project.service";
+import { ProjectService } from "@/lib/services/project.service";
 import type { SupabaseClient } from "@/db/supabase.client";
 import type { ProjectStatus } from "@/types";
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { useImageGenerator, type GeneratorViewState, type ErrorMessage } from "@/components/hooks/useImageGenerator";
+import { useImageGenerator } from "@/components/hooks/useImageGenerator";
 
 describe("useImageGenerator", () => {
   beforeEach(() => {
@@ -58,7 +58,7 @@ describe("useImageGenerator", () => {
     });
 
     it("should return error when remaining generations is 0", async () => {
-      const { result } = renderHook(() => useImageGenerator());
+      renderHook(() => useImageGenerator());
 
       // Set remaining generations to 0
       await act(async () => {

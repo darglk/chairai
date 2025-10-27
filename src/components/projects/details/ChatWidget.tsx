@@ -99,7 +99,6 @@ export function ChatWidget({ projectId, artisanId, currentUserId }: ChatWidgetPr
         client.disconnectUser();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, artisanId, currentUserId]);
 
   // Load messages and subscribe to new ones
